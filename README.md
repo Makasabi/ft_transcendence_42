@@ -2,5 +2,6 @@
 An online multiplayer pong game.
 
 ## Technologies
-
+webGL
+Javascript
 ## Project architecture
