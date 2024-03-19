@@ -17,8 +17,7 @@ python3 -m venv venv
 | Windows | cmd.exe | `C:\> venv\Scripts\activate.bat` |
 | Windows | PowerShell | `PS C:\> venv\Scripts\Activate.ps1` |
 ```bash
-pip install --upgrade pip
-pip install -r requirements.txt
+make update_venv
 ```
 
 Create a .env file in the root directory based on the .envsample file and fill in the required information.
