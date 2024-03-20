@@ -16,8 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from . import SPA_view
 
 urlpatterns = [
 	path('admin/', admin.site.urls),
-	path('front/', include('front.urls')),
+	path('api/user_management/', include('user_management.urls')),
+	path('api/auth/', include('authentification.urls')),
+	path('', SPA_view.SPAView.as_view(), name='base'),
+	path('<path:test>', SPA_view.SPAView.as_view(), name='base'),
 ]
