@@ -10,7 +10,7 @@
 	color: #7b74ff !important;
 }
 
-.header_wrapper {
+header {
 	margin: 1em 1em;
 	padding: 1em 1em;
 	position: sticky;
@@ -22,14 +22,14 @@
 	z-index: 1;
 }
 
-header {
+.site_name {
 	display: flex;
 	align-items: center;
 	display: flex;
 	justify-content: space-around;
 }
 
-header img {
+.site_name img {
 	width: 40px;
 	height: 40px;
 }
