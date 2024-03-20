@@ -25,6 +25,13 @@
 header {
 	display: flex;
 	align-items: center;
+	display: flex;
+	justify-content: space-around;
+}
+
+header img {
+	width: 40px;
+	height: 40px;
 }
 
 h1.linear_gradient {
