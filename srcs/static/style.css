@@ -22,6 +22,12 @@ header {
 	z-index: 1;
 }
 
+header a{
+	text-decoration: none;
+	/* cursor: pointer; */
+	cursor: url('png/luffy_small.png'), auto;
+}
+
 .site_name {
 	display: flex;
 	align-items: center;
@@ -142,6 +148,12 @@ form button {
 	font-weight: 700;
 	color: white;
 	border: none;	
+}
+
+.profile {
+	margin: 5vh 10vw ;
+	align-self: center;
+	display: grid;
 }
 
 footer {
