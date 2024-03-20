@@ -25,7 +25,7 @@ header {
 header a{
 	text-decoration: none;
 	/* cursor: pointer; */
-	cursor: url('png/luffy_small.png'), auto;
+	cursor: url('/front/ressources/img/png/luffy_small.png'), auto;
 }
 
 .site_name {
@@ -77,11 +77,11 @@ nav a {
 	display: block;
 	text-align: left;
   }
-  
+
   .dropdown-content a:hover {
 	background-color: #7b74ff;
   }
-  
+
   .dropdown:hover .dropdown-content {
 	  display: block;
 	}
@@ -101,7 +101,7 @@ nav a {
 	border-radius: 10px;
 	font-weight: 700;
 	color: #dedede;
-	border: #dedede 1px solid;	
+	border: #dedede 1px solid;
 }
 
 
@@ -115,9 +115,9 @@ nav a {
 
 
 .sign_up h1 {
-	font-size: 50px; 
-	font-weight: 700; 
-	text-align: center; 
+	font-size: 50px;
+	font-weight: 700;
+	text-align: center;
 	color:#7b74ff;
 }
 
@@ -151,7 +151,7 @@ form input {
 	margin: 1vh;
 	padding: 1vh;
 	border-radius: 10px;
-	border: 1px solid #dedede;	
+	border: 1px solid #dedede;
 }
 
 form input::selection{
@@ -166,7 +166,7 @@ form button {
 	background-color: #7b74ff;
 	font-weight: 700;
 	color: white;
-	border: none;	
+	border: none;
 }
 
 .profile {

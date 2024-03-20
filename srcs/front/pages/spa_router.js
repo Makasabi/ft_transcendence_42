@@ -1,79 +1,78 @@
+import { footer, header_in, home } from "/front/pages/home/home.js";
+import { header_out, login, signup } from "/front/pages/login/login.js";
+import { me } from "/front/pages/user_mgt/user_mgt.js";
 
-let is_logged = false;
+let change_header = true;
 
-
-
-	/*** rendering functions ***/
-async function footer()
-{
-	document.querySelector("footer").innerHTML = await fetch("/static/footer.html").then(response => response.text());
-}
-
-async function header()
-{
-	document.querySelector("header").innerHTML = await fetch("/static/header.html").then(response => response.text());
-}
-
-async function signup()
-{
-	document.querySelector("main").innerHTML = await fetch("/static/signup.html").then(response => response.text());
-}
-
-async function login()
-{
-	document.querySelector("main").innerHTML = await fetch("/static/login.html").then(response => response.text());
-}
-
-async function home()
-{
-	document.querySelector("main").innerHTML = await fetch("/static/home.html").then(response => response.text());
-
-}
-
-	/*** Utilities ***/
+/*** Utilities ***/
 function route(path) {
 	window.history.pushState({}, "", path);
 	handleLocation();
-};
+}
 
 function is_log() {
-	if (!is_logged)
-		route("/login");
-	else
-		route("/home");
+	return document.cookie.includes("token");
 }
-async function handleLocation() {
+
+function logout() {
+	document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+	change_header = true;
+	route("/login");
+}
+
+function update_header() {
+	if (change_header)
+	{
+		(is_log() ? header_in() : header_out()).then(html => {
+			document.querySelector("header").innerHTML = html;
+		});
+		change_header = false;
+	}
+}
+
+function handleLocation() {
+	update_header();
+
+	// Change main content
 	const routes = [
 		{path : "/login", view : login},
 		{path : "/signup", view : signup},
 		{path : "/home", view : home},
+		{path : "/me", view : me},
 	];
 
-	const path = window.location.pathname;
-	let match = {path : "/home", view : home};
-
-	if (path === '/test')
+	// Find the route that matches the current location
+	const match = routes.filter(route => route.path === window.location.pathname);
+	if (match.length > 1)
 	{
-		document.querySelector("main").innerHTML = `<h1> FDP </h1>`;
-		return ;
+		console.warn("Multiple routes match the same path");
+		return;
 	}
-	routes.forEach(route => {
-		if (route.path === path)
-			match = route;
-	})
-	match.view();
-};
+	if (match.length > 0)
+	{
+		match[0].view().then(html => {
+			document.querySelector("main").innerHTML = html;
+		});
+		return;
+	}
+	// If no route matches the current location, redirect to the home page
+	if (is_log())
+		route("/home");
+	else
+		route("/login");
+}
 
-is_log();
-
-	/*** Events ***/
+/*** Events ***/
 document.addEventListener("DOMContentLoaded", function () {
-	footer();
-	header();
-
 	window.onpopstate = function(event) {
 		handleLocation();
 	};
+
+	footer().then(html => {
+		document.querySelector("footer").innerHTML = html;
+	});
+
+	handleLocation();
 });
 
 document.querySelector("main").addEventListener("click", async (e) => {
@@ -86,8 +85,8 @@ document.querySelector("main").addEventListener("click", async (e) => {
 		const password = form.elements.login_password.value;
 
 		await fetch('api/auth/login/', {
-				method: 'POST',	
-				headers: { 
+				method: 'POST',
+				headers: {
 					'Content-type' : 'application/json',
 				},
 				body: JSON.stringify({ 'username' : username , 'password' : password })
@@ -106,9 +105,10 @@ document.querySelector("main").addEventListener("click", async (e) => {
 			.then(data => {
 				if (data == null)
 					return;
-				is_logged = true;
+				console.log("token: ", data.token);
+				document.cookie = `token=${data.token}`;
+				change_header = true;
 				route("/home");
-				console.log(data.token);
 			});
 	}
 	else if (e.target.matches("[data-route]"))
@@ -120,12 +120,12 @@ document.querySelector("main").addEventListener("click", async (e) => {
 	{
 		e.preventDefault();
 		console.log('register');
-	
+
 		const form = document.getElementById("signup-form");
 		const username = form.elements.signup_username.value;
 		const password = form.elements.signup_password.value;
 		const email = form.elements.signup_email.value;
-	
+
 		await fetch('api/auth/signup/', {
 				method: 'POST',
 				headers: { 'Content-type' : 'application/json' },
@@ -152,3 +152,6 @@ document.querySelector("main").addEventListener("click", async (e) => {
 			});
 	}
 });
+
+document.route = route;
+document.logout = logout;
