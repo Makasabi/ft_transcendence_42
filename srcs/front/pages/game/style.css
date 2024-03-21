@@ -1,0 +1,32 @@
+canvas {
+	padding-left: 0;
+	padding-right: 0;
+	margin-top: 1vh;
+	margin-left: 5%;
+	margin-right: 5%;
+	display: block;
+	width: 90%;
+	border: 1px solid black;
+	background-color: white;
+}
+
+#rotate {
+	display: flex;
+}
+
+#reset_rotation {
+	margin: auto;
+	margin-left : 2%;
+}
+
+@media (orientation: portrait) and (max-width: 600px) {
+	h1 {
+		display: none;
+	}
+
+	canvas {
+		width: 100%;
+		height: 100%;
+		margin: 0;
+	}
+}

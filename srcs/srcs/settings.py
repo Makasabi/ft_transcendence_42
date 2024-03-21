@@ -38,9 +38,10 @@ INSTALLED_APPS = [
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
-    'authentification',
-    'rest_framework.authtoken',
+	'authentification',
+	'rest_framework.authtoken',
 	'user_management',
+	'game',
 ]
 
 MIDDLEWARE = [
@@ -122,6 +123,7 @@ USE_TZ = True
 STATIC_URL = 'front/'
 STATICFILES_DIRS = [
 	BASE_DIR / "front",
+	BASE_DIR / "node_modules",
 ]
 
 # Default primary key field type

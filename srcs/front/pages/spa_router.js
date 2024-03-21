@@ -1,6 +1,7 @@
 import { footer, header_in, home } from "/front/pages/home/home.js";
 import { header_out, login, signup } from "/front/pages/login/login.js";
 import { me } from "/front/pages/user_mgt/user_mgt.js";
+import { game } from "/front/pages/game/game.js";
 
 let change_header = true;
 
@@ -39,6 +40,7 @@ function handleLocation() {
 		{path : "/signup", view : signup},
 		{path : "/home", view : home},
 		{path : "/me", view : me},
+		{path : "/game", view : game},
 	];
 
 	// Find the route that matches the current location
@@ -51,7 +53,8 @@ function handleLocation() {
 	if (match.length > 0)
 	{
 		match[0].view().then(html => {
-			document.querySelector("main").innerHTML = html;
+			if (html != null)
+				document.querySelector("main").innerHTML = html;
 		});
 		return;
 	}
