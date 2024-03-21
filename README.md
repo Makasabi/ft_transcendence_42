@@ -27,6 +27,11 @@ Migrate the database using the following command:
 make migrate
 ```
 
+Install NPM dependencies using the following command:
+```bash
+cd srcs; npm install
+```
+
 You are now ready to run the project.
 
 ## Running the project
