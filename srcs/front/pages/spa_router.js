@@ -19,7 +19,6 @@ async function handleLocation() {
 		{path : "/home", view : home},
 		{path : "/me", view : me},
 	];
-
 	try 
 	{
 		const log = await Login.is_logged();
@@ -56,28 +55,6 @@ function update_header()
 		document.querySelector("header").innerHTML = html;
 	});
 }
-
-	/*** Cookies ***/
-export function setCookie(name, value, days)
-{
-    const expires = new Date();
-    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
-}
-
-export function getCookie(name)
-{
-    const cookies = document.cookie.split(';');
-    const cookie = cookies.find(cookie => cookie.trim().startsWith(name + '='));
-	//console.log("token : ", cookie ? cookie.split('=')[1] : null);
-    return cookie ? cookie.split('=')[1] : null;
-}
-
-export function deleteCookie(name)
-{
-    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-}
-
 
 	/*** Events ***/
 document.addEventListener("DOMContentLoaded", function () {

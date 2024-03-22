@@ -169,6 +169,17 @@ form button {
 	border: none;
 }
 
+#google-auth-btn {
+	color: black;
+	background-color: white;
+	white-space: nowrap;
+}
+
+#google-auth-btn span {
+	background-color: white;
+	margin-right: -0.3em;
+}
+
 .profile {
 	margin: 5vh 10vw ;
 	align-self: center;
