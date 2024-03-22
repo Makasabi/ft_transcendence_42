@@ -180,6 +180,16 @@ form button {
 	margin-right: -0.3em;
 }
 
+#forty2-auth-btn {
+	color: white;
+	background-color: #12141a;
+}
+
+#forty2-auth-btn span {
+	color: #18b9bb;
+	background-color: #12141a;
+}
+
 .profile {
 	margin: 5vh 10vw ;
 	align-self: center;

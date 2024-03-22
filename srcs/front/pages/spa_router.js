@@ -77,6 +77,9 @@ document.querySelector("main").addEventListener("click", async (e) => {
 		case "submit-signup":
 			Login.signup_event(e);
 			break;
+		case "forty2-auth-btn":
+			Login.forty_login_event(e);
+			break;
 		case "not-registered":
 			e.preventDefault();
 			route(e.target.href);

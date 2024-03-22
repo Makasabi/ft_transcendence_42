@@ -148,3 +148,12 @@ export async function signup_event(e)
 			console.error(error);
 		});
 }
+
+export async function forty_login_event(e)
+{
+	// retreive id from somewere else like backend
+	const uid = "u-s4t2ud-778802c450d2090b49c6c92d251ff3d1fbb51b03a9284f8f43f5df0af1dae8fa";
+	const redirUri = 'http://localhost:8000';
+	const authURL = `https://api.intra.42.fr/oauth/authorize?client_id=${uid}&redirect_uri=${redirUri}&response_type=code`;
+	window.location.href = authURL;
+}
