@@ -1,12 +1,12 @@
 import { footer, header_in, home } from "/front/pages/home/home.js";
-import { header_out, login, signup } from "/front/pages/login/login.js";
+import { header_out, login, signup, login_event, signup_event } from "/front/pages/login/login.js";
 import { me } from "/front/pages/user_mgt/user_mgt.js";
 import { game } from "/front/pages/game/game.js";
 
 let change_header = true;
 
 /*** Utilities ***/
-function route(path) {
+export function route(path) {
 	window.history.pushState({}, "", path);
 	handleLocation();
 }
@@ -78,81 +78,19 @@ document.addEventListener("DOMContentLoaded", function () {
 	handleLocation();
 });
 
+
 document.querySelector("main").addEventListener("click", async (e) => {
-	if (e.target.id === "submit-login")
-	{
-		e.preventDefault();
-		console.log("login");
-		const form = document.getElementById("login-form");
-		const username = form.elements.login_username.value;
-		const password = form.elements.login_password.value;
-
-		await fetch('api/auth/login/', {
-				method: 'POST',
-				headers: {
-					'Content-type' : 'application/json',
-				},
-				body: JSON.stringify({ 'username' : username , 'password' : password })
-			})
-			.then(response => {
-				if (response.ok)
-					return (response.json());
-				else
-				{
-					console.log("Error from server");
-					console.log(response.json());
-					return (response.json());
-				}
-
-			})
-			.then(data => {
-				if (data == null)
-					return;
-				console.log("token: ", data.token);
-				document.cookie = `token=${data.token}`;
-				change_header = true;
-				route("/home");
-			});
-	}
-	else if (e.target.matches("[data-route]"))
-	{
-		e.preventDefault();
-		route(e.target.href);
-	}
-	else if (e.target.id === "submit-signup")
-	{
-		e.preventDefault();
-		console.log('register');
-
-		const form = document.getElementById("signup-form");
-		const username = form.elements.signup_username.value;
-		const password = form.elements.signup_password.value;
-		const email = form.elements.signup_email.value;
-
-		await fetch('api/auth/signup/', {
-				method: 'POST',
-				headers: { 'Content-type' : 'application/json' },
-				body: JSON.stringify({ 'username' : username , 'password' : password , 'email' : email})
-			})
-			.then(response => {
-				if (response.ok)
-					return (response.json());
-				else
-				{
-					console.log(response.json());
-					return (null);
-				}
-			})
-			.then(data => {
-				if (!data)
-					return ;
-				else
-				{
-					route("/login");
-					console.log(data);
-					console.log("Registration successfull");
-				}
-			});
+	switch (e.target.id) {
+		case "submit-login":
+			change_header = login_event(e);
+			break;
+		case "submit-signup":
+			signup_event(e);
+			break;
+		case "not-registered":
+			e.preventDefault();
+			route(e.target.href);
+			break;
 	}
 });
 
