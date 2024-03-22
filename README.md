@@ -27,6 +27,11 @@ Migrate the database using the following command:
 make migrate
 ```
 
+To create a fake database, for testing purposes, you can run the following command:
+```bash
+make fill_db
+```
+
 You are now ready to run the project.
 
 ## Running the project
