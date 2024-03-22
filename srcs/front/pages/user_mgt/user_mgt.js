@@ -5,6 +5,7 @@ export async function me()
 
 	html = html.replace("{{username}}", user.username);
 	html = html.replace("{{email}}", user.email);
+	html = html.replace("{{rank}}", 8);
 
 	return html;
 }
