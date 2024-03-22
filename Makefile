@@ -5,8 +5,11 @@ run:
 	venv/bin/python3 srcs/manage.py runserver
 
 init:
-	make create_venv
-	make create_env
+	-make create_venv
+	-make create_env
+	-make migrate
+	-make fill_db
+	-cd srcs && npm install
 
 create_venv:
 	@if [ -d "venv" ]; then echo "\033[93mVirtual environment already exists. If you want to recreate it, please delete the venv folder first.\033[0m"; exit 1; fi
@@ -20,7 +23,7 @@ update_venv:
 
 create_env:
 	@if [ -e ".env" ]; then echo "\033[93m.env file already exists. If you want to recreate it, please delete the .env file first.\033[0m"; exit 1; fi
-	@echo > .env "$(make create_key)"
+	@echo > .env "DJANGO_SECRET_KEY=$(shell venv/bin/python3 srcs/manage.py shell -c 'from django.core.management import utils; print(utils.get_random_secret_key())')"
 
 migrate:
 	@if [ ! -d "venv" ]; then echo "\033[93mPlease create a virtual environment first. Check the README.md for some help ;)\033[0m"; exit 1; fi
