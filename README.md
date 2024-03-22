@@ -11,6 +11,7 @@ make init
 
 Or you can do it manually by following the instructions below.
 
+### Manual setup
 Then you can create a virtual environment and install the dependencies using the following commands:
 ```bash
 python3 -m venv venv
