@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'authentification',
 	'user_management',
+	'game_management',
 ]
 
 MIDDLEWARE = [

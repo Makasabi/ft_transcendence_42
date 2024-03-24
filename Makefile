@@ -36,3 +36,7 @@ create_key:
 fill_db: migrate
 	@if [ ! -d "venv" ]; then echo "\033[93mPlease create a virtual environment first. Check the README.md for some help ;)\033[0m"; exit 1; fi
 	@venv/bin/python3 srcs/tmp_db/fill_db_users.py srcs/tmp_db/db_users.csv
+	@venv/bin/python3 srcs/tmp_db/fill_db_game.py
+
+clear_db:
+	@venv/bin/python3 srcs/tmp_db/clear_db.py
