@@ -72,8 +72,8 @@
 	backdrop-filter: blur(4px);
 	background-color: rgba(31, 31, 31, 0.4);
 
-	overflow-wrap: break-word;
-	word-break: break-all;
+	/* overflow-wrap: break-word; */
+	/* word-break: break-all; */
 	inline-size: 40vw;
 }
 
@@ -87,12 +87,15 @@
 	border: rgba(222, 222, 222, 0.05) 1px solid;
 	backdrop-filter: blur(4px);
 	background-color: rgba(31, 31, 31, 0.4);
+	overflow-wrap: anywhere;
 	padding: 2vh;
 }
 
 .history_table {
 	height: 80%;
 	overflow-y: scroll;
+	overflow-wrap: anywhere;
+	/* word-break: break-all; */
 }
 
 .history_table::-webkit-scrollbar {

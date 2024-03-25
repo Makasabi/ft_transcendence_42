@@ -15,23 +15,34 @@ django.setup()
 
 # from django.contrib.auth.models import CustomUser
 from user_management.models import CustomUser
-from game_management.models import Game, GameScore
+from game_management.models import Game, Play
 from django.utils import timezone
 
 def create_game(users):
 	# Create a new game with the current date and time
-	game = Game.objects.create(date=timezone.now())
+	mode = random.choice(['Normal', 'Tournament'])
+	visibility = random.choice(['public', 'private'])
+	game = Game.objects.create(date=timezone.now(), mode=mode, visibility=visibility)
 	users_list = list(users)
 	random.shuffle(users_list)
 	num_players = random.randint(2, 6)
 	unique_scores = random.sample(range(0, 6), num_players)
 
-	# Create GameScore instances for each user in the game with random scores
+
+	# Create Play instances for each user in the game with random scores
 	for user, score in zip(users_list[:num_players], unique_scores):
 		print(f"Creating fake score for user {user.username}...")
-		game_score = GameScore.objects.create(score=score, game=game)
+		game_score = Play.objects.create(score=score, game=game)
 		game_score.users.add(user)  # Add the user to the game score
-	
+		#add score to user's global score
+		if game.visibility == 'public':
+			user.global_score += game_score.score
+		user.save()
+		# print(f"global_score: {user.global_score}")
+
+	# print(f"Game mode: {game.mode}")
+	# print(f"Game visibility: {game.visibility}")
+	# game.save()
 	return game
 
 if __name__ == "__main__":
@@ -44,4 +55,4 @@ if __name__ == "__main__":
 	print(f"Creating {num_games} fake games...")
 	for _ in range(num_games):
 		game = create_game(users)
-		print(f"Fake game with {game.gamescore_set.count()} scores created successfully")  # Accessing the GameScore instances using the related name 'gamescore_set'
+		print(f"Fake game with {game.play_set.count()} scores created successfully")  # Accessing the Play instances using the related name 'gamescore_set'
