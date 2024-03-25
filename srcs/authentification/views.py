@@ -1,5 +1,5 @@
+from django.http import HttpResponse
 from user_management.models import CustomUser
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -18,15 +18,21 @@ def login(request):
 	except CustomUser.DoesNotExist:
 		return Response({ "error" : "User does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['POST'])
 def signup(request):
-    serializer = UserSerializer(data=request.data)
-    if not (serializer.is_valid()):
-        return Response({"error" : serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-    serializer.save()
-    user = CustomUser.objects.get(username=request.data["username"])
-    token = Token.objects.create(user=user)
-    return Response({"token" : token.key, "user" : serializer.data}, status=status.HTTP_201_CREATED)
+	serializer = UserSerializer(data=request.data)
+	if not (serializer.is_valid()):
+		return Response({"error" : serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+	users = serializer.save()
+	if users:
+		token = Token.objects.create(user=users)
+		# you can update the token by: token.key = token.generate_key() and then calling save()
+		json = serializer.data
+		json['token'] = token.key
+		return Response(serializer.data, status= status.HTTP_201_CREATED)
+
+
 
 
 def index():
