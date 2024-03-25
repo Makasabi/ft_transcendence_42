@@ -2,7 +2,7 @@
 
 from django.db import models
 from django.utils import timezone
-from user_management.models import CustomUser
+from user_management.models import Player
 
 class Game(models.Model):
 	game_id = models.AutoField(primary_key=True)
@@ -12,5 +12,5 @@ class Game(models.Model):
 
 class Play(models.Model):
 	score = models.IntegerField(default=0)
-	users = models.ManyToManyField(CustomUser)
+	users = models.ManyToManyField(Player)
 	game = models.ForeignKey(Game, on_delete=models.CASCADE)  # Add the game field

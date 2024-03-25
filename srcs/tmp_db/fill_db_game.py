@@ -13,8 +13,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'srcs.settings')
 
 django.setup()
 
-# from django.contrib.auth.models import CustomUser
-from user_management.models import CustomUser
+# from django.contrib.auth.models import Player
+from user_management.models import Player
 from game_management.models import Game, Play
 from django.utils import timezone
 
@@ -38,16 +38,12 @@ def create_game(users):
 		if game.visibility == 'public':
 			user.global_score += game_score.score
 		user.save()
-		# print(f"global_score: {user.global_score}")
 
-	# print(f"Game mode: {game.mode}")
-	# print(f"Game visibility: {game.visibility}")
-	# game.save()
 	return game
 
 if __name__ == "__main__":
-	# Retrieve all users from the CustomUser database
-	users = CustomUser.objects.all()
+	# Retrieve all users from the Player database
+	users = Player.objects.all()
 
 	print(f"Total users: {users.count()}")
 	# Create fake games with random users and scores

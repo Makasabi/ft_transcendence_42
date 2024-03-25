@@ -15,7 +15,7 @@ django.setup()
 
 # from django.contrib.auth.models import User
 # from django.contrib.auth import get_user_model
-from user_management.models import CustomUser
+from user_management.models import Player
 
 def import_users(csv_file):
 	try:
@@ -26,11 +26,11 @@ def import_users(csv_file):
 					print("Invalid CSV format. Each row should have three columns: username, email, password")
 					return
 				username, email, password, avatar_file = row
-				# CustomUser = get_user_model()
-				if CustomUser.objects.filter(username=username).exists():
+				# Player = get_user_model()
+				if Player.objects.filter(username=username).exists():
 					print(f'User "{username}" already exists')
 				else:
-					CustomUser.objects.create_user(username=username, email=email, password=password, avatar_file=avatar_file)
+					Player.objects.create_user(username=username, email=email, password=password, avatar_file=avatar_file)
 					print(f'User "{username}" created successfully')
 	except FileNotFoundError:
 		print("File not found. Please provide a valid CSV file path.")

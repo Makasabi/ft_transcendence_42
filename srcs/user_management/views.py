@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from user_management.models import CustomUser
+from user_management.models import Player
 from game_management.models import Play
 
 
@@ -9,7 +9,7 @@ def get_user_data(user):
 	Retrieve user's data
 
 	Args:
-	- user: CustomUser instance
+	- user: Player instance
 
 	Returns:
 	- user_data: Dictionary containing user data
@@ -40,8 +40,8 @@ def get_user_data(user):
 			"date_played": game_score.game.date
 		})
 
-	higher_scores = CustomUser.objects.filter(global_score__gt=user.global_score).count()
-	user_data["global_rank"] = f"{higher_scores + 1}/{CustomUser.objects.count()}"
+	higher_scores = Player.objects.filter(global_score__gt=user.global_score).count()
+	user_data["global_rank"] = f"{higher_scores + 1}/{Player.objects.count()}"
 	return user_data
 
 def me(request):
@@ -64,10 +64,10 @@ def me(request):
 	}
 	"""
 	if request.user.is_authenticated:
-		user = CustomUser.objects.get(username=request.user)
+		user = Player.objects.get(username=request.user)
 		return JsonResponse({"username": user.username, "email": user.email})
 
-	first_user = CustomUser.objects.first()
+	first_user = Player.objects.first()
 	user_data = get_user_data(first_user)
 
 	return JsonResponse(user_data)

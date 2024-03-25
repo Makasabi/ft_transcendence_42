@@ -1,13 +1,13 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from user_management.models import CustomUser
+from user_management.models import Player
 
 class UserSerializer(serializers.ModelSerializer):
     password =  serializers.CharField(write_only=True)
-    email = serializers.EmailField(validators=[UniqueValidator(queryset=CustomUser.objects.all())])
+    email = serializers.EmailField(validators=[UniqueValidator(queryset=Player.objects.all())])
 
     class Meta:
-        model = CustomUser
+        model = Player
         fields = ['id', 'username', 'email', 'password']
 
     def validation_email(self, value):

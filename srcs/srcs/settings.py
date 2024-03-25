@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-AUTH_USER_MODEL = 'user_management.CustomUser'
+AUTH_USER_MODEL = 'user_management.Player'
 
 
 INSTALLED_APPS = [

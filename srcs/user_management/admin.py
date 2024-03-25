@@ -2,6 +2,6 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from user_management.models import CustomUser
+from user_management.models import Player
 
-admin.site.register(CustomUser, UserAdmin)
+admin.site.register(Player, UserAdmin)

@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from user_management.models import CustomUser
+from user_management.models import Player
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -9,13 +9,13 @@ from .serializers import UserSerializer
 @api_view(['POST'])
 def login(request):
 	try:
-		user = CustomUser.objects.get(username=request.data['username'])
+		user = Player.objects.get(username=request.data['username'])
 		if not user.check_password(request.data['password']):
 			return Response({"error" : "Wrong password"}, status=status.HTTP_400_BAD_REQUEST)
 		token, created = Token.objects.get_or_create(user=user)
 		serializer = UserSerializer(instance=user)
 		return Response({ "token" : token.key, "user" : serializer.data }, status=status.HTTP_200_OK)
-	except CustomUser.DoesNotExist:
+	except Player.DoesNotExist:
 		return Response({ "error" : "User does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
 

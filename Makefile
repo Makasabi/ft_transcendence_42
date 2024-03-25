@@ -25,6 +25,12 @@ create_env:
 migrate:
 	@if [ ! -d "venv" ]; then echo "\033[93mPlease create a virtual environment first. Check the README.md for some help ;)\033[0m"; exit 1; fi
 	@if [ ! -e ".env" ]; then echo "\033[93mPlease create a .env file first. Check the README.md for some help ;)\033[0m"; exit 1; fi
+	@echo "Do you want to delete the current database and create a new one? [y/N]"
+	@read -r answer; \
+	if [ "$$answer" = "y" ]; then \
+		rm -f srcs/db.sqlite3; \
+
+	fi
 	venv/bin/python3 srcs/manage.py makemigrations
 	venv/bin/python3 srcs/manage.py migrate
 
@@ -33,8 +39,9 @@ create_key:
 	@if [ ! -e ".env" ]; then echo "\033[93mPlease create a .env file first. Check the README.md for some help ;)\033[0m"; exit 1; fi
 	@venv/bin/python3 srcs/manage.py shell -c "from django.core.management import utils; print('DJANGO_SECRET_KEY=', utils.get_random_secret_key(), sep='')"
 
-fill_db: migrate
+fill_db:
 	@if [ ! -d "venv" ]; then echo "\033[93mPlease create a virtual environment first. Check the README.md for some help ;)\033[0m"; exit 1; fi
+	@echo "Make sure you did make migrate before running this command."
 	@venv/bin/python3 srcs/tmp_db/fill_db_users.py srcs/tmp_db/db_users.csv
 	@venv/bin/python3 srcs/tmp_db/fill_db_game.py
 
