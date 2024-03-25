@@ -1,13 +1,13 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from django.contrib.auth.models import User
+from user_management.models import CustomUser
 
 class UserSerializer(serializers.ModelSerializer):
     password =  serializers.CharField(write_only=True)
-    email = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all())])
+    email = serializers.EmailField(validators=[UniqueValidator(queryset=CustomUser.objects.all())])
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ['id', 'username', 'email', 'password']
 
     def validation_email(self, value):

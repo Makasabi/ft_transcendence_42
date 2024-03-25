@@ -4,14 +4,16 @@ export async function me()
 	let user = await fetch("/api/user_management/me").then(response => response.json());
 
 	// profile-infos
-
+	html = html.replace("{{avatar}}", user.avatar_file);
 	html = html.replace("{{username}}", user.username);
 	html = html.replace("{{email}}", user.email);
 	html = html.replace("{{rank}}", 8);
 
 	// history-stats
 	html = getHistoryStats(html, user);
-	
+
+	console.log(user.avatar_file);
+	console.log(html);
 	return html;
 }
 
@@ -21,7 +23,7 @@ export async function getHistoryStats(html, user)
 	for (let game of user.game_history) {
 		historyTable += `
 		<tr>
-		<td>${game.score}</td>
+		<td>${game.rank}</td>
 		<td>Normal</td>
 		<td>Private</td>
 		<td>${game.date_played}</td>

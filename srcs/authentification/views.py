@@ -1,5 +1,4 @@
-from django.contrib.auth.models import User
-from django.db import IntegrityError
+from user_management.models import CustomUser
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -10,13 +9,13 @@ from .serializers import UserSerializer
 @api_view(['POST'])
 def login(request):
 	try:
-		user = User.objects.get(username=request.data['username'])
+		user = CustomUser.objects.get(username=request.data['username'])
 		if not user.check_password(request.data['password']):
 			return Response({"error" : "Wrong password"}, status=status.HTTP_400_BAD_REQUEST)
 		token, created = Token.objects.get_or_create(user=user)
 		serializer = UserSerializer(instance=user)
 		return Response({ "token" : token.key, "user" : serializer.data }, status=status.HTTP_200_OK)
-	except User.DoesNotExist:
+	except CustomUser.DoesNotExist:
 		return Response({ "error" : "User does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -25,7 +24,7 @@ def signup(request):
     if not (serializer.is_valid()):
         return Response({"error" : serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     serializer.save()
-    user = User.objects.get(username=request.data["username"])
+    user = CustomUser.objects.get(username=request.data["username"])
     token = Token.objects.create(user=user)
     return Response({"token" : token.key, "user" : serializer.data}, status=status.HTTP_201_CREATED)
 

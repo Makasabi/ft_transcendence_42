@@ -14,11 +14,12 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'srcs.settings')
 django.setup()
 
 from django.contrib.auth.models import User
+from user_management.models import CustomUser
 from game_management.models import Game, GameScore
 
 # Now you can use Django models safely
 def clear_database():
-    User.objects.all().delete()
+    CustomUser.objects.all().delete()
     Game.objects.all().delete()
     GameScore.objects.all().delete()
     print("All user and game records have been deleted successfully")
