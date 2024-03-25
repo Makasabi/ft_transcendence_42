@@ -31,6 +31,9 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+AUTH_USER_MODEL = 'user_management.Player'
+
+
 INSTALLED_APPS = [
 	'django.contrib.admin',
 	'django.contrib.auth',
@@ -41,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'authentification',
 	'user_management',
+	'game_management',
 ]
 
 REST_FRAMEWORK = {
