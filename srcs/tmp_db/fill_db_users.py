@@ -13,21 +13,24 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'srcs.settings')
 
 django.setup()
 
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+# from django.contrib.auth import get_user_model
+from user_management.models import Player
 
 def import_users(csv_file):
 	try:
 		with open(csv_file, 'r') as file:
 			reader = csv.reader(file)
 			for row in reader:
-				if len(row) != 3:
+				if len(row) != 4:
 					print("Invalid CSV format. Each row should have three columns: username, email, password")
 					return
-				username, email, password = row
-				if User.objects.filter(username=username).exists():
+				username, email, password, avatar_file = row
+				# Player = get_user_model()
+				if Player.objects.filter(username=username).exists():
 					print(f'User "{username}" already exists')
 				else:
-					User.objects.create_user(username=username, email=email, password=password)
+					Player.objects.create_user(username=username, email=email, password=password, avatar_file=avatar_file)
 					print(f'User "{username}" created successfully')
 	except FileNotFoundError:
 		print("File not found. Please provide a valid CSV file path.")

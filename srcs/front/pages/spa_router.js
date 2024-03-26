@@ -21,7 +21,6 @@ async function handleLocation() {
 		{path : "/me", view : me},
 		{path : "/game", view : game},
 	];
-
 	try
 	{
 		const log = await Login.is_logged();
@@ -57,28 +56,6 @@ function update_header()
 	});
 }
 
-/*** Cookies ***/
-export function setCookie(name, value, days)
-{
-	const expires = new Date();
-	expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-	document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
-}
-
-export function getCookie(name)
-{
-	const cookies = document.cookie.split(';');
-	const cookie = cookies.find(cookie => cookie.trim().startsWith(name + '='));
-	//console.log("token : ", cookie ? cookie.split('=')[1] : null);
-	return cookie ? cookie.split('=')[1] : null;
-}
-
-export function deleteCookie(name)
-{
-	document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-}
-
-
 	/*** Events ***/
 document.addEventListener("DOMContentLoaded", function () {
 	window.onpopstate = function(event) {
@@ -90,6 +67,9 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 
 	handleLocation();
+	let tag = this.querySelector("header");
+	let parent = tag.parentNode;
+	parent.insertBefore(document.getElementsByClassName("particles-js-canvas-el")[0], tag);
 });
 
 document.querySelector("main").addEventListener("click", async (e) => {
@@ -99,6 +79,9 @@ document.querySelector("main").addEventListener("click", async (e) => {
 			break;
 		case "submit-signup":
 			Login.signup_event(e);
+			break;
+		case "forty2-auth-btn":
+			Login.forty_login_event(e);
 			break;
 		case "not-registered":
 			e.preventDefault();
