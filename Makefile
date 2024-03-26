@@ -27,7 +27,6 @@ migrate:
 	@read -r answer; \
 	if [ "$$answer" = "y" ]; then \
 		rm -f srcs/db.sqlite3; \
-
 	fi
 	venv/bin/python3 srcs/manage.py makemigrations
 	venv/bin/python3 srcs/manage.py migrate
