@@ -9,21 +9,29 @@ export function route(path)
 	handleLocation();
 }
 
-async function handleLocation() {
+export async function handleLocation() {
 	update_header();
 
 	// Change main content
 	const routes = [
-		{path : "/login", view : Login.login},
-		{path : "/signup", view : Login.signup},
+		{path : "/login", view : Login.login_render},
+		{path : "/signup", view : Login.signup_render},
 		{path : "/home", view : home},
 		{path : "/me", view : me},
-		{path : "/username", view : Login.username},
+		{path : "/username", view : Login.username_render},
 	];
+
+	const list_params = new URLSearchParams(window.location.search);
+	if (window.location.pathname === "/username" && list_params.get('code'))
+	{
+		console.log("URL with queries");
+		await Login.forty2_signup();
+		return ;
+	}
 	try 
 	{
 		const log = await Login.is_logged();
-		if (!log && !["/login", "/signup"].includes(window.location.pathname))
+		if (!log && !["/login", "/signup", "/username"].includes(window.location.pathname))
 		{
 			route("/login");
 			return ;
@@ -66,8 +74,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	footer().then(html => {
 		document.querySelector("footer").innerHTML = html;
 	});
-
-	Login.forty2_callback();
 	handleLocation();
 });
 
@@ -82,6 +88,9 @@ document.querySelector("main").addEventListener("click", async (e) => {
 			break;
 		case "forty2-auth-btn":
 			Login.forty2_signup_event(e);
+			break;
+		case "submit-username":
+			Login.username_event(e);
 			break;
 		case "not-registered":
 			e.preventDefault();
