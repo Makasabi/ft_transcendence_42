@@ -1,6 +1,6 @@
-import { route } from "/front/pages/spa_router.js"
+import { route, setCookie, deleteCookie, getCookie } from "/front/pages/spa_router.js"
 
-export async function header_out()
+export async function header_log()
 {
 	return await fetch("/front/pages/login/header.html").then(response => response.text());
 }
@@ -15,10 +15,35 @@ export async function login()
 	return await fetch("/front/pages/login/login.html").then(response => response.text());
 }
 
+export function logout()
+{
+	deleteCookie("token");
+	route("/login");
+}
+
+export async function is_logged()
+{
+	const token = getCookie('token');
+	try {
+		const response = await fetch('api/auth/', {
+			method: 'GET',
+			headers: { 'Authorization': `Token ${token}` }
+		});
+		if (response.ok)
+			return true;
+		else
+			return false;
+	}
+	catch(error)
+	{
+		console.error('Fetch error: ', error);
+		return false;
+	}
+}
+
 export async function login_event(e)
 {
 	e.preventDefault();
-	console.log("login");
 	const form = document.getElementById("login-form");
 	const username = form.elements.login_username.value;
 	const password = form.elements.login_password.value;
@@ -43,19 +68,19 @@ export async function login_event(e)
 		.then(data => {
 			console.log("token: ", data.token);
 			console.log("user: ", data.user);
-			document.cookie = `token=${data.token}`;
+			setCookie("token", data.token, 1);
 			route("/home");
 			return true;
 		})
 		.catch(error => {
 			console.error(error);
+			return false;
 		});
 }
 
 export async function signup_event(e)
 {
 	e.preventDefault();
-	console.log('register');
 
 	const form = document.getElementById("signup-form");
 	const username = form.elements.signup_username.value;
@@ -73,7 +98,7 @@ export async function signup_event(e)
 			else
 			{
 				return response.json().then(data => {
-                    	console.error(data.error);
+					console.error(data.error);
 					throw new Error('Wrong registration');
 				});
 			}

@@ -2,8 +2,16 @@
 An online multiplayer pong game.
 
 ## installation
-To install the project, you need to have python3 and pip installed on your machine.
+First clone the repository and be sure to have python3, pip, and npm installed on your machine.
 
+To perform the initial setup of the project, you can run the following commands:
+```bash
+make init
+```
+
+Or you can do it manually by following the instructions below.
+
+### Manual setup
 Then you can create a virtual environment and install the dependencies using the following commands:
 ```bash
 python3 -m venv venv
@@ -30,6 +38,11 @@ make migrate
 Install NPM dependencies using the following command:
 ```bash
 cd srcs; npm install
+```
+
+To create a fake database, for testing purposes, you can run the following command:
+```bash
+make fill_db
 ```
 
 You are now ready to run the project.
