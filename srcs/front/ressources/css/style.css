@@ -175,6 +175,15 @@ form button {
 	white-space: nowrap;
 }
 
+#forty2-auth-btn {
+	color: white;
+	background-color: black;
+}
+
+#forty2-auth-btn span{
+	color: #18b9bb;
+}
+
 #google-auth-btn span {
 	background-color: white;
 	margin-right: -0.3em;

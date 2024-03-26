@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .serializers import UserSerializer
+import requests
 
 @api_view(['POST'])
 def login(request):
@@ -36,4 +37,23 @@ def signup(request):
 @permission_classes([IsAuthenticated])
 def check_token(request):
 	print("Request auth")
-	return Response({"message" : "OK"})
+    user = User.objects.get()
+	return Response({"user" : user})
+
+@api_view(['POST'])
+def forty2_auth(request):
+    print(request.data)
+    data = {
+        'grant_type': 'authorization_code',
+        'client_id': 'u-s4t2ud-778802c450d2090b49c6c92d251ff3d1fbb51b03a9284f8f43f5df0af1dae8fa',
+        'client_secret': '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',
+        'code': request.data['code'],
+        #'redirect_uri': 'http%3A%2F%2Flocalhost%3A8000%2Fsignup',
+        'redirect_uri': 'http://localhost:8000/signup',
+    }
+    print(data)
+    response = requests.post("https://api.intra.42.fr/oauth/token", data=data)
+    data = response.json()
+    if data['error']
+    print(data)
+    return Response(data)

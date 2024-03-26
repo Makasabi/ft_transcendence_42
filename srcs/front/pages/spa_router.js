@@ -18,6 +18,7 @@ async function handleLocation() {
 		{path : "/signup", view : Login.signup},
 		{path : "/home", view : home},
 		{path : "/me", view : me},
+		{path : "/username", view : Login.username},
 	];
 	try 
 	{
@@ -66,16 +67,21 @@ document.addEventListener("DOMContentLoaded", function () {
 		document.querySelector("footer").innerHTML = html;
 	});
 
+	Login.forty2_callback();
 	handleLocation();
 });
 
 document.querySelector("main").addEventListener("click", async (e) => {
-	switch (e.target.id) {
+	switch (e.target.id)
+	{
 		case "submit-login":
 			Login.login_event(e);
 			break;
 		case "submit-signup":
 			Login.signup_event(e);
+			break;
+		case "forty2-auth-btn":
+			Login.forty2_signup_event(e);
 			break;
 		case "not-registered":
 			e.preventDefault();

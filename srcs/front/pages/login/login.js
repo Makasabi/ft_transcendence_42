@@ -1,6 +1,5 @@
 import { route } from "/front/pages/spa_router.js"
 
-
 				/*** Cookies ***/
 export function setCookie(name, value, days)
 {
@@ -39,6 +38,10 @@ export async function login()
 	return await fetch("/front/pages/login/login.html").then(response => response.text());
 }
 
+export async function username()
+{
+	return await fetch("/front/pages/login/username.html").then(response => response.text());
+}
 
 				/*** Utilities ***/
 export function logout()
@@ -68,6 +71,50 @@ export async function is_logged()
 }
 
 				/*** Events ***/
+
+function generateRandomString()
+{
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let randomString = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        randomString += charset.charAt(randomIndex);
+	} 
+    return randomString;
+}
+
+export async function forty2_signup_event(e)
+{
+	const uid = "u-s4t2ud-778802c450d2090b49c6c92d251ff3d1fbb51b03a9284f8f43f5df0af1dae8fa";
+	const state = generateRandomString(15);
+	const authURL = `https://api.intra.42.fr/oauth/authorize?client_id=${uid}&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fsignup&response_type=code&state=${state}`
+	window.location.href=authURL;
+}
+
+export async function forty2_callback()
+{
+	const list = new URLSearchParams(window.location.search);
+	const authCode = list.get('code');
+	const state = list.get('state');
+	fetch("api/auth/forty2_auth/", {
+		method : "POST",
+		headers: {'Content-type' : 'application/json'},
+		body: JSON.stringify({
+			"code" : authCode,
+			"state" : state,
+			})
+		})
+		.then(response => {
+			return response.json();
+		})
+		.then(data => {
+			console.log(data);
+		})
+		.catch(error => {
+			console.log(error);
+		});
+}
+
 export async function login_event(e)
 {
 	e.preventDefault();
@@ -148,3 +195,4 @@ export async function signup_event(e)
 			console.error(error);
 		});
 }
+
