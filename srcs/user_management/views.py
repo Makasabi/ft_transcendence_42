@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from user_management.models import Player
 from game_management.models import Play
-
+from rest_framework.decorators import api_view
+from authentification.views import check_token
 
 def get_user_data(user):
 	"""
@@ -39,6 +40,7 @@ def get_user_data(user):
 			"visibility" : game_score.game.visibility,
 			"date_played": game_score.game.date
 		})
+		# print(user_data["game_history"])
 
 	higher_scores = Player.objects.filter(global_score__gt=user.global_score).count()
 	user_data["global_rank"] = f"{higher_scores + 1}/{Player.objects.count()}"
@@ -63,13 +65,17 @@ def me(request):
 		]
 	}
 	"""
-	if request.user.is_authenticated:
-		user = Player.objects.get(username=request.user)
-		return JsonResponse({"username": user.username, "email": user.email})
+	response = check_token(request)
+	if response.status_code != 200:
+		return JsonResponse({"error": "You are not authenticated", "data" : response.data}, status=401)
+	print("All good")
+	if not request.user.is_authenticated:
+		return JsonResponse({"error": "You are not authenticated", "data" : response.data}, status=401)
 
-	first_user = Player.objects.first()
-	user_data = get_user_data(first_user)
-
-	return JsonResponse(user_data)
+	user = Player.objects.get(username=request.user)
+	return JsonResponse(get_user_data(user))
 
 
+@api_view(['GET'])
+def test(request):
+    pass

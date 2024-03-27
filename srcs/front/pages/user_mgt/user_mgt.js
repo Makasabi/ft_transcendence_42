@@ -1,7 +1,12 @@
+import * as Login from "/front/pages/login/login.js";
+
 export async function me()
 {
 	let html = await fetch("/front/pages/user_mgt/me.html").then(response => response.text());
-	let user = await fetch("/api/user_management/me").then(response => response.json());
+	let user = await fetch("/api/user_management/me", {
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	}).then(response => response.json());
+	console.log("user", user);
 
 	// profile-infos
 	html = html.replace("{{avatar}}", user.avatar_file);
