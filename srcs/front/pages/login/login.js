@@ -1,24 +1,24 @@
-import { route, handleLocation } from "/front/pages/spa_router.js"
+import { route } from "/front/pages/spa_router.js"
 
-				/*** Cookies ***/
+/*** Cookies ***/
 export function setCookie(name, value, days)
 {
-    const expires = new Date();
-    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+	const expires = new Date();
+	expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+	document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
 }
 
 export function getCookie(name)
 {
-    const cookies = document.cookie.split(';');
-    const cookie = cookies.find(cookie => cookie.trim().startsWith(name + '='));
+	const cookies = document.cookie.split(';');
+	const cookie = cookies.find(cookie => cookie.trim().startsWith(name + '='));
 	//console.log("token : ", cookie ? cookie.split('=')[1] : null);
-    return cookie ? cookie.split('=')[1] : null;
+	return cookie ? cookie.split('=')[1] : null;
 }
 
 export function deleteCookie(name)
 {
-    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+	document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 }
 
 
@@ -188,32 +188,32 @@ export async function login_event(e)
 	const username = form.elements.login_username.value;
 	const password = form.elements.login_password.value;
 
+	console.log("token : ", getCookie("token"));
 	login(username, password);
 }
 
 export async function signup_event(e)
 {
-	//e.preventDefault();
+	e.preventDefault();
 	const form = document.getElementById("signup-form");
 	if (!form.checkValidity())
 		return ;
 
-	e.preventDefault();
 	const username = form.elements.signup_username.value;
 	const password = form.elements.signup_password.value;
 	const email = form.elements.signup_email.value;
-	signup(username, password, email);
+	signup(username, password, email); 
 }
 
 function generateRandomString()
 {
-    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let randomString = '';
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * charset.length);
-        randomString += charset.charAt(randomIndex);
+	const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	let randomString = '';
+	for (let i = 0; i < length; i++) {
+		const randomIndex = Math.floor(Math.random() * charset.length);
+		randomString += charset.charAt(randomIndex);
 	} 
-    return randomString;
+	return randomString;
 }
 
 export async function forty2_authentication()

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from user_management.models import Player
 
-class UserSerializer(serializers.ModelSerializer):
+class PlayerSerializer(serializers.ModelSerializer):
 	password =  serializers.CharField(write_only=True)
 	email = serializers.EmailField(validators=[UniqueValidator(queryset=Player.objects.all())])
 

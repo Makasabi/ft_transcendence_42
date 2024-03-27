@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from .serializers import UserSerializer
+from .serializers import PlayerSerializer
 import requests
 
 ##### Authentication #####
@@ -14,11 +14,12 @@ import requests
 @permission_classes([])
 def login(request):
 	try:
+		print(request.data)
 		user = Player.objects.get(username=request.data['username'])
 		if not user.check_password(request.data['password']):
 			return Response({"error" : "Wrong password"}, status=status.HTTP_400_BAD_REQUEST)
 		token, _ = Token.objects.get_or_create(user=user)
-		serializer = UserSerializer(instance=user)
+		serializer = PlayerSerializer(instance=user)
 		return Response({ "token" : token.key, "user" : serializer.data }, status=status.HTTP_200_OK)
 	except Player.DoesNotExist:
 		return Response({ "error" : "User does not exist"}, status=status.HTTP_400_BAD_REQUEST)
@@ -37,7 +38,7 @@ def check_token(request):
 @authentication_classes([])
 @permission_classes([])
 def signup(request):
-	serializer = UserSerializer(data=request.data)
+	serializer = PlayerSerializer(data=request.data)
 	if not serializer.is_valid():
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 	serializer.save()
@@ -68,7 +69,7 @@ def is_registered(request):
 	try:
 		user = Player.objects.get(email=request.data['email'])
 		token, created = Token.objects.get_or_create(user=user)
-		serializer = UserSerializer(instance=user)
+		serializer = PlayerSerializer(instance=user)
 		return Response({ "token" : token.key, "user" : serializer.data }, status=status.HTTP_200_OK)
 	except Player.DoesNotExist:
 		return Response({"error" : "User not registered"}, status=status.HTTP_400_BAD_REQUEST)
