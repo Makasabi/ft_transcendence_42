@@ -30,7 +30,7 @@ canvas{
 	left: 0; 
 	width: 80px; 
 	color: #13E8E9; 
-	font-size: .8em; 
+	/* font-size: .8em;  */
 	text-align: left; 
 	text-indent: 4px; 
 	line-height: 14px; 
@@ -40,10 +40,11 @@ canvas{
 } 
 
 .js-count-particles{ 
-	font-size: 1.1em; 
+	/* font-size: 1.1em;  */
 } 
 
 #stats, .count-particles{ 
+	/* -webkit-user-select: none;  */
 	margin-top: 5px; 
 	margin-left: 5px; 
 } 

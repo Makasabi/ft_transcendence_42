@@ -1,3 +1,14 @@
-from django.db import models
+# models.py
 
-# Create your models here.
+# from click import Group
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+
+class Player(AbstractUser):
+	groups = models.ManyToManyField('auth.Group', verbose_name=_('groups'), blank=True, related_name='custom_users')
+	user_permissions = models.ManyToManyField('auth.Permission', verbose_name=_('user permissions'), blank=True, related_name='custom_users')
+	
+	avatar_file = models.CharField(max_length=255, blank=True, null=True)
+	global_score = models.IntegerField(default=0)

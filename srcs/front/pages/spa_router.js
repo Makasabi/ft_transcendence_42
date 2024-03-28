@@ -1,65 +1,87 @@
-import { footer, header_in, home } from "/front/pages/home/home.js";
-import { header_out, login, signup, login_event, signup_event } from "/front/pages/login/login.js";
-import { me } from "/front/pages/user_mgt/user_mgt.js";
+import { footer, LoggedHeaderView, HomeView } from "./home/home.js";
+import { MeView } from "./user_mgt/user_mgt.js";
+import * as login from "./login/login.js";
+import { UnloggedHeaderView, LoginView, SignupView, UsernameView } from "./login/login.js";
 
-let change_header = true;
-
-/*** Utilities ***/
-export function route(path) {
+	/*** Utilities ***/
+export function route(path, event=null)
+{
+	if (event)
+		event.preventDefault();
 	window.history.pushState({}, "", path);
 	handleLocation();
 }
 
-function is_log() {
-	return document.cookie.includes("token");
-}
-
-function logout() {
-	document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-	change_header = true;
-	route("/login");
-}
-
-function update_header() {
-	if (change_header)
-	{
-		(is_log() ? header_in() : header_out()).then(html => {
-			document.querySelector("header").innerHTML = html;
-		});
-		change_header = false;
-	}
-}
-
-function handleLocation() {
-	update_header();
-
-	// Change main content
-	const routes = [
-		{path : "/login", view : login},
-		{path : "/signup", view : signup},
-		{path : "/home", view : home},
-		{path : "/me", view : me},
+function handleUnloggedLocation()
+{
+	const views = [
+		LoginView,
+		SignupView,
+		UsernameView,
 	];
 
-	// Find the route that matches the current location
-	const match = routes.filter(route => route.path === window.location.pathname);
+	const match = views.filter(view => view.match_route(window.location.pathname));
+	if (match.length === 0) {
+		console.warn("No route matches the path:", window.location.pathname);
+		route("/login");
+		return;
+	}
 	if (match.length > 1)
 	{
-		console.warn("Multiple routes match the same path");
+		console.warn("Multiple routes match the same path:", window.location.pathname);
 		return;
 	}
-	if (match.length > 0)
-	{
-		match[0].view().then(html => {
-			document.querySelector("main").innerHTML = html;
-		});
-		return;
-	}
-	// If no route matches the current location, redirect to the home page
-	if (is_log())
+	match[0].render();
+}
+
+function handleLoggedLocation()
+{
+	const views = [
+		HomeView,
+		MeView,
+	];
+
+	const match = views.filter(view => view.match_route(window.location.pathname));
+	if (match.length === 0) {
+		console.warn("No route matches the path:", window.location.pathname);
 		route("/home");
+		return;
+	}
+	if (match.length > 1)
+	{
+		console.warn("Multiple routes match the same path:", window.location.pathname);
+		return;
+	}
+	match[0].render();
+}
+
+function handleLocation()
+{
+	var was_logged;
+
+	login.is_logged().then(is_logged => {
+		console.log("is_logged", is_logged);
+		if (was_logged !== is_logged)
+			update_header(is_logged);
+		if (is_logged)
+		{
+			handleLoggedLocation();
+			was_logged = true;
+		}
+		else
+		{
+			handleUnloggedLocation();
+			was_logged = false;
+		}
+	});
+}
+
+function update_header(is_logged)
+{
+	if (is_logged)
+		LoggedHeaderView.render();
 	else
-		route("/login");
+		UnloggedHeaderView.render();
 }
 
 /*** Events ***/
@@ -71,21 +93,23 @@ document.addEventListener("DOMContentLoaded", function () {
 	footer().then(html => {
 		document.querySelector("footer").innerHTML = html;
 	});
-
 	handleLocation();
 	let tag = this.querySelector("header");
 	let parent = tag.parentNode;
 	parent.insertBefore(document.getElementsByClassName("particles-js-canvas-el")[0], tag);
 });
 
-
 document.querySelector("main").addEventListener("click", async (e) => {
-	switch (e.target.id) {
-		case "submit-login":
-			change_header = login_event(e);
-			break;
+	switch (e.target.id)
+	{
 		case "submit-signup":
-			signup_event(e);
+			login.signup_event(e);
+			break;
+		case "forty2-auth-btn":
+			login.forty2_signup_event(e);
+			break;
+		case "submit-username":
+			login.username_event(e);
 			break;
 		case "not-registered":
 			e.preventDefault();
@@ -95,4 +119,4 @@ document.querySelector("main").addEventListener("click", async (e) => {
 });
 
 document.route = route;
-document.logout = logout;
+document.logout = login.logout;
