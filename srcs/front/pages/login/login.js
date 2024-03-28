@@ -1,4 +1,5 @@
-import { route } from "/front/pages/spa_router.js"
+import { route } from "/front/pages/spa_router.js";
+import { IView } from "/front/pages/IView.js";
 
 				/*** Cookies ***/
 export function setCookie(name, value, days)
@@ -21,26 +22,74 @@ export function deleteCookie(name)
 	document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 }
 
-
-				/*** Render ***/
-export async function header_log()
-{
-	return await fetch("/front/pages/login/header.html").then(response => response.text());
+/*** Render ***/
+export class UnloggedHeaderView extends IView {
+	static async render() {
+		fetch("/front/pages/login/header.html")
+			.then(response => response.text())
+			.then(html => document.querySelector("header").innerHTML = html);
+	}
 }
 
-export async function signup_render()
-{
-	return await fetch("/front/pages/login/signup.html").then(response => response.text());
+export class Forty2View extends IView {
+	static match_route(route)
+	{
+		return route === "/forty2";
+	}
+
+	static async render()
+	{
+		const list_params = new URLSearchParams(window.location.search);
+		if (list_params.get('code'))
+		{
+			await forty2_signup();
+			return ;
+		}
+	}
 }
 
-export async function login_render()
-{
-	return await fetch("/front/pages/login/login.html").then(response => response.text());
+export class GoogleView extends IView {
+	static match_route(route)
+	{
+		return route === "/google";
+	}
+	static async render()
+	{
+		const list_params = new URLSearchParams(window.location.search);
+		console.log("Google response params: ");
+		for (const [key, value] of list_params.entries()) {
+		    console.log(`${key}: ${value}`);
+		}
+		await google_signup();
+		return ;
+	}
 }
 
-export async function username_render()
-{
-	return await fetch("/front/pages/login/username.html").then(response => response.text());
+export class LoginView extends IView {
+	static match_route(route) {
+		return route === "/login";
+	}
+
+	static async render() {
+		await fetch("/front/pages/login/login.html")
+			.then(response => response.text())
+			.then(html => document.querySelector("main").innerHTML = html);
+
+		const log_button = document.getElementById("submit-login");
+		log_button.addEventListener("click", login_event);
+	}
+}
+
+export class SignupView extends IView {
+	static match_route(route) {
+		return route === "/signup";
+	}
+
+	static async render() {
+		fetch("/front/pages/login/signup.html")
+			.then(response => response.text())
+			.then(html => document.querySelector("main").innerHTML = html);
+	}
 }
 
 
@@ -54,22 +103,20 @@ export function logout()
 export async function is_logged()
 {
 	const token = getCookie('token');
-	console.log("Token before check : ", token);
-	try { 
-		const response = await fetch('api/auth/', {
-			method: 'GET',
-			headers: { 'Authorization': `Token ${token}` }
-		});
+//	let response = false;
+
+	if (!token)
+		return false;
+	// @TODO test with a bad token
+	return fetch('api/auth/', {
+		method: 'GET',
+		headers: { 'Authorization': `Token ${token}` }
+	}).then(response => {
 		if (response.ok)
 			return true;
 		else
 			return false;
-	}
-	catch(error)
-	{
-		console.error('Fetch error: ', error);
-		return false;
-	}
+	});
 }
 
 async function login(username, password)
@@ -151,6 +198,14 @@ export async function google_signup()
 	return ;
 }
 
+export async function google_authentication()
+{
+	const uid = "u-s4t2ud-778802c450d2090b49c6c92d251ff3d1fbb51b03a9284f8f43f5df0af1dae8fa";
+	const state = generateRandomString(15);
+	const authURL = `https://api.intra.42.fr/oauth/authorize?client_id=${uid}&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fusername&response_type=code&state=${state}`
+	window.location.href=authURL;
+}
+
 export async function forty2_signup()
 {
 	const auth = await forty2_authentication();
@@ -181,39 +236,6 @@ export async function forty2_signup()
 		console.error(error);
 		route("/login");
 	}
-}
-
-export async function is_registered(email)
-{
-	const result = await fetch('api/auth/is_registered/', {
-		method: 'POST',
-		headers: {	'Content-type' : 'application/json'},
-		body: JSON.stringify({ 'email' : email }),
-	})
-	.then(response => {
-		if (response.ok)
-			return (response.json().then(data => {
-				setCookie("token", data['token'], 1);
-				console.log("User registered : ", data['token']);
-				return true;
-			}));
-		else if (response.status === 400)
-		{
-			return response.json().then(data => {
-				console.log("Not registered");
-				return false;
-			});
-		}
-		else
-			return response.json().then(data => {
-				throw new Error("Error in registration");
-			});
-	})
-	.catch(error => {
-		throw new Error(error);
-		return false;
-	})
-	return result;
 }
 
 
@@ -277,9 +299,37 @@ export async function username_event(e)
 
 
 				/*** Utilities ***/
-export async function google_authentication()
+export async function is_registered(email)
 {
-	return true;
+	const result = await fetch('api/auth/is_registered/', {
+		method: 'POST',
+		headers: {	'Content-type' : 'application/json'},
+		body: JSON.stringify({ 'email' : email }),
+	})
+	.then(response => {
+		if (response.ok)
+			return (response.json().then(data => {
+				setCookie("token", data['token'], 1);
+				console.log("User registered : ", data['token']);
+				return true;
+			}));
+		else if (response.status === 400)
+		{
+			return response.json().then(data => {
+				console.log("Not registered");
+				return false;
+			});
+		}
+		else
+			return response.json().then(data => {
+				throw new Error("Error in registration");
+			});
+	})
+	.catch(error => {
+		throw new Error(error);
+		return false;
+	})
+	return result;
 }
 
 export async function forty2_authentication()

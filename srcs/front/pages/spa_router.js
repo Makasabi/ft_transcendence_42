@@ -1,6 +1,7 @@
-import { footer, header_in, home } from "/front/pages/home/home.js";
-import * as login from "/front/pages/login/login.js";
-import { me } from "/front/pages/user_mgt/user_mgt.js";
+import { footer, LoggedHeaderView, HomeView } from "./home/home.js";
+import { MeView } from "./user_mgt/user_mgt.js";
+import * as login from "./login/login.js";
+import { UnloggedHeaderView, LoginView, SignupView, UsernameView, Forty2View } from "./login/login.js";
 
 	/*** Utilities ***/
 export function route(path, event=null)
@@ -11,68 +12,93 @@ export function route(path, event=null)
 	handleLocation();
 }
 
-async function handleLocation() {
-	update_header();
-
-	// Change main content
-	const routes = [
-		{path : "/login", view : login.login_render},
-		{path : "/signup", view : login.signup_render},
-		{path : "/home", view : home},
-		{path : "/me", view : me},
-		{path : "/username", view : login.username_render},
+function handleUnloggedLocation()
+{
+	const views = [
+		LoginView,
+		SignupView,
+		Forty2View,
+		login.GoogleView,
 	];
 
-	const list_params = new URLSearchParams(window.location.search);
-	if (window.location.pathname === "/forty2" && list_params.get('code'))
-	{
-		await login.forty2_signup();
-		return ;
+	//const list_params = new URLSearchParams(window.location.search);
+	//if (window.location.pathname === "/forty2" && list_params.get('code'))
+	//{
+	//	await login.forty2_signup();
+	//	return ;
+	//}
+	//if (window.location.pathname === "/google")// && list_params.get('code'))
+	//{
+	//	console.log("Google response params: ");
+	//	for (const [key, value] of list_params.entries()) {
+	//	    console.log(`${key}: ${value}`);
+	//	}
+	//	await login.google_signup();
+	//	return ;
+	//}
+	//try 
+	const match = views.filter(view => view.match_route(window.location.pathname));
+	if (match.length === 0) {
+		console.warn("No route matches the path:", window.location.pathname);
+		route("/login");
+		return;
 	}
-	if (window.location.pathname === "/google")// && list_params.get('code'))
+	if (match.length > 1)
 	{
-		console.log("Google response params: ");
-		for (const [key, value] of list_params.entries()) {
-		    console.log(`${key}: ${value}`);
-		}
-		await login.google_signup();
-		return ;
+		console.warn("Multiple routes match the same path:", window.location.pathname);
+		return;
 	}
-	try 
-	{
-		const log = await login.is_logged();
-		if (!log && !["/login", "/signup", "/username"].includes(window.location.pathname))
-		{
-			route("/login");
-			return ;
-		}
-		const match = routes.filter(route => route.path === window.location.pathname);
-		if (match.length > 1)
-		{
-			console.warn("Multiple routes match the same path");
-			return;
-		}
-		if (match.length > 0)
-		{
-			match[0].view().then(html => {
-				document.querySelector("main").innerHTML = html;
-			});
-			return;
-		}
-		route("/home");
-	}
-	catch (error)
-	{
-		console.error(error);
-	}
+	match[0].render();
 }
 
-function update_header()
+function handleLoggedLocation()
 {
-	const url = ["/login", "/signup"].includes(window.location.pathname);
-	(url ? login.header_log() : header_in()).then(html => {
-		document.querySelector("header").innerHTML = html;
+	const views = [
+		HomeView,
+		MeView,
+	];
+
+	const match = views.filter(view => view.match_route(window.location.pathname));
+	if (match.length === 0) {
+		console.warn("No route matches the path:", window.location.pathname);
+		route("/home");
+		return;
+	}
+	if (match.length > 1)
+	{
+		console.warn("Multiple routes match the same path:", window.location.pathname);
+		return;
+	}
+	match[0].render();
+}
+
+function handleLocation()
+{
+	var was_logged;
+
+	login.is_logged().then(is_logged => {
+		console.log("is_logged", is_logged);
+		if (was_logged !== is_logged)
+			update_header(is_logged);
+		if (is_logged)
+		{
+			handleLoggedLocation();
+			was_logged = true;
+		}
+		else
+		{
+			handleUnloggedLocation();
+			was_logged = false;
+		}
 	});
+}
+
+function update_header(is_logged)
+{
+	if (is_logged)
+		LoggedHeaderView.render();
+	else
+		UnloggedHeaderView.render();
 }
 
 /*** Events ***/
@@ -93,9 +119,6 @@ document.addEventListener("DOMContentLoaded", function () {
 document.querySelector("main").addEventListener("click", async (e) => {
 	switch (e.target.id)
 	{
-		case "submit-login":
-			login.login_event(e);
-			break;
 		case "submit-signup":
 			login.signup_event(e);
 			break;
