@@ -24,10 +24,18 @@ async function handleLocation() {
 	];
 
 	const list_params = new URLSearchParams(window.location.search);
-	if (window.location.pathname === "/username" && list_params.get('code'))
+	if (window.location.pathname === "/forty2" && list_params.get('code'))
 	{
-		console.log("URL with queries");
 		await login.forty2_signup();
+		return ;
+	}
+	if (window.location.pathname === "/google")// && list_params.get('code'))
+	{
+		console.log("Google response params: ");
+		for (const [key, value] of list_params.entries()) {
+		    console.log(`${key}: ${value}`);
+		}
+		await login.google_signup();
 		return ;
 	}
 	try 
@@ -93,6 +101,10 @@ document.querySelector("main").addEventListener("click", async (e) => {
 			break;
 		case "forty2-auth-btn":
 			login.forty2_signup_event(e);
+			break;
+		case "google-auth-btn":
+			e.preventDefault();
+			login.google_signup_event(e);
 			break;
 		case "submit-username":
 			login.username_event(e);
