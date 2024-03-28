@@ -1,3 +1,8 @@
+const style = getComputedStyle(document.body);
+let primary = style.getPropertyValue('--primary-color');
+let secondary = style.getPropertyValue('--secondary-color');
+let background = style.getPropertyValue('--dark');
+
 particlesJS("particles-js", {
     "particles": {
         "number": {
@@ -8,13 +13,13 @@ particlesJS("particles-js", {
             }
         },
         "color": {
-            "value": "#7b74ff"
+            "value": primary
         },
         "shape": {
             "type": "polygon",
             "stroke": {
                 "width": 0,
-                "color": "#000000"
+                "color": background
             },
             "polygon": {
                 "nb_sides": 6
@@ -48,7 +53,7 @@ particlesJS("particles-js", {
         "line_linked": {
             "enable": false,
             "distance": 150,
-            "color": "#7b74ff",
+            "color": primary,
             "opacity": 0.4,
             "width": 1
         },

@@ -2,10 +2,10 @@
 	padding: 1vh;
 	border-radius: 10px;
 	font-weight: 700;
-	color: #dedede;
-	border: #dedede 1px solid;
+	color: var(--light);
+	border: var(--light) 1px solid;
 	backdrop-filter: blur(4px);
-	background-color: rgba(31, 31, 31, 0.4);
+	background-color: var(--transparent-dark);
 	width: 100%;
 }
 
@@ -14,8 +14,8 @@ form button {
 	padding: 1vh;
 	font-weight: 700;
 	border-radius: 10px;
-	background-color: #7b74ff;
-	color: white;
+	background-color: var(--primary-color);
+	color: var(--light);
 	border: none;	
 }
 
