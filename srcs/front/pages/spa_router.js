@@ -1,7 +1,7 @@
 import { footer, LoggedHeaderView, HomeView } from "./home/home.js";
 import { MeView } from "./user_mgt/user_mgt.js";
 import * as login from "./login/login.js";
-import { UnloggedHeaderView, LoginView, SignupView, UsernameView } from "./login/login.js";
+import { UnloggedHeaderView, LoginView, SignupView, UsernameView, Forty2View } from "./login/login.js";
 
 	/*** Utilities ***/
 export function route(path, event=null)
@@ -17,9 +17,26 @@ function handleUnloggedLocation()
 	const views = [
 		LoginView,
 		SignupView,
-		UsernameView,
+		Forty2View,
+		login.GoogleView,
 	];
 
+	//const list_params = new URLSearchParams(window.location.search);
+	//if (window.location.pathname === "/forty2" && list_params.get('code'))
+	//{
+	//	await login.forty2_signup();
+	//	return ;
+	//}
+	//if (window.location.pathname === "/google")// && list_params.get('code'))
+	//{
+	//	console.log("Google response params: ");
+	//	for (const [key, value] of list_params.entries()) {
+	//	    console.log(`${key}: ${value}`);
+	//	}
+	//	await login.google_signup();
+	//	return ;
+	//}
+	//try 
 	const match = views.filter(view => view.match_route(window.location.pathname));
 	if (match.length === 0) {
 		console.warn("No route matches the path:", window.location.pathname);
@@ -107,6 +124,10 @@ document.querySelector("main").addEventListener("click", async (e) => {
 			break;
 		case "forty2-auth-btn":
 			login.forty2_signup_event(e);
+			break;
+		case "google-auth-btn":
+			e.preventDefault();
+			login.google_signup_event(e);
 			break;
 		case "submit-username":
 			login.username_event(e);
