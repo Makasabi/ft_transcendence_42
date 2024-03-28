@@ -1,4 +1,5 @@
-import { route } from "/front/pages/spa_router.js"
+import { route } from "/front/pages/spa_router.js";
+import { IView } from "/front/pages/IView.js";
 
 /*** Cookies ***/
 export function setCookie(name, value, days)
@@ -21,29 +22,63 @@ export function deleteCookie(name)
 	document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 }
 
-
-				/*** Render ***/
-export async function header_log()
-{
-	return await fetch("/front/pages/login/header.html").then(response => response.text());
+/*** Render ***/
+export class UnloggedHeaderView extends IView {
+	static async render() {
+		fetch("/front/pages/login/header.html")
+			.then(response => response.text())
+			.then(html => document.querySelector("header").innerHTML = html);
+	}
 }
 
-export async function signup_render()
-{
-	return await fetch("/front/pages/login/signup.html").then(response => response.text());
+export class LoginView extends IView {
+	static match_route(route) {
+		return route === "/login";
+	}
+
+	static async render() {
+		await fetch("/front/pages/login/login.html")
+			.then(response => response.text())
+			.then(html => document.querySelector("main").innerHTML = html);
+
+		const log_button = document.getElementById("submit-login");
+		log_button.addEventListener("click", login_event);
+	}
 }
 
-export async function login_render()
-{
-	return await fetch("/front/pages/login/login.html").then(response => response.text());
+export class SignupView extends IView {
+	static match_route(route) {
+		return route === "/signup";
+	}
+
+	static async render() {
+		fetch("/front/pages/login/signup.html")
+			.then(response => response.text())
+			.then(html => document.querySelector("main").innerHTML = html);
+	}
 }
 
-export async function username_render()
-{
-	return await fetch("/front/pages/login/username.html").then(response => response.text());
+export class UsernameView extends IView {
+	static match_route(route) {
+		return route === "/username";
+	}
+
+	static async render() {
+		fetch("/front/pages/login/username.html")
+			.then(response => response.text())
+			.then(html => document.querySelector("main").innerHTML = html);
+
+		const list_params = new URLSearchParams(window.location.search);
+		if (list_params.get('code'))
+		{
+			console.log("URL with queries");
+			await forty2_signup();
+			return ;
+		}
+	}
 }
 
-				/*** Utilities ***/
+/*** Utilities ***/
 export function logout()
 {
 	deleteCookie("token");
