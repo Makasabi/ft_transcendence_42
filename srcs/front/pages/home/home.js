@@ -1,7 +1,11 @@
 import { IView } from "/front/pages/IView.js";
 
 export class LoggedHeaderView extends IView {
-
+	static async render() {
+		fetch("/front/pages/home/header.html")
+			.then(response => response.text())
+			.then(html => document.querySelector("header").innerHTML = html);
+	}
 }
 
 export class HomeView extends IView {

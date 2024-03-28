@@ -1,6 +1,7 @@
 import { footer, LoggedHeaderView, HomeView } from "./home/home.js";
 import { MeView } from "./user_mgt/user_mgt.js";
 import * as login from "./login/login.js";
+import { UnloggedHeaderView, LoginView, SignupView, UsernameView } from "./login/login.js";
 
 	/*** Utilities ***/
 export function route(path, event=null)
@@ -13,18 +14,14 @@ export function route(path, event=null)
 
 function handleUnloggedLocation()
 {
-	if (!["/login", "/signup", "/username"].includes(window.location.pathname))
-	{
-		route("/login");
-		return ;
-	}
-	const routes = [
-		{path : "/login", view : login.login_render},
-		{path : "/signup", view : login.signup_render},
-	]
-	const match = routes.filter(view => view.path === window.location.pathname);
-	if (match.length === 0)
-	{
+	const views = [
+		LoginView,
+		SignupView,
+		UsernameView,
+	];
+
+	const match = views.filter(view => view.match_route(window.location.pathname));
+	if (match.length === 0) {
 		console.warn("No route matches the path:", window.location.pathname);
 		route("/login");
 		return;
@@ -34,17 +31,7 @@ function handleUnloggedLocation()
 		console.warn("Multiple routes match the same path:", window.location.pathname);
 		return;
 	}
-	match[0].view().then(html => {
-		document.querySelector("main").innerHTML = html;
-	});
-
-	//const list_params = new URLSearchParams(window.location.search);
-	//if (window.location.pathname === "/username" && list_params.get('code'))
-	//{
-	//	console.log("URL with queries");
-	//	await login.forty2_signup();
-	//	return ;
-	//}
+	match[0].render();
 }
 
 function handleLoggedLocation()
@@ -70,11 +57,12 @@ function handleLoggedLocation()
 
 function handleLocation()
 {
-	var was_logged = false;
+	var was_logged;
+
 	login.is_logged().then(is_logged => {
 		console.log("is_logged", is_logged);
 		if (was_logged !== is_logged)
-			update_header();
+			update_header(is_logged);
 		if (is_logged)
 		{
 			handleLoggedLocation();
@@ -88,12 +76,12 @@ function handleLocation()
 	});
 }
 
-function update_header()
+function update_header(is_logged)
 {
-	//const url = ["/login", "/signup"].includes(window.location.pathname);
-	//(url ? login.header_log() : header_in()).then(html => {
-	//	document.querySelector("header").innerHTML = html;
-	//});
+	if (is_logged)
+		LoggedHeaderView.render();
+	else
+		UnloggedHeaderView.render();
 }
 
 /*** Events ***/
@@ -114,9 +102,6 @@ document.addEventListener("DOMContentLoaded", function () {
 document.querySelector("main").addEventListener("click", async (e) => {
 	switch (e.target.id)
 	{
-		case "submit-login":
-			login.login_event(e);
-			break;
 		case "submit-signup":
 			login.signup_event(e);
 			break;
