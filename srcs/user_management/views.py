@@ -2,8 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from user_management.models import Player
 from game_management.models import Play
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view
 
 def profile_serializer(user):
 	"""
@@ -70,4 +69,30 @@ def me(request):
 
 @api_view(['GET'])
 def test(request):
-    pass
+	pass
+
+
+
+@api_view(['POST'])
+def edit_profile(request):
+	"""
+	Edit user's profile
+
+	Args:
+	- request: Request containing the new user data
+
+	Returns:
+	- JsonResponse: Response containing the new user data
+	"""
+	print(request.data)
+	user = request.user
+	if "username" in request.data:
+		user.username = request.data["username"]
+	if "email" in request.data:
+		user.email = request.data["email"]
+	if "avatar_file" in request.data:
+		user.avatar_file = request.data["avatar_file"]
+	user.save()
+	return JsonResponse(profile_serializer(user))
+
+

@@ -11,11 +11,11 @@ export class MeView extends IView {
 		let user = await fetch("/api/user_management/me", {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		}).then(response => response.json());
-		console.log("user", user);
+		// console.log("user", user);
 
 		// profile-infos
 		html = html.replace("{{avatar}}", user.avatar_file);
-		console.log(user.avatar_file);
+		// console.log(user.avatar_file);
 		html = html.replace("{{username}}", user.username);
 		html = html.replace("{{email}}", user.email);
 
@@ -31,7 +31,7 @@ export class MeView extends IView {
 
 		document.querySelector("main").innerHTML = html;
 
-		editProfile();
+		editProfileButton();
 	}
 }
 
@@ -70,6 +70,24 @@ function editModeOn(editables) {
 	return true;
 }
 
+async function editProfile() {
+
+	let username = document.getElementById("username").textContent;
+	let email = document.getElementById("email").textContent;
+	
+	const response = await fetch('api/user_management/edit_profile', {
+		method: 'POST',
+		headers: {
+			'Content-type' : 'application/json', 
+			'Authorization': `Token ${Login.getCookie('token')}`
+		},
+		body: JSON.stringify({ 'username' : username, 'email' : email }),
+	
+	}).then(response => response.json());
+	// console.log(response);
+
+}	
+
 function editModeOff(editables) {
 
 	for (let editable of editables) {
@@ -83,16 +101,18 @@ function editModeOff(editables) {
 	return false;
 }
 
-function editProfile()
+function editProfileButton()
 {
 	// change button text from "Edit my profile" to "Save"
 	document.getElementById("edit-button").textContent = "Edit my Profile"; 
 	const editables = document.getElementsByClassName("edit");
 	let edit = false;
-	console.log(editables);
 	document.getElementById("edit-button").addEventListener("click", () => {
 		if (edit === true)
+		{
+			editProfile();
 			edit = editModeOff(editables);
+		}
 		else
 			edit = editModeOn(editables);
 	});
