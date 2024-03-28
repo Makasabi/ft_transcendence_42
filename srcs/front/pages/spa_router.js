@@ -1,7 +1,7 @@
 import { footer, LoggedHeaderView, HomeView } from "./home/home.js";
 import { MeView } from "./user_mgt/user_mgt.js";
 import * as login from "./login/login.js";
-import { UnloggedHeaderView, LoginView, SignupView, UsernameView, Forty2View } from "./login/login.js";
+import { UnloggedHeaderView, LoginView, SignupView, Forty2View } from "./login/login.js";
 
 	/*** Utilities ***/
 export function route(path, event=null)
