@@ -92,6 +92,17 @@ export class SignupView extends IView {
 	}
 }
 
+export class UsernameView extends IView {
+	static match_route(route) {
+		return route === "/username";
+	}
+
+	static async render() {
+		fetch("/front/pages/login/username.html")
+			.then(response => response.text())
+			.then(html => document.querySelector("main").innerHTML = html);
+	}
+}
 
 				/*** Log ***/
 export function logout()
