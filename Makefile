@@ -6,6 +6,7 @@ run:
 
 init:
 	-make create_venv
+	-make update_venv
 	-make create_env
 	-make migrate
 	-make fill_db
@@ -14,8 +15,6 @@ init:
 create_venv:
 	@if [ -d "venv" ]; then echo "\033[93mvenv directory already exists. If you want to recreate it, please delete the venv directory first.\033[0m"; exit 1; fi
 	@python3 -m venv venv
-	@venv/bin/pip3 install --upgrade pip
-	@venv/bin/pip3 install -r requirements.txt
 
 create_env:
 	@if [ -e ".env" ]; then echo "\033[93m.env file already exists. If you want to recreate it, please delete the .env file first.\033[0m"; exit 1; fi
