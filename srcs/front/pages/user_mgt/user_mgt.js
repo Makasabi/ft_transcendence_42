@@ -60,3 +60,13 @@ export function getHistoryStats(html, user)
 		user.game_history.filter(game => game.rank.split('/')[0] === '1' && game.mode === 'Tournament').length);
 	return html;
 }
+
+const paragraph = document.getElementById("edit");
+const edit_button = document.getElementById("edit-button");
+// const end_button = document.getElementById("end-editing");
+
+if (edit_button)
+	edit_button.addEventListener("click", function() {
+		paragraph.contentEditable = true;
+		paragraph.style.backgroundColor = "#dddbdb";
+	})
