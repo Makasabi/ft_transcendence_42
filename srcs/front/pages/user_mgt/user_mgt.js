@@ -5,35 +5,39 @@ export class MeView extends IView {
 	static match_route(route) {
 		return route === "/me";
 	}
+
+	static async render() {
+		let html = await fetch("/front/pages/user_mgt/me.html").then(response => response.text());
+		let user = await fetch("/api/user_management/me", {
+			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+		}).then(response => response.json());
+		console.log("user", user);
+
+		// profile-infos
+		html = html.replace("{{avatar}}", user.avatar_file);
+		html = html.replace("{{username}}", user.username);
+		html = html.replace("{{email}}", user.email);
+
+		// global rank
+		// getGlobalRank(html, user);
+
+		html = html.replace("{{rank}}", user.global_rank);
+
+		// history-stats
+		html = getHistoryStats(html, user);
+
+		console.log(user.avatar_file);
+		//console.log("html", html);
+
+		document.querySelector("main").innerHTML = html;
+
+		document.getElementById("edit-button").addEventListener("click", () => {
+			console.log("edit-button clicked");
+		});
+	}
 }
 
-export async function me()
-{
-	let html = await fetch("/front/pages/user_mgt/me.html").then(response => response.text());
-	let user = await fetch("/api/user_management/me", {
-		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-	}).then(response => response.json());
-	console.log("user", user);
-
-	// profile-infos
-	html = html.replace("{{avatar}}", user.avatar_file);
-	html = html.replace("{{username}}", user.username);
-	html = html.replace("{{email}}", user.email);
-
-	// global rank
-	// getGlobalRank(html, user);
-
-	html = html.replace("{{rank}}", user.global_rank);
-
-	// history-stats
-	html = getHistoryStats(html, user);
-
-	console.log(user.avatar_file);
-	console.log(html);
-	return html;
-}
-
-export async function getHistoryStats(html, user)
+export function getHistoryStats(html, user)
 {
 	let historyTable = '';
 	for (let game of user.game_history) {
