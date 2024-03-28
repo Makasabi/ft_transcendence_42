@@ -11,6 +11,12 @@ init:
 	-make fill_db
 	-cd srcs && npm install
 
+create_venv:
+	@if [ -d "venv" ]; then echo "\033[93mvenv directory already exists. If you want to recreate it, please delete the venv directory first.\033[0m"; exit 1; fi
+	@python3 -m venv venv
+	@venv/bin/pip3 install --upgrade pip
+	@venv/bin/pip3 install -r requirements.txt
+
 create_env:
 	@if [ -e ".env" ]; then echo "\033[93m.env file already exists. If you want to recreate it, please delete the .env file first.\033[0m"; exit 1; fi
 	@echo > .env "DJANGO_SECRET_KEY=$(shell venv/bin/python3 srcs/manage.py shell -c 'from django.core.management import utils; print(utils.get_random_secret_key())')"

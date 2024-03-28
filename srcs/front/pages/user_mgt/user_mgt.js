@@ -1,4 +1,11 @@
 import * as Login from "/front/pages/login/login.js";
+import { IView } from "/front/pages/IView.js";
+
+export class MeView extends IView {
+	static match_route(route) {
+		return route === "/me";
+	}
+}
 
 export async function me()
 {

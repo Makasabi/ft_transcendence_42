@@ -53,27 +53,26 @@ export function logout()
 export async function is_logged()
 {
 	const token = getCookie('token');
-	try { 
-		const response = await fetch('api/auth/', {
-			method: 'GET',
-			headers: { 'Authorization': `Token ${token}` }
-		});
+	let response = false;
+
+	if (!token)
+		return false;
+	// @TODO test with a bad token
+	return fetch('api/auth/', {
+		method: 'GET',
+		headers: { 'Authorization': `Token ${token}` }
+	}).then(response => {
 		if (response.ok)
 			return true;
 		else
 			return false;
-	}
-	catch(error)
-	{
-		console.error('Fetch error: ', error);
-		return false;
-	}
+	});
 }
 
 export async function is_registered(email)
 {
 	try
-	{ 
+	{
 		const response = await fetch('api/auth/is_registered/', {
 			method: 'POST',
 			headers: {	'Content-type' : 'application/json'},
@@ -202,7 +201,7 @@ export async function signup_event(e)
 	const username = form.elements.signup_username.value;
 	const password = form.elements.signup_password.value;
 	const email = form.elements.signup_email.value;
-	signup(username, password, email); 
+	signup(username, password, email);
 }
 
 function generateRandomString()
@@ -212,7 +211,7 @@ function generateRandomString()
 	for (let i = 0; i < length; i++) {
 		const randomIndex = Math.floor(Math.random() * charset.length);
 		randomString += charset.charAt(randomIndex);
-	} 
+	}
 	return randomString;
 }
 
