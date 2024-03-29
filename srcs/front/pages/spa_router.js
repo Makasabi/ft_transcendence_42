@@ -1,62 +1,94 @@
-import { footer, header_in, home } from "/front/pages/home/home.js";
-import * as Login from "/front/pages/login/login.js";
-import { me } from "/front/pages/user_mgt/user_mgt.js";
-import { game } from "/front/pages/game/game.js";
+import { footer, LoggedHeaderView, HomeView } from "./home/home.js";
+import { MeView } from "./user_mgt/user_mgt.js";
+import * as login from "./login/login.js";
+import { GameView } from "/front/pages/game/game.js";
+import { UnloggedHeaderView, LoginView, SignupView, Forty2View } from "./login/login.js";
 
 	/*** Utilities ***/
-export function route(path)
+export function route(path, event=null)
 {
+	if (event)
+		event.preventDefault();
 	window.history.pushState({}, "", path);
 	handleLocation();
 }
 
-async function handleLocation() {
-	update_header();
-
-	// Change main content
-	const routes = [
-		{path : "/login", view : Login.login},
-		{path : "/signup", view : Login.signup},
-		{path : "/home", view : home},
-		{path : "/me", view : me},
-		{path : "/game", view : game},
+function handleUnloggedLocation()
+{
+	const views = [
+		LoginView,
+		SignupView,
+		Forty2View,
+		login.GoogleView,
+		login.UsernameView,
 	];
-	try
-	{
-		const log = await Login.is_logged();
-		if (!log && !["/login", "/signup"].includes(window.location.pathname))
-		{
-			route("/login");
-			return ;
-		}
-		const match = routes.filter(route => route.path === window.location.pathname);
-		if (match.length > 1)
-		{
-			console.warn("Multiple routes match the same path");
-			return;
-		}
-		if (match.length > 0)
-		{
-			match[0].view().then(html => document.querySelector("main").innerHTML = html);
-			return;
-		}
-		route("/home");
+
+	const match = views.filter(view => view.match_route(window.location.pathname));
+	if (match.length === 0) {
+		console.warn("No route matches the path:", window.location.pathname);
+		route("/login");
+		return;
 	}
-	catch (error)
+	if (match.length > 1)
 	{
-		console.error(error);
+		console.warn("Multiple routes match the same path:", window.location.pathname);
+		return;
 	}
+	match[0].render();
 }
 
-function update_header()
+function handleLoggedLocation()
 {
-	const url = ["/login", "/signup"].includes(window.location.pathname);
-	(url ? Login.header_log() : header_in()).then(html => {
-		document.querySelector("header").innerHTML = html;
+	const views = [
+		HomeView,
+		MeView,
+		GameView,
+	];
+
+	const match = views.filter(view => view.match_route(window.location.pathname));
+	if (match.length === 0) {
+		console.warn("No route matches the path:", window.location.pathname);
+		route("/home");
+		return;
+	}
+	if (match.length > 1)
+	{
+		console.warn("Multiple routes match the same path:", window.location.pathname);
+		return;
+	}
+	match[0].render();
+}
+
+function handleLocation()
+{
+	var was_logged;
+
+	login.is_logged().then(is_logged => {
+		console.log("is_logged", is_logged);
+		if (was_logged !== is_logged)
+			update_header(is_logged);
+		if (is_logged)
+		{
+			handleLoggedLocation();
+			was_logged = true;
+		}
+		else
+		{
+			handleUnloggedLocation();
+			was_logged = false;
+		}
 	});
 }
 
-	/*** Events ***/
+function update_header(is_logged)
+{
+	if (is_logged)
+		LoggedHeaderView.render();
+	else
+		UnloggedHeaderView.render();
+}
+
+/*** Events ***/
 document.addEventListener("DOMContentLoaded", function () {
 	window.onpopstate = function(event) {
 		handleLocation();
@@ -65,7 +97,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	footer().then(html => {
 		document.querySelector("footer").innerHTML = html;
 	});
-
 	handleLocation();
 	let tag = this.querySelector("header");
 	let parent = tag.parentNode;
@@ -73,15 +104,20 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 document.querySelector("main").addEventListener("click", async (e) => {
-	switch (e.target.id) {
-		case "submit-login":
-			Login.login_event(e);
-			break;
+	switch (e.target.id)
+	{
 		case "submit-signup":
-			Login.signup_event(e);
+			login.signup_event(e);
 			break;
 		case "forty2-auth-btn":
-			Login.forty_login_event(e);
+			login.forty2_signup_event(e);
+			break;
+		case "google-auth-btn":
+			e.preventDefault();
+			login.google_signup_event(e);
+			break;
+		case "submit-username":
+			login.username_event(e);
 			break;
 		case "not-registered":
 			e.preventDefault();
@@ -91,4 +127,4 @@ document.querySelector("main").addEventListener("click", async (e) => {
 });
 
 document.route = route;
-document.logout = Login.logout;
+document.logout = login.logout;

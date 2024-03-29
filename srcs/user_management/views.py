@@ -2,9 +2,9 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from user_management.models import Player
 from game.models import Play
+from rest_framework.decorators import api_view
 
-
-def get_user_data(user):
+def profile_serializer(user):
 	"""
 	Retrieve user's data
 
@@ -44,6 +44,7 @@ def get_user_data(user):
 	user_data["global_rank"] = f"{higher_scores + 1}/{Player.objects.count()}"
 	return user_data
 
+@api_view(['GET'])
 def me(request):
 	"""
 	Return the first user in the database
@@ -63,13 +64,35 @@ def me(request):
 		]
 	}
 	"""
-	if request.user.is_authenticated:
-		user = Player.objects.get(username=request.user)
-		return JsonResponse({"username": user.username, "email": user.email})
+	return JsonResponse(profile_serializer(request.user))
 
-	first_user = Player.objects.first()
-	user_data = get_user_data(first_user)
 
-	return JsonResponse(user_data)
+@api_view(['GET'])
+def test(request):
+	pass
+
+
+
+@api_view(['POST'])
+def edit_profile(request):
+	"""
+	Edit user's profile
+
+	Args:
+	- request: Request containing the new user data
+
+	Returns:
+	- JsonResponse: Response containing the new user data
+	"""
+	print(request.data)
+	user = request.user
+	if "username" in request.data:
+		user.username = request.data["username"]
+	if "email" in request.data:
+		user.email = request.data["email"]
+	if "avatar_file" in request.data:
+		user.avatar_file = request.data["avatar_file"]
+	user.save()
+	return JsonResponse(profile_serializer(user))
 
 

@@ -6,10 +6,15 @@ run:
 
 init:
 	-make create_venv
+	-make update_venv
 	-make create_env
 	-make migrate
 	-make fill_db
 	-cd srcs && npm install
+
+create_venv:
+	@if [ -d "venv" ]; then echo "\033[93mvenv directory already exists. If you want to recreate it, please delete the venv directory first.\033[0m"; exit 1; fi
+	@python3 -m venv venv
 
 create_env:
 	@if [ -e ".env" ]; then echo "\033[93m.env file already exists. If you want to recreate it, please delete the .env file first.\033[0m"; exit 1; fi
@@ -27,7 +32,6 @@ migrate:
 	@read -r answer; \
 	if [ "$$answer" = "y" ]; then \
 		rm -f srcs/db.sqlite3; \
-
 	fi
 	venv/bin/python3 srcs/manage.py makemigrations
 	venv/bin/python3 srcs/manage.py migrate
