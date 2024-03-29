@@ -1,6 +1,7 @@
 import { footer, LoggedHeaderView, HomeView } from "./home/home.js";
 import { MeView } from "./user_mgt/user_mgt.js";
 import * as login from "./login/login.js";
+import { GameView } from "/front/pages/game/game.js";
 import { UnloggedHeaderView, LoginView, SignupView, Forty2View } from "./login/login.js";
 
 	/*** Utilities ***/
@@ -41,6 +42,7 @@ function handleLoggedLocation()
 	const views = [
 		HomeView,
 		MeView,
+		GameView,
 	];
 
 	const match = views.filter(view => view.match_route(window.location.pathname));

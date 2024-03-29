@@ -114,7 +114,6 @@ export function logout()
 export async function is_logged()
 {
 	const token = getCookie('token');
-//	let response = false;
 
 	if (!token)
 		return false;
@@ -177,8 +176,7 @@ async function signup(username, password, email)
 				return (response.json());
 			else
 			{
-				return response.json().then(data =>
-				{
+				return response.json().then(data => {
 					console.error(data.error);
 					throw new Error('Wrong registration');
 				});
@@ -295,7 +293,7 @@ export async function signup_event(e)
 	const username = form.elements.signup_username.value;
 	const password = form.elements.signup_password.value;
 	const email = form.elements.signup_email.value;
-	signup(username, password, email); 
+	signup(username, password, email);
 }
 
 export async function username_event(e)
@@ -388,7 +386,7 @@ function generateRandomString(length)
 	for (let i = 0; i < length; i++) {
 		const randomIndex = Math.floor(Math.random() * charset.length);
 		randomString += charset.charAt(randomIndex);
-	} 
+	}
 	return randomString;
 }
 

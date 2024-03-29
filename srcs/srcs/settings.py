@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'authentication',
 	'user_management',
-	'game_management',
+	'game',
 ]
 
 REST_FRAMEWORK = {
@@ -136,6 +136,7 @@ STATIC_URL = 'front/'
 
 STATICFILES_DIRS = [
 	BASE_DIR / "front",
+	BASE_DIR / "node_modules",
 ]
 
 # Default primary key field type

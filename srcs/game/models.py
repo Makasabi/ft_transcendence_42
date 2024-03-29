@@ -1,4 +1,4 @@
-# game_management/models.py
+# game/models.py
 
 from django.db import models
 from django.utils import timezone
