@@ -89,6 +89,8 @@ def edit_profile(request):
 		user.email = request.data["email"]
 	if "avatar_file" in request.data:
 		user.avatar_file = request.data["avatar_file"]
+	if "password" in request.data:
+		user.set_password(request.data["password"])
 	user.save()
 	return JsonResponse(profile_serializer(user))
 
@@ -96,7 +98,7 @@ def edit_profile(request):
 @api_view(['GET'])
 def user(request, username):
 	"""
-	Return all users in the database
+	Return a user from the database
 
 	json response format:
 	"""

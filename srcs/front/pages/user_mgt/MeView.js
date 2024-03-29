@@ -27,6 +27,7 @@ async function editProfile() {
 
 	let username = document.getElementById("username").textContent;
 	let email = document.getElementById("email").textContent;
+	let password = document.getElementById("password").textContent;
 	
 	const response = await fetch('api/user_management/edit_profile', {
 		method: 'POST',
@@ -34,10 +35,10 @@ async function editProfile() {
 			'Content-type' : 'application/json', 
 			'Authorization': `Token ${Login.getCookie('token')}`
 		},
-		body: JSON.stringify({ 'username' : username, 'email' : email }),
+		body: JSON.stringify({ 'username' : username, 'email' : email, 'password' : password}),
 	
 	}).then(response => response.json());
-}	
+}
 
 function editModeOn(editables) {
 
@@ -48,10 +49,10 @@ function editModeOn(editables) {
 		editable.style.color = "#353536";
 		editable.style.borderRadius = "5px";
 	}
-	document.getElementById("edit-button").textContent = "Save"; 
+	document.getElementById("edit-button").textContent = "Save";
+	document.getElementById("password").textContent = "*********";
 	return true;
 }
-
 
 function editModeOff(editables) {
 
@@ -62,6 +63,7 @@ function editModeOff(editables) {
 		editable.style.removeProperty("border");
 		editable.style.color = "#dedede";
 	}
+	document.getElementById("password").textContent = "";
 	document.getElementById("edit-button").textContent = "Edit my Profile"; 
 	return false;
 }
