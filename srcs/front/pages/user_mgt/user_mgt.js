@@ -11,31 +11,27 @@ export class MeView extends IView {
 		let user = await fetch("/api/user_management/me", {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		}).then(response => response.json());
-		// console.log("user", user);
-
+	
 		// profile-infos
-		html = html.replace("{{avatar}}", user.avatar_file);
-		// console.log(user.avatar_file);
-		html = html.replace("{{username}}", user.username);
-		html = html.replace("{{email}}", user.email);
-
-		// global rank
-		// getGlobalRank(html, user);
-
-		html = html.replace("{{rank}}", user.global_rank);
-
+		html = getProfileInfos(html, user);
 		// history-stats
 		html = getHistoryStats(html, user);
 
-		// console.log(user.avatar_file);
-
 		document.querySelector("main").innerHTML = html;
-
 		editProfileButton();
 	}
 }
 
-export function getHistoryStats(html, user)
+function getProfileInfos(html, user) {
+	html = html.replace("{{avatar}}", user.avatar_file);
+	html = html.replace("{{username}}", user.username);
+	html = html.replace("{{email}}", user.email);
+	html = html.replace("{{rank}}", user.global_rank);
+	return html;
+}
+
+
+function getHistoryStats(html, user)
 {
 	let historyTable = '';
 	for (let game of user.game_history) {
@@ -48,6 +44,7 @@ export function getHistoryStats(html, user)
 		</tr>
 		`;
 	}
+
 	html = html.replace("{{history}}", historyTable);
 	html = html.replace("{{games_played}}", user.game_history.length);
 	html = html.replace("{{games_won}}", user.game_history.filter(game => game.rank.split('/')[0] === '1').length);
@@ -84,8 +81,6 @@ async function editProfile() {
 		body: JSON.stringify({ 'username' : username, 'email' : email }),
 	
 	}).then(response => response.json());
-	// console.log(response);
-
 }	
 
 function editModeOff(editables) {
@@ -103,7 +98,6 @@ function editModeOff(editables) {
 
 function editProfileButton()
 {
-	// change button text from "Edit my profile" to "Save"
 	document.getElementById("edit-button").textContent = "Edit my Profile"; 
 	const editables = document.getElementsByClassName("edit");
 	let edit = false;
@@ -116,4 +110,76 @@ function editProfileButton()
 		else
 			edit = editModeOn(editables);
 	});
+}
+
+export class UserView extends IView {
+	static match_route(route) {
+		let regex = new RegExp("^/user/[\\w]+$");
+		return regex.test(route);
+	}
+
+	static async render() {
+		console.log("UserView.render");
+		let call = "/api/user_management/user/" + window.location.pathname.split('/')[2];
+
+		let html = await fetch("/front/pages/user_mgt/user.html").then(response => response.text());
+		let user = await fetch(call, {
+			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+			
+		}).then(response => response.json());
+		if (user.error)
+		{
+			MeView.render();
+			return;
+		}
+
+		// profile-infos
+		html = getProfileInfos(html, user);
+		// history-stats
+		html = getHistoryStats(html, user);
+
+		document.querySelector("main").innerHTML = html;
+		addFriendButton();
+	}
+}
+
+function addFriend(user) {
+	fetch("/api/user_management/add_friend/" + user, {
+		method: 'POST',
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	})
+	return "Remove Friend";
+}
+
+function removeFriend(user) {
+	fetch("/api/user_management/remove_friend/" + user, {
+		method: 'DELETE',
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	})
+	return "Add Friend";
+}
+
+function addFriendButton()
+{
+	let button = document.getElementById("add-friend");
+	let user2 = window.location.pathname.split('/')[2];
+
+	fetch("/api/user_management/friends/" + user2, {
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	}).then(response => response.json()).then(response => {
+		if (response.friends === true)
+			button.textContent = "Remove Friend";
+		else
+			button.textContent = "Add Friend";
+	});
+
+	// Event listener to button to add or remove friend
+	button.addEventListener("click", () => {
+		if (button.textContent === "Add Friend")
+			button.textContent = addFriend(user2)
+		else
+			button.textContent = removeFriend(user2)
+	});
+
+
 }
