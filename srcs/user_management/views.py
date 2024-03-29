@@ -152,8 +152,6 @@ def friends(request, username):
 	"""
 	user1 = request.user.username
 	user2 = username
-	print("user1", user1)
-	print("user2", user2)
 	if BeFriends.objects.filter(user1__username=user1, user2__username=user2).exists() \
 		or BeFriends.objects.filter(user1__username=user2, user2__username=user1).exists():
 		return JsonResponse({'friends': True})
