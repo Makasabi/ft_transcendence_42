@@ -14,8 +14,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'srcs.settings')
 django.setup()
 
 # from django.contrib.auth.models import User
-# from django.contrib.auth import get_user_model
-from user_management.models import Player
+from django.contrib.auth import get_user_model
+from user_management.models import Player, BeFriends
 
 def import_users(csv_file):
 	try:
@@ -32,6 +32,8 @@ def import_users(csv_file):
 				else:
 					Player.objects.create_user(username=username, email=email, password=password, avatar_file=avatar_file)
 					print(f'User "{username}" created successfully')
+
+	
 	except FileNotFoundError:
 		print("File not found. Please provide a valid CSV file path.")
 
