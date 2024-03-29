@@ -59,7 +59,7 @@ export class RenderingContext {
 	}
 
 	#create_gl_context() {
-		const canvas = document.querySelector('canvas');
+		const canvas = document.getElementById("game_canvas");
 		canvas.width = canvas.clientWidth;
 		canvas.height = canvas.width * 0.5;
 		let gl = canvas.getContext("webgl2", { premultipliedAlpha: false });
@@ -97,7 +97,7 @@ export class RenderingContext {
 		gl.enable(gl.BLEND);
 		gl.blendFunc(gl.SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
 
-		gl.clearColor(1, 1, 1, 1);
+		gl.clearColor(1, 1, 1, 0);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 		gl.enableVertexAttribArray(positionAttributeLocation);

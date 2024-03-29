@@ -8,9 +8,21 @@ export class GameView extends IView {
 
 	static async render() {
 		let ready_state = 0;
+		let main = document.querySelector("main");
+		let main_set = false;
+
+		//let particule = document.getElementsByClassName("particles-js-canvas-el");
+		//if (particule.length > 0)
+		//	particule[0].remove();
+
+		let footer = document.querySelector("footer");
+		if (footer !== null)
+			footer.remove();
 
 		await fetch("/front/pages/game/game.html").then(response => response.text()).then(html => {
-			document.querySelector("main").innerHTML = html;
+			main.innerHTML = html;
+			main_set = true;
+
 		});
 
 		let stylesheet = document.createElement("link");
@@ -27,7 +39,9 @@ export class GameView extends IView {
 		script.onload = () => {
 			ready_state++;
 		};
-		const main = document.querySelector("main");
+
+		while (!main_set)
+			await new Promise(resolve => setTimeout(resolve, 100));
 		main.appendChild(script);
 
 		while (ready_state < 2)
@@ -40,8 +54,8 @@ export class GameView extends IView {
 			await game.load();
 			game.run();
 		}
-		catch (error) {
-			console.error("Game error: ", error);
+		catch (e) {
+			console.error("Game error", e);
 		}
 	}
 
