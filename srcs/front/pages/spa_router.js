@@ -19,24 +19,9 @@ function handleUnloggedLocation()
 		SignupView,
 		Forty2View,
 		login.GoogleView,
+		UsernameView,
 	];
 
-	//const list_params = new URLSearchParams(window.location.search);
-	//if (window.location.pathname === "/forty2" && list_params.get('code'))
-	//{
-	//	await login.forty2_signup();
-	//	return ;
-	//}
-	//if (window.location.pathname === "/google")// && list_params.get('code'))
-	//{
-	//	console.log("Google response params: ");
-	//	for (const [key, value] of list_params.entries()) {
-	//	    console.log(`${key}: ${value}`);
-	//	}
-	//	await login.google_signup();
-	//	return ;
-	//}
-	//try 
 	const match = views.filter(view => view.match_route(window.location.pathname));
 	if (match.length === 0) {
 		console.warn("No route matches the path:", window.location.pathname);
@@ -128,9 +113,6 @@ document.querySelector("main").addEventListener("click", async (e) => {
 		case "google-auth-btn":
 			e.preventDefault();
 			login.google_signup_event(e);
-			break;
-		case "submit-username":
-			login.username_event(e);
 			break;
 		case "not-registered":
 			e.preventDefault();

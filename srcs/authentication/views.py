@@ -45,7 +45,6 @@ def signup(request):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 	serializer.save()
 	user = Player.objects.get(username=request.data["username"])
-	
 	# random avatar file from /front/ressources/img/png/avatar_XXX.png
 	avatar_file = "/front/ressources/img/png/avatar_0" + str(random.randint(0, 3)) + ".png"
 	user.avatar_file = avatar_file
@@ -71,6 +70,26 @@ def forty2_auth(request):
 	if 'error' in data.keys():
 		return Response(data, status=status.HTTP_400_BAD_REQUEST)
 	print(data)
+	return Response(data)
+
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+def google_auth(request):
+	print(request.data)
+	data = {
+		'grant_type': 'authorization_code',
+		'client_id': '646881961013-bgo5lf3ru7bc1869b12ushtq3q2irgah.apps.googleusercontent.com',
+		'client_secret': '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',
+		'code': request.data['code'],
+		'redirect_uri': 'http://localhost:8000/google',
+	}
+	print(data)
+	response = requests.post("https://oauth2.googleapis.com/token", data=data)
+	data = response.json()
+	if 'error' in data.keys():
+		return Response(data, status=status.HTTP_400_BAD_REQUEST)
+	print("Google", data)
 	return Response(data)
 
 @api_view(['POST'])
