@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'authentication',
 	'user_management',
 	'game',
+	'rooms',
 ]
 
 REST_FRAMEWORK = {

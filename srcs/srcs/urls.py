@@ -23,6 +23,7 @@ urlpatterns = [
 	path('api/user_management/', include('user_management.urls')),
 	path('api/auth/', include('authentication.urls')),
 	path('api/game/', include('game.urls')),
+	path('api/rooms/', include ('rooms.urls')),
 	path('', SPA_view.SPAView.as_view(), name='base'),
 	path('<path:test>', SPA_view.SPAView.as_view(), name='base'),
 ]

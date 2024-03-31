@@ -66,10 +66,17 @@
 
 .centered_box h2{
 	line-height: 1.1;
-	font-size: 1em;
-	margin: 2vh;
+	font-size: 1.1em;
+	margin: 1vh;
 	line-height: 150%;
 }
+
+.centered_box h3{
+	line-height: 1.1;
+	margin: 0 0 1vh 0;
+	line-height: 150%;
+}
+
 
 
 form {
@@ -134,7 +141,7 @@ form button {
 	align-self: center;
 	display: grid;
 }
-/* 
+/*
 footer {
 	height: 4%;
 	bottom: 0;
