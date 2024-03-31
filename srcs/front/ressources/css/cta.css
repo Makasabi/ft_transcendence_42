@@ -3,15 +3,20 @@
 	border-radius: 10px;
 	font-weight: 700;
 	color: var(--light);
-	border: var(--light) 1px solid;
+	border: var(--border-light) 1px solid;
 	backdrop-filter: blur(4px);
 	background-color: var(--transparent-dark);
 	width: 100%;
 	cursor: pointer;
 }
 
+.home_button:hover {
+	background-color: var(--hover-primary-color);
+	transition: ease-in-out 0.1s;
+}
+
 form button {
-	margin: inherit;
+	margin: 1vh 0;
 	padding: 1vh;
 	font-weight: 700;
 	border-radius: 10px;
@@ -19,6 +24,11 @@ form button {
 	color: var(--light);
 	border: none;
 	cursor: pointer;
+}
+
+form button:hover {
+	background-color: var(--transparent-primary);
+	transition: ease-in-out 0.1s;
 }
 
 .purple_cta {
@@ -31,6 +41,11 @@ form button {
 	border: none;
 	width: 70%;
 	cursor: pointer;
+}
+
+.purple_cta:hover {
+	background-color: var(--hover-primary-color);
+	transition: ease-in-out 0.1s;
 }
 
 
@@ -139,26 +154,33 @@ form button {
 	opacity: 8%;
   }
 
+  .joinRoomForm,
   .createRoomSelect {
 	display: none;
 	opacity: 0; /* Initially set opacity to 0 */
 	transition: opacity 0.5s ease; /* Apply transition effect on opacity */
   }
 
+  .joinRoomForm.show,
   .createRoomSelect.show {
 	display: block;
+	width: 100%;
 	opacity: 1;
   }
 
-  .createRoom {
+  .clicked {
+	background-color: var(--primary-color);
+  }
+
+  /* .createRoom {
 	display: flex;
 	flex-direction: column;
 	place-items: center;
-}
+} */
 
   .inactive,
   label {
-	--inactive-btn-text: var(--dark);
+	--inactive-btn-text: var(--light);
   }
 
   .createRoomMode {
@@ -166,16 +188,16 @@ form button {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 5px;
+    /* padding: 5px 0; */
     background-color: var(--transparent-primary);
-    border: var(--ligth) 1px solid;
     width: 100%;
     border-radius: 10px;
 }
 
+.JRM_cta,
 .CRM_cta {
 	padding: 10px 20px;
-	margin: 1vh;
+	margin: 1vh 0;
 	border-radius: 10px;
 	font-weight: 700;
 	color: var(--light);
@@ -184,6 +206,7 @@ form button {
 	cursor: pointer;
 }
 
+.JRM_cta:hover,
 .CRM_cta:hover {
 	background-color: var(--primary-color);
 	transition: ease-in-out 0.1s;

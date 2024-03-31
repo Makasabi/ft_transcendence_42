@@ -43,7 +43,7 @@ function handleLoggedLocation()
 	const views = [
 		HomeView,
 		MeView,
-		GameView,
+		// GameView,
 		createNormalRoomView,
 		createTournamentRoomView,
 	];

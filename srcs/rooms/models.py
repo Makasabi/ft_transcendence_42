@@ -5,7 +5,7 @@ from user_management.models import Player
 class Rooms(models.Model):
 	room_id = models.AutoField(primary_key=True)
 	date = models.DateField(default=timezone.now)
-	mode = models.CharField(max_length=50)
+	roomMode = models.CharField(max_length=50)
 	visibility = models.CharField(max_length=50)
 	code = models.CharField(max_length=50)
 
