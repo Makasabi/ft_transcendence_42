@@ -4,7 +4,12 @@
 <ul class="menu">
 	<li><a onclick="route('/me')">Profile</a></li>
 	<li><a href="#friends">Friends</a></li>
-	<li><a href="#notifs">Notifications</a></li>
+	<li><a href="#notifs">Notifications</a>
+		<a class="nav-link " href="#"  data-bs-toggle="dropdown" aria-expanded="false">
+			<i id="bellCount" class="fa-solid fa-bell" data-count="0" ></i>
+		</a>
+		<ul class="dropdown-menu dropdown-menu-dark  text-wrap" id="notify" style="width: 300px !important;"></ul>
+	</li>
 	<li><a href="#language">Language</a></li>
 	<li><a onclick="logout()"><strong>Log out</strong></a></li>
 </ul>
