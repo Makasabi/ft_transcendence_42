@@ -6,7 +6,8 @@ export class createNormalRoomView extends IView {
 	}
 
 	static async render() {
-		let html = await fetch("/front/pages/room/create_normal.html").then(response => response.text());
+		
+		let html = await fetch("/front/pages/room/create.html").then(response => response.text());
 		document.querySelector("main").innerHTML = html;
 	}
 }
@@ -17,7 +18,7 @@ export class createTournamentRoomView extends IView {
 	}
 
 	static async render() {
-		let html = await fetch("/front/pages/room/create_tournament.html").then(response => response.text());
+		let html = await fetch("/front/pages/room/create.html").then(response => response.text());
 		document.querySelector("main").innerHTML = html;
 	}
 }
