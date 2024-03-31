@@ -22,6 +22,7 @@ urlpatterns = [
 	path('admin/', admin.site.urls),
 	path('api/user_management/', include('user_management.urls')),
 	path('api/auth/', include('authentication.urls')),
+	path('api/game/', include('game.urls')),
 	path('api/<path:_>', HTTP_404_view.HTTP_404View.as_view(), name='404'),
 	path('', SPA_view.SPAView.as_view(), name='base'),
 	path('<path:test>', SPA_view.SPAView.as_view(), name='base'),

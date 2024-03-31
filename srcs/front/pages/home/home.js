@@ -1,4 +1,5 @@
 import { IView } from "/front/pages/IView.js";
+import { route } from "/front/pages/spa_router.js";
 
 export class LoggedHeaderView extends IView {
 	static async render() {
@@ -14,9 +15,13 @@ export class HomeView extends IView {
 	}
 
 	static async render() {
-		fetch("/front/pages/home/home.html")
+		await fetch("/front/pages/home/home.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
+
+		document.getElementById("game").addEventListener("click", () => {
+			route("/game");
+		});
 	}
 
 	static destroy() {

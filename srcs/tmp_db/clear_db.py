@@ -14,7 +14,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'srcs.settings')
 django.setup()
 
 from user_management.models import Player
-from game_management.models import Game, Play
+from game.models import Game, Play
 
 # Now you can use Django models safely
 def clear_database():

@@ -15,7 +15,7 @@ django.setup()
 
 # from django.contrib.auth.models import Player
 from user_management.models import Player
-from game_management.models import Game, Play
+from game.models import Game, Play
 from django.utils import timezone
 
 def create_game(users):

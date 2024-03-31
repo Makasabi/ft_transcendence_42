@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from user_management.models import Player, BeFriends
-from game_management.models import Play
+from game.models import Play
 from rest_framework.decorators import api_view
 
 def profile_serializer(user):
@@ -28,7 +28,7 @@ def profile_serializer(user):
 		# Get all scores for the current game
 		scores_in_game = Play.objects.filter(game=game_score.game)
 		nb_players = scores_in_game.count()
-		
+
 		# score__gt = greater than current score
 		higher_scores = scores_in_game.filter(score__gt=game_score.score).count()
 		rank = f"{higher_scores + 1}/{nb_players}"
