@@ -1,21 +1,38 @@
-const notifyScoket = new WebSocket(
+import { IView } from "/front/pages/IView.js";
+import { HomeView } from "/front/pages/home/home.js";
+
+export class NotifView extends IView {
+	static match_route(route) {
+		// let regex = new RegExp("^/user/[\\w]+$");
+		// return regex.test(route);
+		return route === "/notif";
+	}
+
+	// calls HomeView.render
+	static async render() {
+		console.log("NotifView.render");
+		HomeView.render();
+	}
+}
+
+const notifySocket = new WebSocket(
 	'ws://'
 	+ window.location.host
 	+ '/ws/notify/'
 );
 
 // on socket open
-notifyScoket.onopen = function (e) {
+notifySocket.onopen = function (e) {
 	console.log('Socket successfully connected.');
 };
 
 // on socket close
-notifyScoket.onclose = function (e) {
+notifySocket.onclose = function (e) {
 	console.log('Socket closed unexpectedly');
 };
 
 // on receiving message on group
-notifyScoket.onmessage = function (e) {
+notifySocket.onmessage = function (e) {
 	const data = JSON.parse(e.data);
 	const message = data.message;
 	// Call the setMessage function to add the new li element
