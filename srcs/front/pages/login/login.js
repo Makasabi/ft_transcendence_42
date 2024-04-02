@@ -1,3 +1,4 @@
+import { createNotificationSocket } from "/front/pages/notif/NotifView.js";
 import { route } from "/front/pages/spa_router.js";
 import { IView } from "/front/pages/IView.js";
 
@@ -152,6 +153,7 @@ async function login(username, password)
 			console.log("token: ", data.token);
 			console.log("user: ", data.user);
 			setCookie("token", data.token, 1);
+			createNotificationSocket(username);
 			route("/home");
 			return true;
 		})
@@ -192,6 +194,7 @@ async function signup(username, password, email)
 				console.log("token : ", data.token);
 				console.log("user : ", data.user);
 				setCookie("token", data.token, 1);
+				createNotificationSocket(username);
 				route("/home");
 			}
 		})
@@ -235,6 +238,7 @@ export async function forty2_signup()
 	try
 	{
 		const reg = await is_registered(email);
+		// createNotificationSocket(username);
 		if (!reg)
 			route("/username")
 		else
