@@ -3,7 +3,7 @@ import { MeView } from "./user_mgt/user_mgt.js";
 import * as login from "./login/login.js";
 import { GameView } from "/front/pages/game/game.js";
 import { UnloggedHeaderView, LoginView, SignupView, Forty2View } from "./login/login.js";
-import { createNormalRoomView, createTournamentRoomView } from "./room/room.js";
+import { createNormalRoomView, createTournamentRoomView, RoomView } from "./room/room.js";
 
 	/*** Utilities ***/
 export function route(path, event=null)
@@ -46,6 +46,7 @@ function handleLoggedLocation()
 		// GameView,
 		createNormalRoomView,
 		createTournamentRoomView,
+		RoomView,
 	];
 
 	const match = views.filter(view => view.match_route(window.location.pathname));

@@ -1,0 +1,14 @@
+@media (min-width: 48em) {
+
+}
+
+
+
+.box_style {
+	border-radius: 10px;
+	border: var(--border-light) 1px solid;
+	padding: 3em;
+	backdrop-filter: blur(4px);
+	background-color: var(--transparent-dark);
+}
+

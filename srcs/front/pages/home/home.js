@@ -1,6 +1,6 @@
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
-import { createRoomMode, joinRoomForm } from "/front/pages/room/room.js";
+import { createRoomForm, joinRoomForm } from "/front/pages/room/room.js";
 
 export class LoggedHeaderView extends IView {
 	static async render() {
@@ -41,7 +41,7 @@ export class HomeView extends IView {
 					break;
 			}
 		});
-		createRoomMode(); // from room.js
+		createRoomForm(); // from room.js
 		joinRoomForm(); // from room.js
 	}
 
