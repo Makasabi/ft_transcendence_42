@@ -7,13 +7,14 @@ from .models import Notification
 @receiver(post_save, sender=Notification)
 def notification_created(sender, instance, created, **kwargs):
 	if created:
-		print('Notification was created with Django admin')
-		channel_layer = get_channel_layer()
-		async_to_sync(channel_layer.group_send)(
-			'notif_group',
-			{
-				'type': 'send_notification',
-				'message': instance.message
-			}
-		)	
-		print('Notification sent to group notif_group')
+		print('Notification was created in DB')
+		# channel_layer = get_channel_layer()
+		# async_to_sync(channel_layer.group_send)(
+		# 	'notif_group',
+		# 	{
+		# 		'type': 'send_notification',
+		# 		'user': 'wansomeone',
+		# 		'message': instance.message
+		# 	}
+		# )	
+		# print('Notification sent to group notif_group')
