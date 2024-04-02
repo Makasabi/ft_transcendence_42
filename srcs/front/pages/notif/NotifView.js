@@ -3,9 +3,8 @@ import { HomeView } from "/front/pages/home/home.js";
 
 export class NotifView extends IView {
 	static match_route(route) {
-		// let regex = new RegExp("^/user/[\\w]+$");
-		// return regex.test(route);
-		return route === "/notif";
+		let regex = new RegExp("^/notif/[\\w]+$");
+		return regex.test(route);
 	}
 
 	// calls HomeView.render
@@ -15,30 +14,39 @@ export class NotifView extends IView {
 	}
 }
 
-const notifySocket = new WebSocket(
+// create Notification socket for the user
+export function createNotificationSocket(username) {
+	console.log('Creating socket for:', username);
+	const notifySocket = new WebSocket(
 	'ws://'
 	+ window.location.host
-	+ '/ws/notify/'
-);
+	+ '/ws/notif/'
+	+ username
+	);
+	if (notifySocket.error) {
+		console.log('Error creating socket');
+		return;
+	}
 
-// on socket open
-notifySocket.onopen = function (e) {
-	console.log('Socket successfully connected.');
-};
+	// on socket open
+	notifySocket.onopen = function (e) {
+		console.log('Socket successfully connected.');
+	};
 
-// on socket close
-notifySocket.onclose = function (e) {
-	console.log('Socket closed unexpectedly');
-};
+	// on socket close
+	notifySocket.onclose = function (e) {
+		console.log('Socket closed unexpectedly');
+	};
 
-// on receiving message on group
-notifySocket.onmessage = function (e) {
-	const data = JSON.parse(e.data);
-	const message = data.message;
-	// Call the setMessage function to add the new li element
-	setMessage(message);
+	// on receiving message on group
+	notifySocket.onmessage = function (e) {
+		const data = JSON.parse(e.data);
+		const message = data.message;
+		// Call the setMessage function to add the new li element
+		setMessage(message);
+	};
+}
 
-};
 
 function setMessage(message) {
 	console.log('Message:', message);
@@ -62,6 +70,7 @@ function setMessage(message) {
 	ulElement.appendChild(newLi);
 
 	// getting object of count
-	count = document.getElementById('bellCount').getAttribute('data-count');
-	document.getElementById('bellCount').setAttribute('data-count', parseInt(count) + 1);
+	console.log(document.getElementById('bellCount'));
+	// count = document.getElementById('bellCount').getAttribute('data-count');
+	// document.getElementById('bellCount').setAttribute('data-count', parseInt(count) + 1);
 }

@@ -6,15 +6,14 @@ from .models import Notification
 
 @receiver(post_save, sender=Notification)
 def notification_created(sender, instance, created, **kwargs):
-	# pass
 	if created:
-		print('NOTIFICATION WAS CREATED')
+		print('Notification was created with Django admin')
 		channel_layer = get_channel_layer()
 		async_to_sync(channel_layer.group_send)(
-			'public_room',
+			'notif_group',
 			{
-				"type": "send_notification",
-				"message": instance.message
+				'type': 'send_notification',
+				'message': instance.message
 			}
-		)
-		print("channel_layer: ", channel_layer)
+		)	
+		print('Notification sent to group notif_group')
