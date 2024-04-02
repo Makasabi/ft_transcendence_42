@@ -15,7 +15,7 @@ from notification.middleware import WebSocketAuthMiddleware
 from channels.security.websocket import AllowedHostsOriginValidator
 from notification.routing import websocket_urlpatterns
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'srcs.settings')
 
 application = ProtocolTypeRouter({
 	"http": get_asgi_application(),
