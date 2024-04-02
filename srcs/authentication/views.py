@@ -6,9 +6,6 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .serializers import PlayerSerializer
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-
 import requests
 
 ##### Authentication #####
@@ -24,9 +21,6 @@ def login(request):
 			return Response({"error" : "Wrong password"}, status=status.HTTP_400_BAD_REQUEST)
 		token, _ = Token.objects.get_or_create(user=user)
 		serializer = PlayerSerializer(instance=user)
-
-		channel_layer = get_channel_layer()
-		async_to_sync(channel_layer.group_add)('public_room', 'user_%s' % user.id)
 
 		return Response({ "token" : token.key, "user" : serializer.data }, status=status.HTTP_200_OK)
 	except Player.DoesNotExist:
