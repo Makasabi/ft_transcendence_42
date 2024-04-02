@@ -46,6 +46,7 @@ fill_db:
 	@echo "Make sure you did make migrate before running this command."
 	@venv/bin/python3 srcs/tmp_db/fill_db_users.py srcs/tmp_db/db_users.csv
 	@venv/bin/python3 srcs/tmp_db/fill_db_game.py
+	@venv/bin/python3 srcs/tmp_db/fill_table_friends.py
 
 clear_db:
 	@venv/bin/python3 srcs/tmp_db/clear_db.py

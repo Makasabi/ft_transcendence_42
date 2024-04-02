@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from user_management.models import Player
+from user_management.models import Player, BeFriends
 from game.models import Play
 from rest_framework.decorators import api_view
 
@@ -66,12 +66,9 @@ def me(request):
 	"""
 	return JsonResponse(profile_serializer(request.user))
 
-
 @api_view(['GET'])
 def test(request):
 	pass
-
-
 
 @api_view(['POST'])
 def edit_profile(request):
@@ -92,7 +89,73 @@ def edit_profile(request):
 		user.email = request.data["email"]
 	if "avatar_file" in request.data:
 		user.avatar_file = request.data["avatar_file"]
+	if "password" in request.data:
+		user.set_password(request.data["password"])
 	user.save()
 	return JsonResponse(profile_serializer(user))
 
+# function to get a specific user
+@api_view(['GET'])
+def user(request, username):
+	"""
+	Return a user from the database
 
+	json response format:
+	"""
+	user = Player.objects.filter(username=username).first()
+	if user is None:
+		return JsonResponse({'error': 'User not found'}, status=404)
+	return JsonResponse(profile_serializer(user))
+
+@api_view(['POST'])
+def add_friend(request, username):
+	"""
+	Add a friend to the user's friend list
+
+	Args:
+	- request: Request containing the friend's username
+
+	Returns:
+	- JsonResponse: Response containing the new user data
+	"""
+	user1 = request.user.username
+	user2 = username
+	# add connection in BeFriends table
+	BeFriends.objects.create(user1=Player.objects.get(username=user1), user2=Player.objects.get(username=user2))
+	BeFriends.objects.create(user1=Player.objects.get(username=user2), user2=Player.objects.get(username=user1))
+	return JsonResponse(profile_serializer(request.user))
+
+@api_view(['DELETE'])
+def remove_friend(request, username):
+	"""
+	Remove a friend from the user's friend list
+
+	Args:
+	- request: Request containing the friend's username
+
+	"""
+	user1 = request.user.username
+	user2 = username
+	# remove connection in BeFriends table
+	BeFriends.objects.filter(user1__username=user1, user2__username=user2).delete()
+	BeFriends.objects.filter(user1__username=user2, user2__username=user1).delete()
+	return JsonResponse(profile_serializer(request.user))
+
+@api_view(['GET'])
+def friends(request, username):
+	"""
+	Check if two users are friends
+	
+	Args:
+	- request: Request containing the friend's username
+
+	Returns:
+	- bool: True if the two users are friends, False otherwise
+	"""
+	user1 = request.user.username
+	user2 = username
+	if BeFriends.objects.filter(user1__username=user1, user2__username=user2).exists() \
+		or BeFriends.objects.filter(user1__username=user2, user2__username=user1).exists():
+		return JsonResponse({'friends': True})
+	return JsonResponse({'friends': False})
+	

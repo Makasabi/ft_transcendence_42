@@ -21,6 +21,7 @@ def login(request):
 			return Response({"error" : "Wrong password"}, status=status.HTTP_400_BAD_REQUEST)
 		token, _ = Token.objects.get_or_create(user=user)
 		serializer = PlayerSerializer(instance=user)
+
 		return Response({ "token" : token.key, "user" : serializer.data }, status=status.HTTP_200_OK)
 	except Player.DoesNotExist:
 		return Response({ "error" : "User does not exist"}, status=status.HTTP_400_BAD_REQUEST)

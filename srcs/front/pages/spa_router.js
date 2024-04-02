@@ -1,5 +1,6 @@
 import { footer, LoggedHeaderView, HomeView } from "./home/home.js";
-import { MeView } from "./user_mgt/user_mgt.js";
+import { MeView } from "./user_mgt/MeView.js";
+import { UserView } from "./user_mgt/UserView.js";
 import * as login from "./login/login.js";
 import { GameView } from "./game/GameView.js";
 import { UnloggedHeaderView, LoginView, SignupView, Forty2View } from "./login/login.js";
@@ -37,11 +38,12 @@ function handleUnloggedLocation()
 	match[0].render();
 }
 
-function handleLoggedLocation()
+async function handleLoggedLocation()
 {
 	const views = [
 		HomeView,
 		MeView,
+		UserView,
 		GameView,
 	];
 
