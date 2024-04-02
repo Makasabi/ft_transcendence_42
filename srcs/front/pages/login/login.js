@@ -22,8 +22,37 @@ export function deleteCookie(name)
 	document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 }
 
-/*** Render ***/
-export class UnloggedHeaderView extends IView {
+				/*** Views ***/
+export class GameTestView extends IView
+{	
+	static match_route(route)
+	{
+		return route === "/game_test";
+	}
+
+	static async render()
+	{
+		await fetch("/front/pages/login/game_test.html")
+			.then(response => response.text())
+			.then(html => document.querySelector("main").innerHTML = html);
+		let socket = new WebSocket("ws://localhost:8000/ws/game_test/");
+
+		const form = document.getElementById('janken-form');
+		form.addEventListener('submit', e => {
+			e.preventDefault();
+			socket.send(JSON.stringify(form.choice.value));
+		})
+		socket.onmessage = event => {
+	  		const result = JSON.parse(event.data);
+			if (result["message"])
+				console.log(result["message"]);
+			document.getElementById('janken-result').textContent = result;
+		}
+	}
+}
+
+export class UnloggedHeaderView extends IView
+{
 	static async render() {
 		fetch("/front/pages/login/header.html")
 			.then(response => response.text())
@@ -31,7 +60,6 @@ export class UnloggedHeaderView extends IView {
 	}
 }
 
-				/*** Views ***/
 export class Forty2View extends IView
 {
 	static match_route(route)
@@ -97,7 +125,6 @@ export class SignupView extends IView
 	}
 }
 
-<<<<<<< HEAD
 export class UsernameView extends IView
 {
 	set route(new_route)
@@ -127,7 +154,10 @@ export class UsernameView extends IView
 		const regex = /^\/username\/([^\/]+)$/;
 		const match = this.route.match(regex);
 		if (!match)
+		{
+			route("/login");
 			return ;
+		}
 		await fetch("/front/pages/login/username.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
@@ -336,100 +366,6 @@ export async function forty2_callback()
 	}
 }
 
-
-				/*** Events ***/
-export async function google_signup_event(e)
-{
-	e.preventDefault();
-	console.log("google event");
-	const uid = '646881961013-bgo5lf3ru7bc1869b12ushtq3q2irgah.apps.googleusercontent.com';
-	const state = generateRandomString(15);
-	const redirect_uri = 'http://localhost:8000/google';
-	const scope = 'email profile';
-	const authURL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${uid}&redirect_uri=${redirect_uri}&response_type=code&scope=${encodeURIComponent(scope)}&state=${state}`;
-	setCookie('Googlestate', state, 1);
-	window.location.href=authURL;
-}
-
-export async function forty2_signup_event(e)
-{
-	const uid = "u-s4t2ud-778802c450d2090b49c6c92d251ff3d1fbb51b03a9284f8f43f5df0af1dae8fa";
-	const state = generateRandomString(15);
-	const authURL = `https://api.intra.42.fr/oauth/authorize?client_id=${uid}&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fforty2&response_type=code&state=${state}`
-	setCookie('42state', state, 1);
-	window.location.href=authURL;
-}
-
-export async function login_event(e)
-{
-	e.preventDefault();
-	const form = document.getElementById("login-form");
-	const username = form.elements.login_username.value;
-	const password = form.elements.login_password.value;
-
-	const log = await login(username, password);
-	if (!log)
-		route("/login");
-}
-
-export async function signup_event(e)
-{
-	e.preventDefault();
-	const form = document.getElementById("signup-form");
-	if (!form.checkValidity())
-		return ;
-
-	const username = form.elements.signup_username.value;
-	const password = form.elements.signup_password.value;
-	const email = form.elements.signup_email.value;
-	signup(username, password, email);
-}
-
-export async function username_event(e)
-{
-	e.preventDefault();
-	const form = document.getElementById("username-form");
-	const username = form.elements.signup_username.value;
-	const email = await getEmailFrom42();
-	const password = generateRandomString(15);
-	signup(username, password, email);
-}
-
-
-				/*** Utilities ***/
-export async function is_registered(email)
-{
-	const result = await fetch('api/auth/is_registered/', {
-		method: 'POST',
-		headers: {	'Content-type' : 'application/json'},
-		body: JSON.stringify({ 'email' : email }),
-	})
-	.then(response => {
-		if (response.ok)
-			return (response.json().then(data => {
-				setCookie("token", data['token'], 1);
-				console.log("User registered : ", data['token']);
-				return true;
-			}));
-		else if (response.status === 400)
-		{
-			return response.json().then(data => {
-				console.log("Not registered");
-				return false;
-			});
-		}
-		else
-			return response.json().then(data => {
-				throw new Error("Error in registration");
-			});
-	})
-	.catch(error => {
-		throw new Error(error);
-		return false;
-	})
-	return result;
-}
-
 export async function forty2_authentication()
 {
 	const list = new URLSearchParams(window.location.search);
@@ -517,7 +453,7 @@ export async function signup_event(e)
 	signup(username, password, email); 
 }
 
-export async function username_event(e, getEmail)
+export async function username_event(e)
 {
 	e.preventDefault();
 	const form = document.getElementById("username-form");
@@ -618,20 +554,20 @@ async function getEmailFromGoogle()
 	return data.email;
 }
 
-function openOAuthPopup(url, name, width, height)
-{
-  const left = (window.innerWidth - width) / 2;
-  const top = (window.innerHeight - height) / 2;
-
-  const popup = window.open(
-    url,
-    name,
-    `popup=true,width=${width},height=${height},left=${left},top=${top}`
-  );
-
-  if (window.focus) {
-    popup.focus();
-  }
-
-  return popup;
-}
+//function openOAuthPopup(url, name, width, height)
+//{
+//  const left = (window.innerWidth - width) / 2;
+//  const top = (window.innerHeight - height) / 2;
+//
+//  const popup = window.open(
+//    url,
+//    name,
+//    `popup=true,width=${width},height=${height},left=${left},top=${top}`
+//  );
+//
+//  if (window.focus) {
+//    popup.focus();
+//  }
+//
+//  return popup;
+//}

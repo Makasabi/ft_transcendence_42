@@ -82,6 +82,9 @@ def edit_profile(request):
 	- JsonResponse: Response containing the new user data
 	"""
 	print(request.data)
+   # serializer = profile_serializer(request.data)
+   # if not serializer.is_valid():
+
 	user = request.user
 	if "username" in request.data:
 		user.username = request.data["username"]

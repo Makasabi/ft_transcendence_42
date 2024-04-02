@@ -97,9 +97,11 @@ def google_auth(request):
 @permission_classes([])
 def is_registered(request):
 	try:
+		print("IS REGISTERED : " , request.data['email'])
 		user = Player.objects.get(email=request.data['email'])
 		token, created = Token.objects.get_or_create(user=user)
 		serializer = PlayerSerializer(instance=user)
 		return Response({ "token" : token.key, "user" : serializer.data }, status=status.HTTP_200_OK)
-	except Player.DoesNotExist:
+	except Player.DoesNotExist as error:
+		print(error)
 		return Response({"error" : "User not registered"}, status=status.HTTP_400_BAD_REQUEST)
