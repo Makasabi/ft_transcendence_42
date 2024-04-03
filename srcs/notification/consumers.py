@@ -3,6 +3,7 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 import logging
+from channels.layers import get_channel_layer
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +26,10 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 		)
 		print('NotificationConsumer disconnected')
 
+	# send targeted notification to user
 	async def send_notification(self, event):
 		message = event.get('message')
 		if (event.get('user') == self.user):
-			# print('Message was for ', self.user)
 			await self.send(text_data=json.dumps(event))
 
 	async def receive(self, text_data):

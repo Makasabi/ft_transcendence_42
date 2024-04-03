@@ -36,22 +36,21 @@ export function createNotificationSocket(username) {
 	notifySocket.onclose = function (e) {
 		console.log('Socket closed unexpectedly');
 	};
-
-	// on receiving message on group
+	
 	notifySocket.onmessage = function (e) {
 		const data = JSON.parse(e.data);
 		const message = data.message;
 		// check if message is for the user
 		if (data.user === username) {
-			console.log('Message is for ', username);
+			// console.log('Message is for ', username);
 			newNotification(message);
 		}
 	};
+
 }
 
 // display new notification red dot
 function newNotification(message) {
-	console.log('Message:', message);
 
 	var notificationDot = document.getElementById('notificationDot');
 	if (notificationDot) {

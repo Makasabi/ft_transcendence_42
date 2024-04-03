@@ -41,7 +41,7 @@ function addFriend(username, user2) {
 		method: 'POST',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	})
-	fetch("/api/notif/notif_add_friend/" + username, {
+	fetch("/api/notif/create_notif/friend_request/" + user2, {
 		method: 'POST',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	})
@@ -54,7 +54,7 @@ function removeFriend(username, user2) {
 		method: 'DELETE',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	})
-	fetch("/api/notif/notif_remove_friend/" + username, {
+	fetch("/api/notif/create_notif/friend_removal/" + user2, {
 		method: 'POST',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	})
