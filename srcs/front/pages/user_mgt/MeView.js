@@ -26,7 +26,7 @@ export class MeView extends IView {
 async function editProfile() {
 
 	let username = document.getElementById("username").textContent;
-	let email = document.getElementById("email").textContent;
+	let email = document.getElementById("email").textContent.replaceAll(' ', '');
 	let password = document.getElementById("password").textContent;
 	
 	const response = await fetch('api/user_management/edit_profile', {
