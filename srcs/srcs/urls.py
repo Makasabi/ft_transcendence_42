@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from . import SPA_view
+from . import SPA_view, HTTP_404_view
 
 urlpatterns = [
 	path('admin/', admin.site.urls),
@@ -24,6 +24,8 @@ urlpatterns = [
 	path('api/auth/', include('authentication.urls')),
 	path('api/game/', include('game.urls')),
 	path('api/rooms/', include ('rooms.urls')),
+	path('api/notif/', include('notification.urls')),
+	path('api/<path:_>', HTTP_404_view.HTTP_404View.as_view(), name='404'),
 	path('', SPA_view.SPAView.as_view(), name='base'),
 	path('<path:test>', SPA_view.SPAView.as_view(), name='base'),
 ]

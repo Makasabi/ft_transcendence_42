@@ -35,17 +35,19 @@ AUTH_USER_MODEL = 'user_management.Player'
 
 
 INSTALLED_APPS = [
+	'daphne',
 	'django.contrib.admin',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
-    'rest_framework.authtoken',
-    'authentication',
+	'rest_framework.authtoken',
+	'authentication',
 	'user_management',
 	'game',
 	'rooms',
+	'notification',
 ]
 
 REST_FRAMEWORK = {
@@ -72,7 +74,7 @@ ROOT_URLCONF = 'srcs.urls'
 TEMPLATES = [
 	{
 		'BACKEND': 'django.template.backends.django.DjangoTemplates',
-		'DIRS': [],
+		'DIRS': ['templates'],
 		'APP_DIRS': True,
 		'OPTIONS': {
 			'context_processors': [
@@ -85,7 +87,18 @@ TEMPLATES = [
 	},
 ]
 
-WSGI_APPLICATION = 'srcs.wsgi.application'
+# WSGI_APPLICATION = 'srcs.wsgi.application'
+ASGI_APPLICATION = "srcs.asgi.application"
+
+CHANNEL_LAYERS = {
+	"default": {
+		# 'BACKEND': "channels.layers.InMemoryChannelLayer"
+		"BACKEND": "channels_redis.core.RedisChannelLayer",
+		"CONFIG": {
+			"hosts": [("127.0.0.1", 7999)],
+		},
+	},
+}
 
 
 # Database
