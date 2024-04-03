@@ -4,10 +4,8 @@ import { route } from "/front/pages/spa_router.js";
 
 /**
  * RoomView class
+ *
  * This class is used to render the room page when created or joined by the users
- * Before rendering the room page, it checks if the room code is valid or not
- * If the room code is invalid, it does not render the room page
- * Rooms can also be accessed through url with the room code.
  */
 export class RoomView extends IView {
 	static match_route(route) {
@@ -18,6 +16,12 @@ export class RoomView extends IView {
 		}
 	}
 
+	/**
+	 * Renders the room page after checking if the roomCode is valid or not
+	 *
+	 * if roomcode is valid, it renders the room page
+	 * TODO: else it redirects to unknown room code view -> explaining that the room code is either invalid or the room has been closed since.
+	 */
 	static async render() {
 		let code = document.URL.split("/")[4];
 		checkRoomCode(code)
@@ -45,6 +49,12 @@ export class RoomView extends IView {
 
 }
 
+// TODO: fin a way to factorise the createNormalRoomView and createTournamentRoomView
+/**
+ * createNormalRoomView class
+ *
+ * this buffer class is only used to create a normal room in the db.
+ */
 export class createNormalRoomView extends IView {
 	static match_route(route) {
 		return route === "/create/normal";
@@ -55,6 +65,11 @@ export class createNormalRoomView extends IView {
 	}
 }
 
+/**
+ * createNormalRoomView class
+ *
+ * this buffer class is only used to create a tournament room in the db.
+ */
 export class createTournamentRoomView extends IView {
 	static match_route(route) {
 		return route === "/create/tournament";
@@ -65,6 +80,12 @@ export class createTournamentRoomView extends IView {
 	}
 }
 
+/**
+ * Calls the user api to get user information
+ * Calls the api to create a room in the db
+ * @param {string} roomMode
+ * @returns {void} routes to the room page after creating a room in the db
+ */
 async function create_room(roomMode)
 {
 	let user = await fetch("/api/user_management/me", {
@@ -92,6 +113,11 @@ async function create_room(roomMode)
 	route(newUrl);
 }
 
+/**
+ * Verifies if the room code is valid or not
+ * @param {string} code
+ * @returns {Response} {status: 200, message: "Room exists"} or {status: 404, message: "Room does not exist"}
+ */
 export async function checkRoomCode(code) {
 	try {
 		const response = await fetch(`/api/rooms/code/${code}`, {
@@ -110,6 +136,10 @@ export async function checkRoomCode(code) {
 	}
 }
 
+/**
+ * Collects response from the radio buttons and creates a room accordingly
+ * @returns {void} routes to the selected room creation mode
+ */
 export function createRoomForm()
 {
 	let createRoom = document.querySelectorAll(".createRoomMode input");
@@ -131,6 +161,11 @@ export function createRoomForm()
 	});
 }
 
+/**
+ * Collects response from the input field and joins the room accordingly
+ * @return {void} routes to the room page
+
+ */
 export function joinRoomForm()
 {
 	let input = document.getElementById("inputRoomCode");
