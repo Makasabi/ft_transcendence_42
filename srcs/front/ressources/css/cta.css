@@ -3,31 +3,49 @@
 	border-radius: 10px;
 	font-weight: 700;
 	color: var(--light);
-	border: var(--light) 1px solid;
+	border: var(--border-light) 1px solid;
 	backdrop-filter: blur(4px);
 	background-color: var(--transparent-dark);
 	width: 100%;
+	cursor: pointer;
+}
+
+.home_button:hover {
+	background-color: var(--hover-primary-color);
+	transition: ease-in-out 0.1s;
 }
 
 form button {
-	margin: inherit;
+	margin: 1vh 0;
 	padding: 1vh;
 	font-weight: 700;
 	border-radius: 10px;
 	background-color: var(--primary-color);
 	color: var(--light);
-	border: none;	
+	border: none;
+	cursor: pointer;
+}
+
+form button:hover {
+	background-color: var(--transparent-primary);
+	transition: ease-in-out 0.1s;
 }
 
 .purple_cta {
 	margin: inherit;
-	padding: 2vh;
+	padding: 1vh;
 	font-weight: 700;
 	border-radius: 10px;
 	background-color: var(--primary-color);
 	color: white;
 	border: none;
 	width: 70%;
+	cursor: pointer;
+}
+
+.purple_cta:hover {
+	background-color: var(--hover-primary-color);
+	transition: ease-in-out 0.1s;
 }
 
 
@@ -62,14 +80,14 @@ form button {
 	max-width: 400px;
 	min-width: min-content;
   }
-  
+
   .gsi-material-button .gsi-material-button-icon {
 	height: 20px;
 	margin-right: 12px;
 	min-width: 20px;
 	width: 20px;
   }
-  
+
   .gsi-material-button .gsi-material-button-content-wrapper {
 	-webkit-align-items: center;
 	align-items: center;
@@ -83,7 +101,7 @@ form button {
 	position: relative;
 	width: 100%;
   }
-  
+
   .gsi-material-button .gsi-material-button-contents {
 	-webkit-flex-grow: 1;
 	color: #1f1f1f;
@@ -94,7 +112,7 @@ form button {
 	text-overflow: ellipsis;
 	vertical-align: top;
   }
-  
+
   .gsi-material-button .gsi-material-button-state {
 	-webkit-transition: opacity .218s;
 	transition: opacity .218s;
@@ -105,33 +123,120 @@ form button {
 	right: 0;
 	top: 0;
   }
-  
+
   .gsi-material-button:disabled {
 	cursor: default;
 	background-color: #ffffff61;
 	border-color: #1f1f1f1f;
   }
-  
+
   .gsi-material-button:disabled .gsi-material-button-contents {
 	opacity: 38%;
   }
-  
+
   .gsi-material-button:disabled .gsi-material-button-icon {
 	opacity: 38%;
   }
-  
-  .gsi-material-button:not(:disabled):active .gsi-material-button-state, 
+
+  .gsi-material-button:not(:disabled):active .gsi-material-button-state,
   .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
 	background-color: #303030;
 	opacity: 12%;
   }
-  
+
   .gsi-material-button:not(:disabled):hover {
 	-webkit-box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
 	box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
   }
-  
+
   .gsi-material-button:not(:disabled):hover .gsi-material-button-state {
 	background-color: #303030;
 	opacity: 8%;
+  }
+
+  .joinRoomForm,
+  .createRoomSelect {
+	display: none;
+	opacity: 0; /* Initially set opacity to 0 */
+	transition: opacity 0.5s ease; /* Apply transition effect on opacity */
+  }
+
+  .joinRoomForm.show,
+  .createRoomSelect.show {
+	display: block;
+	width: 100%;
+	opacity: 1;
+  }
+
+  .clicked {
+	background-color: var(--primary-color);
+  }
+
+  /* .createRoom {
+	display: flex;
+	flex-direction: column;
+	place-items: center;
+} */
+
+  .inactive,
+  label {
+	--inactive-btn-text: var(--light);
+  }
+
+  .createRoomMode {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    /* padding: 5px 0; */
+    background-color: var(--transparent-primary);
+    width: 100%;
+    border-radius: 10px;
+}
+
+.JRM_cta,
+.CRM_cta {
+	padding: 10px 20px;
+	margin: 1vh 0;
+	border-radius: 10px;
+	font-weight: 700;
+	color: var(--light);
+	border: none;
+	background-color: var(--transparent-primary);
+	cursor: pointer;
+}
+
+.JRM_cta:hover,
+.CRM_cta:hover {
+	background-color: var(--primary-color);
+	transition: ease-in-out 0.1s;
+}
+
+  /*radio buttons*/
+
+  input[type="radio"] {
+	visibility: hidden;
+	height: 0;
+	width: 0;
+	margin: 0;
+  }
+
+  .createRoomMode label {
+	width: 45.5%;
+	height: 60%;
+	padding: 10px 20px;
+	border: 0px;
+	border-radius: 8px;
+	cursor: pointer;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	color: var(--inactive-btn-text);
+  }
+
+  input[type="radio"]:checked + label {
+	background-color: var(--primary-color);
+	font-weight: bold;
+	color: var(--light);
   }

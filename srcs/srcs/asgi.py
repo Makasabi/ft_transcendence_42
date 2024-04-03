@@ -12,19 +12,22 @@ import os
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter, ChannelNameRouter
 from notification.middleware import WebSocketAuthMiddleware
+from .TokenAuthenticationMiddleware import TokenAuthMiddleware
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.urls import path
 from notification.consumers import NotificationConsumer
 from game.game_consumer import GameConsumer
+from rooms.consumers import RoomConsumer
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'srcs.settings')
 
 application = ProtocolTypeRouter({
 	"http": get_asgi_application(),
-	"websocket": AllowedHostsOriginValidator(
-		WebSocketAuthMiddleware(
+	"websocket": TokenAuthMiddleware(
+		AllowedHostsOriginValidator(
 			URLRouter([
 				path('ws/notif/<str:username>', NotificationConsumer.as_asgi()),
+				path('ws/room/<int:room_id>', RoomConsumer.as_asgi()),
 				path('ws/game/<str:code>', GameConsumer.as_asgi()),
 			])
 		)

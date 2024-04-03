@@ -34,7 +34,7 @@ header .logo {
 	float: left;
 	font-size: 1.6em;
 	font-weight: 700;
-	padding: 16px 30px; 
+	padding: 16px 30px;
 	align-self: center;
 	text-decoration: none;
 	cursor: url('/front/ressources/img/png/luffy_small.png'), auto;
@@ -67,7 +67,7 @@ header .menu-icon .navicon {
 	transition: background .2s ease-out;
 	width: 18px;
   }
-  
+
 header .menu-icon .navicon:before,
 header .menu-icon .navicon:after {
 	background: var(--light);
@@ -131,4 +131,13 @@ header .menu-btn {
 	header .menu-icon {
 	display: none;
 	}
+}
+
+.notification-dot {
+	display: none;
+	width: 8px;
+	height: 8px;
+	background-color: red;
+	border-radius: 50%;
+	margin-left: 5px; /* Adjust as needed for positioning */
 }

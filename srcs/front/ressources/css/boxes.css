@@ -1,0 +1,26 @@
+@media (min-width: 48em) {
+	.box_module {
+		margin: 0 auto;
+		width: 50%;
+	}
+}
+
+.box_module {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    width: 70vh;
+    align-content: center;
+    flex-wrap: wrap;
+}
+
+.sub_box {
+    margin: 1vh auto;
+    border-radius: 10px;
+    border: var(--border-light) 1px solid;
+    padding: 3em;
+    backdrop-filter: blur(4px);
+    background-color: var(--transparent-dark);
+    width: 100%;
+}

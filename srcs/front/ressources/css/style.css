@@ -1,6 +1,7 @@
 :root {
 	--secondary-color: #4d00ff;		/* hex: #4d00ff rgba(77, 0, 255, 1)*/
 	--primary-color: #7b74ff;			/* hex: #7b74ff rgba(123, 116, 255, 1)  */
+	--hover-primary-color: #4d49a7;	/* hex: #4d49a7 rgba(77, 73, 167, 1)  */
 	--transparent-primary: #7b74ff66 ;	/* hex: #7b74ff66 rgba(123, 116, 255, 0.4) */
 
 	--light: #dedede; 					/* hex: #dedede rgb(222, 222, 222)*/
@@ -66,31 +67,48 @@
 
 .centered_box h2{
 	line-height: 1.1;
-	font-size: 1em;
-	margin: 2vh;
+	font-size: 1.1em;
+	margin: 1vh;
+	line-height: 150%;
+}
+
+.centered_box h3{
+	line-height: 1.1;
+	margin: 0 0 1vh 0;
 	line-height: 150%;
 }
 
 
-form {
+
+/* form {
 	align-self: center;
 	display: flex;
 	flex-direction: column;
 	text-align: left;
 	margin: 1vh;
 	min-width:100%;
+} */
+
+form {
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin: 1vh 0;
+    min-width: 100%;
+    width: 100%;
 }
 
 form label {
 	color: var(--light);
 	font-size: small;
-	margin-top: 1vh;
-	margin-left: 1vh;
+	/* margin-top: 1vh; */
+	margin-left: 0;
 	padding-top: 1vh;
 }
 
 form input {
-	margin: 1vh;
+	margin: 1vh 0;
 	padding: 1vh;
 	border-radius: 10px;
 	border: 1px solid var(--light);
@@ -102,22 +120,22 @@ form input::selection{
 	color: var(--primary-color);
 }
 
-form button {
-	margin: inherit;
+/* form button {
+	margin: 1vh 0;
 	padding: 1vh;
 	border-radius: 10px;
 	background-color: var(--primary-color);
 	font-weight: 700;
 	color: var(--light);
 	border: none;
-}
+} */
 
-#google-auth-btn {
+/* #google-auth-btn {
 	color: black;
 	background-color: white;
 	white-space: nowrap;
 	cursor: pointer;
-}
+} */
 
 #forty2-auth-btn {
 	color: white;
@@ -134,7 +152,7 @@ form button {
 	align-self: center;
 	display: grid;
 }
-/* 
+/*
 footer {
 	height: 4%;
 	bottom: 0;

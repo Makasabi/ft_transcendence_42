@@ -2,7 +2,7 @@ import {RenderingContext} from "./rendering_context.js";
 import {GameObject} from "./game_object.js";
 import {Ball} from "./ball.js";
 import {Player} from "./player.js";
-import { mat4 } from '/front/gl-matrix/esm/index.js';
+// import { mat4 } from '/front/gl-matrix/esm/index.js';
 
 const BALL_SIZE = 0.4;
 
