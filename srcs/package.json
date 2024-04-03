@@ -1,0 +1,33 @@
+{
+  "name": "ft_transcendence",
+  "version": "1.0.0",
+  "description": "A web app with a pong game 42 school project",
+  "main": "Makefile",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Makasabi/ft_transcendence_42.git"
+  },
+  "keywords": [
+    "42",
+    "web",
+    "app",
+    "single",
+    "page",
+    "application",
+    "pong",
+    "game",
+    "django"
+  ],
+  "author": "@Makasabi @ImJustWan @ValentinValep and (@TODO) TITO",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Makasabi/ft_transcendence_42/issues"
+  },
+  "homepage": "https://github.com/Makasabi/ft_transcendence_42#readme",
+  "dependencies": {
+    "gl-matrix": "^3.4.3"
+  }
+}

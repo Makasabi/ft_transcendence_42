@@ -1,38 +1,12 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 
-export class MeView extends IView {
-	static match_route(route) {
-		return route === "/me";
-	}
-
-	static async render() {
-		let html = await fetch("/front/pages/user_mgt/me.html").then(response => response.text());
-		let user = await fetch("/api/user_management/me", {
-			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-		}).then(response => response.json());
-		console.log("user", user);
-
-		// profile-infos
-		html = html.replace("{{avatar}}", user.avatar_file);
-		console.log(user.avatar_file);
-		html = html.replace("{{username}}", user.username);
-		html = html.replace("{{email}}", user.email);
-
-		// global rank
-		// getGlobalRank(html, user);
-
-		html = html.replace("{{rank}}", user.global_rank);
-
-		// history-stats
-		html = getHistoryStats(html, user);
-
-		// console.log(user.avatar_file);
-
-		document.querySelector("main").innerHTML = html;
-
-		editProfile();
-	}
+export function getProfileInfos(html, user) {
+	html = html.replace("{{avatar}}", user.avatar_file);
+	html = html.replace("{{username}}", user.username);
+	html = html.replace("{{email}}", user.email);
+	html = html.replace("{{rank}}", user.global_rank);
+	return html;
 }
 
 export function getHistoryStats(html, user)
@@ -48,6 +22,7 @@ export function getHistoryStats(html, user)
 		</tr>
 		`;
 	}
+
 	html = html.replace("{{history}}", historyTable);
 	html = html.replace("{{games_played}}", user.game_history.length);
 	html = html.replace("{{games_won}}", user.game_history.filter(game => game.rank.split('/')[0] === '1').length);
@@ -57,43 +32,3 @@ export function getHistoryStats(html, user)
 	return html;
 }
 
-function editModeOn(editables) {
-
-	for (let editable of editables) {
-		editable.contentEditable = true;
-		editable.style.padding = "5px";
-		editable.style.backgroundColor = "#dedede";
-		editable.style.color = "#353536";
-		editable.style.borderRadius = "5px";
-	}
-	document.getElementById("edit-button").textContent = "Save"; 
-	return true;
-}
-
-function editModeOff(editables) {
-
-	for (let editable of editables) {
-		editable.contentEditable = false;
-		editable.style.removeProperty("style");
-		editable.style.removeProperty("background-color");
-		editable.style.removeProperty("border");
-		editable.style.color = "#dedede";
-	}
-	document.getElementById("edit-button").textContent = "Edit my Profile"; 
-	return false;
-}
-
-function editProfile()
-{
-	// change button text from "Edit my profile" to "Save"
-	document.getElementById("edit-button").textContent = "Edit my Profile"; 
-	const editables = document.getElementsByClassName("edit");
-	let edit = false;
-	console.log(editables);
-	document.getElementById("edit-button").addEventListener("click", () => {
-		if (edit === true)
-			edit = editModeOff(editables);
-		else
-			edit = editModeOn(editables);
-	});
-}

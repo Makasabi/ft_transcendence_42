@@ -97,6 +97,7 @@ export class SignupView extends IView
 	}
 }
 
+<<<<<<< HEAD
 export class UsernameView extends IView
 {
 	set route(new_route)
@@ -135,7 +136,6 @@ export class UsernameView extends IView
 		username_button.addEventListener("click", username_event);
 	}
 }
-
 
 				/*** Log ***/
 export function logout()
@@ -210,8 +210,7 @@ async function signup(username, password, email)
 				return (response.json());
 			else
 			{
-				return response.json().then(data =>
-				{
+				return response.json().then(data => {
 					console.error(data.error);
 					throw new Error('Wrong registration');
 				});
@@ -337,6 +336,100 @@ export async function forty2_callback()
 	}
 }
 
+
+				/*** Events ***/
+export async function google_signup_event(e)
+{
+	e.preventDefault();
+	console.log("google event");
+	const uid = '646881961013-bgo5lf3ru7bc1869b12ushtq3q2irgah.apps.googleusercontent.com';
+	const state = generateRandomString(15);
+	const redirect_uri = 'http://localhost:8000/google';
+	const scope = 'email profile';
+	const authURL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${uid}&redirect_uri=${redirect_uri}&response_type=code&scope=${encodeURIComponent(scope)}&state=${state}`;
+	setCookie('Googlestate', state, 1);
+	window.location.href=authURL;
+}
+
+export async function forty2_signup_event(e)
+{
+	const uid = "u-s4t2ud-778802c450d2090b49c6c92d251ff3d1fbb51b03a9284f8f43f5df0af1dae8fa";
+	const state = generateRandomString(15);
+	const authURL = `https://api.intra.42.fr/oauth/authorize?client_id=${uid}&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fforty2&response_type=code&state=${state}`
+	setCookie('42state', state, 1);
+	window.location.href=authURL;
+}
+
+export async function login_event(e)
+{
+	e.preventDefault();
+	const form = document.getElementById("login-form");
+	const username = form.elements.login_username.value;
+	const password = form.elements.login_password.value;
+
+	const log = await login(username, password);
+	if (!log)
+		route("/login");
+}
+
+export async function signup_event(e)
+{
+	e.preventDefault();
+	const form = document.getElementById("signup-form");
+	if (!form.checkValidity())
+		return ;
+
+	const username = form.elements.signup_username.value;
+	const password = form.elements.signup_password.value;
+	const email = form.elements.signup_email.value;
+	signup(username, password, email);
+}
+
+export async function username_event(e)
+{
+	e.preventDefault();
+	const form = document.getElementById("username-form");
+	const username = form.elements.signup_username.value;
+	const email = await getEmailFrom42();
+	const password = generateRandomString(15);
+	signup(username, password, email);
+}
+
+
+				/*** Utilities ***/
+export async function is_registered(email)
+{
+	const result = await fetch('api/auth/is_registered/', {
+		method: 'POST',
+		headers: {	'Content-type' : 'application/json'},
+		body: JSON.stringify({ 'email' : email }),
+	})
+	.then(response => {
+		if (response.ok)
+			return (response.json().then(data => {
+				setCookie("token", data['token'], 1);
+				console.log("User registered : ", data['token']);
+				return true;
+			}));
+		else if (response.status === 400)
+		{
+			return response.json().then(data => {
+				console.log("Not registered");
+				return false;
+			});
+		}
+		else
+			return response.json().then(data => {
+				throw new Error("Error in registration");
+			});
+	})
+	.catch(error => {
+		throw new Error(error);
+		return false;
+	})
+	return result;
+}
+
 export async function forty2_authentication()
 {
 	const list = new URLSearchParams(window.location.search);
@@ -388,23 +481,6 @@ export async function google_signup_event(e)
 	const authURL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${uid}&redirect_uri=${redirect_uri}&response_type=code&scope=${encodeURIComponent(scope)}&state=${state}`;
 	setCookie('Googlestate', state, 1);
 	window.location.href=authURL;
-//	const popup = window.open(authURL, 'Google', "popup=true,width=500,height=600");
-//	const check = setInterval(() => {
-//		try
-//		{
-//			if (popup.location.pathname.includes('google'))
-//			{
-//				clearInterval(check);
-//				popup.close();
-//				window.focus();
-//			}
-//		}
-//		catch (error)
-//		{
-//			console.error(error);
-//		}
-//	}, 1000);
-	//const popup = openOAuthPopup(authURL, 'Google', 500, 600);
 }
 
 export async function forty2_signup_event(e)
@@ -498,7 +574,7 @@ function generateRandomString(length)
 	for (let i = 0; i < length; i++) {
 		const randomIndex = Math.floor(Math.random() * charset.length);
 		randomString += charset.charAt(randomIndex);
-	} 
+	}
 	return randomString;
 }
 

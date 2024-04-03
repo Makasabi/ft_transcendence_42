@@ -1,21 +1,34 @@
+:root {
+	--secondary-color: #4d00ff;		/* hex: #4d00ff rgba(77, 0, 255, 1)*/
+	--primary-color: #7b74ff;			/* hex: #7b74ff rgba(123, 116, 255, 1)  */
+	--transparent-primary: #7b74ff66 ;	/* hex: #7b74ff66 rgba(123, 116, 255, 0.4) */
+
+	--light: #dedede; 					/* hex: #dedede rgb(222, 222, 222)*/
+	--grey: #878787; 					/* hex: #868686 rgb(135, 135, 135)*/
+	--border-light: #dedede0d; 		/* hex: #dedede0d rgba(222, 222, 222, 0.05)*/
+	--dark: #1f1f1f; 					/* hex: #1f1f1f rgb(31, 31, 31)*/
+	--transparent-dark:  #1f1f1f66; 	/* hex: #1f1f1f66 rgba(31, 31, 31, 0.4)*/
+}
+
 *{
 	font-family: "Comfortaa", sans-serif;
-	color: #dedede;
+	color: var(--light);
 	margin: 0;
 	z-index: 1;
 }
 
 ::selection {
-	background-color: #dedede !important;
-	color: #7b74ff !important;
+	background-color: var(--light) !important;
+	color: var(--primary-color) !important;
 }
 
 .page_layout {
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
-	justify-content:space-between;
+	justify-content: space-between;
 }
+
 
 .home_menu {
 	margin: 15vh auto;
@@ -38,17 +51,17 @@
 	align-items: center;
 	gap: 2em;
 	border-radius: 10px;
-	border: rgba(222, 222, 222, 0.05) 1px solid;
+	border: var(--border-light) 1px solid;
 	padding: 3em;
 	backdrop-filter: blur(4px);
-	background-color: rgba(31, 31, 31, 0.4);
+	background-color: var(--transparent-dark);
 }
 
 .centered_box h1 {
 	font-size: 50px;
 	font-weight: 700;
 	text-align: center;
-	color:#7b74ff;
+	color:var(--primary-color);
 }
 
 .centered_box h2{
@@ -69,7 +82,7 @@ form {
 }
 
 form label {
-	color: #dedede;
+	color: var(--light);
 	font-size: small;
 	margin-top: 1vh;
 	margin-left: 1vh;
@@ -80,22 +93,22 @@ form input {
 	margin: 1vh;
 	padding: 1vh;
 	border-radius: 10px;
-	border: 1px solid #dedede;
-	color: #1f1f1f;
+	border: 1px solid var(--light);
+	color: var(--dark);
 }
 
 form input::selection{
 	border: none;
-	color: #7b74ff;
+	color: var(--primary-color);
 }
 
 form button {
 	margin: inherit;
 	padding: 1vh;
 	border-radius: 10px;
-	background-color: #7b74ff;
+	background-color: var(--primary-color);
 	font-weight: 700;
-	color: white;
+	color: var(--light);
 	border: none;
 }
 
@@ -121,14 +134,12 @@ form button {
 	align-self: center;
 	display: grid;
 }
-
+/* 
 footer {
 	height: 4%;
-	/* position: static; */
 	bottom: 0;
 	margin: 1em 2em;
 	padding: 1em 1em;
-	border-top: #868686 0.5px solid;
 	font-size: small;
 	display: flex;
 	flex-direction: row;
@@ -137,11 +148,11 @@ footer {
 }
 
 footer strong {
-	color: #7b74ff;
+	color: var(--primary-color);
 	font-weight: 700;
 	margin-bottom: 10px;
 }
 
 footer p {
-	color: #868686;
-}
+	color: var(--grey);
+} */

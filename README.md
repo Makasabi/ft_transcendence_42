@@ -35,6 +35,11 @@ Migrate the database using the following command:
 make migrate
 ```
 
+Install NPM dependencies using the following command:
+```bash
+cd srcs; npm install
+```
+
 To create a fake database, for testing purposes, you can run the following command:
 ```bash
 make fill_db
