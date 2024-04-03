@@ -33,7 +33,7 @@ form button:hover {
 
 .purple_cta {
 	margin: inherit;
-	padding: 2vh;
+	padding: 1vh;
 	font-weight: 700;
 	border-radius: 10px;
 	background-color: var(--primary-color);

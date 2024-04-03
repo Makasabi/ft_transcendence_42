@@ -20,22 +20,20 @@ export class RoomView extends IView {
 	 * Renders the room page after checking if the roomCode is valid or not
 	 *
 	 * if roomcode is valid, it renders the room page
-	 * TODO: else it redirects to unknown room code view -> explaining that the room code is either invalid or the room has been closed since.
 	 */
 	static async render() {
 		let code = document.URL.split("/")[4];
 		checkRoomCode(code)
 			.then(roomCheck => {
 				console.log("RoomCheck: ", roomCheck);
-				if (roomCheck.status === 404) {
-					return;
+				if (roomCheck.status === false) {
+					route("/unknown");
 				}
 				console.log("Room status: ", roomCheck.status);
-				return roomCheck.status;
 			})
 			.catch(error => {
 				console.error('Error checking room availability:', error);
-				return false; // Returning false assuming the room is unavailable in case of error
+				route("/unknown");
 			});
 		let roomInfo = await fetch(`/api/rooms/info/${code}`, {
 			headers: {
@@ -49,68 +47,70 @@ export class RoomView extends IView {
 
 }
 
-// TODO: fin a way to factorise the createNormalRoomView and createTournamentRoomView
+export class UnknownRoomView extends IView {
+
+	static match_route(route) {
+		return route === "/unknown" 
+	}
+
+	static async render() {
+		let html = await fetch("/front/pages/room/unknown.html").then(response => response.text());
+		document.querySelector("main").innerHTML = html;
+
+		let backToHome = document.getElementById("backHomeUnknownRoom");
+		backToHome.addEventListener("click", (e) => {
+			e.preventDefault();
+			route("/home");
+		});
+	}
+}
+
 /**
- * createNormalRoomView class
+ * createRoomView class
  *
  * this buffer class is only used to create a normal room in the db.
+	 *  @returns {void} routes to the room page after creating a room in the db
+ * 
  */
-export class createNormalRoomView extends IView {
+export class createRoomView extends IView {
 	static match_route(route) {
-		return route === "/create/normal";
+		if (route === "/create/normal" || route === "/create/tournament") {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	static async render() {
-		create_room("normal");
+		console.log(document.URL)
+		let roomMode = document.URL.split("/")[4];
+		console.log("roomMode: ", roomMode);
+		
+		let user = await fetch("/api/user_management/me", {
+			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+		}).then(response => response.json());
+	
+		let roomdb = await fetch("/api/rooms/create_room", {
+			method: "POST",
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Token ${Login.getCookie('token')}`
+			},
+			body: JSON.stringify({
+				'username' : user.username,
+				'visibility' : 'private',
+				'roomMode' : roomMode,})
+		}).then(responsedb => responsedb.json());
+		console.log("roomdb:", roomdb);
+	
+		let newUrl = "/room/" + roomdb.code;
+		let state = { 'code': roomdb.code };
+		let title = "Room " + roomdb.code;
+		window.history.pushState(state, title, newUrl);
+		window.history.replaceState(state, title, newUrl);
+
+		route(newUrl);
 	}
-}
-
-/**
- * createNormalRoomView class
- *
- * this buffer class is only used to create a tournament room in the db.
- */
-export class createTournamentRoomView extends IView {
-	static match_route(route) {
-		return route === "/create/tournament";
-	}
-
-	static async render() {
-		create_room("tournament");
-	}
-}
-
-/**
- * Calls the user api to get user information
- * Calls the api to create a room in the db
- * @param {string} roomMode
- * @returns {void} routes to the room page after creating a room in the db
- */
-async function create_room(roomMode)
-{
-	let user = await fetch("/api/user_management/me", {
-		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-	}).then(response => response.json());
-
-	let roomdb = await fetch("/api/rooms/create_room", {
-		method: "POST",
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': `Token ${Login.getCookie('token')}`
-		},
-		body: JSON.stringify({
-			'username' : user.username,
-			'visibility' : 'private',
-			'roomMode' : roomMode,})
-	}).then(responsedb => responsedb.json());
-	console.log("roomdb:", roomdb);
-
-	let newUrl = "/room/" + roomdb.code;
-	let state = { 'code': roomdb.code };
-	let title = "Room " + roomdb.code;
-	window.history.pushState(state, title, newUrl);
-	window.history.replaceState(state, title, newUrl);
-	route(newUrl);
 }
 
 /**

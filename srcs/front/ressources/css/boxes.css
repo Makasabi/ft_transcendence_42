@@ -1,14 +1,24 @@
 @media (min-width: 48em) {
-
+	.box_module {
+		margin: 0 auto;
+		width: 50%;
+	}
 }
 
+.box_module {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	margin: 0 auto;
+	min-width: 70%;
+}
 
-
-.box_style {
+.sub_box {
 	border-radius: 10px;
 	border: var(--border-light) 1px solid;
 	padding: 3em;
 	backdrop-filter: blur(4px);
 	background-color: var(--transparent-dark);
+	width: 100%;
 }
-
