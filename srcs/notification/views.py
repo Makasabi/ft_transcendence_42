@@ -64,14 +64,20 @@ def notif_remove_friend(request, username):
 	return JsonResponse({'message': 'Notification sent'})
 
 
+# get unread notifs ?
 @api_view(['GET'])
 def get_notifs(request):
 	"""
 	Return all notifications for the user
 	"""
-	# user_id = request.user.id
-	# notifs = IsNotified.objects.filter(user_id=user_id).values('notif__type', 'notif__created_at')
-	# return JsonResponse({'notifications': notifs})
+	user_id = request.user.id
+	# from IsNotified, check all notifications for the user AND is_seen = False
+	notifs = Notification.objects.filter(isnotified__user_id=user_id, isnotified__notif__is_seen=False)
+	print(notifs)
+	notif_json = []
+	for notif in notifs:
+		notif_json.append({'type': notif.type, 'date': notif.date})
+	return JsonResponse(notif_json, safe=False)
 
 
 def create_send_notification(user, target, type):

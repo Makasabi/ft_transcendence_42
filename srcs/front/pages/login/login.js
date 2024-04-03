@@ -153,9 +153,9 @@ async function login(username, password)
 			console.log("token: ", data.token);
 			console.log("user: ", data.user);
 			setCookie("token", data.token, 1);
-			createNotificationSocket(username);
 			route("/home");
 			return true;
+			createNotificationSocket(username);
 		})
 		.catch(error => {
 			console.error(error);
@@ -194,8 +194,8 @@ async function signup(username, password, email)
 				console.log("token : ", data.token);
 				console.log("user : ", data.user);
 				setCookie("token", data.token, 1);
-				createNotificationSocket(username);
 				route("/home");
+				createNotificationSocket(username);
 			}
 		})
 		.catch(error => {
