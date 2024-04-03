@@ -15,6 +15,7 @@ def profile_serializer(user):
 	- user_data: Dictionary containing user data
 	"""
 	user_data = {
+		"id": user.id,
 		"username": user.username,
 		"email": user.email,
 		"avatar_file": user.avatar_file,
