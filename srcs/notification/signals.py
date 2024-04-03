@@ -15,5 +15,5 @@ def notification_created(sender, instance, created, **kwargs):
 				'type': 'send_notification',
 				'message': instance.message
 			}
-		)	
+		)
 		print('Notification sent to group notif_group')
