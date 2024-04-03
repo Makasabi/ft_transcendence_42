@@ -1,34 +1,49 @@
 import threading
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-
-from .engine import GameState
+from time import sleep
 
 class GameState:
-	def __init__(self) -> None:
+	def __init__(self, room_id) -> None:
 		self.players = []
-		self.board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-		self.winner = None
+		self.count = 0
+		self.room_id = room_id
+
+	def update(self) -> None:
+		self.count += 1
 
 	def render(self) -> dict:
 		return {
 			"players": self.players,
-			"board": self.board,
-			"winner": self.winner,
+			"count": self.count,
 		}
 
 class GameEngine(threading.Thread):
-	def __init__(self, group_name: str) -> None:
+	def __init__(self) -> None:
 		super().__init__()
-		self.group_name = group_name
+		self.games = {}
 
 	def run(self) -> None:
-		pass
+		while True:
+			for room_id in self.games:
+				self.games[room_id].update()
+				self.broadcast_state(self.games[room_id])
+			sleep(1)
+
+	def start_game(self, room_id: int) -> None:
+		if room_id in self.games:
+			raise ValueError(f"Game {room_id} already exists")
+		print(f"Starting game {room_id}")
+		self.games[room_id] = GameState(room_id)
 
 	def broadcast_state(self, state: GameState) -> None:
 		state_json = state.render()
 		channel_layer = get_channel_layer()
-		async_to_sync(channel_layer.group_send)(
-			self.group_name, {"type": "game_update", "state": state_json}
+		async_to_sync(channel_layer.send)(
+			"game_engine",
+			{
+				"type": "game.update",
+				"room_id": state.room_id,
+				"state": state_json
+			}
 		)
-

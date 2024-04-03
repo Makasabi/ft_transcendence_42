@@ -9,8 +9,8 @@ class TokenAuthMiddleware:
 	Token authorization middleware for Django Channels 2
 	"""
 
-	def __init__(self, inner):
-		self.app = inner
+	def __init__(self, app):
+		self.app = app
 
 	async def __call__(self, scope, receive, send):
 		headers = scope.get('headers', [])
@@ -35,5 +35,5 @@ def get_user(token_key):
 	except Token.DoesNotExist:
 		return None
 
-def TokenAuthMiddlewareStack(inner):
-	return TokenAuthMiddleware(AuthMiddlewareStack(inner))
+def TokenAuthMiddlewareStack(app):
+	return TokenAuthMiddleware(AuthMiddlewareStack(app))
