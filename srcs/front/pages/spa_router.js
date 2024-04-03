@@ -4,7 +4,8 @@ import { UserView } from "./user_mgt/UserView.js";
 import * as login from "./login/login.js";
 import { GameView } from "/front/pages/game/game.js";
 import { UnloggedHeaderView, LoginView, SignupView, Forty2View } from "./login/login.js";
-import { UnknownRoomView, createRoomView, RoomView } from "./room/room.js";
+import { UnknownRoomView, createRoomView, } from "./room/room.js";
+import { RoomView } from "./room/RoomView.js";
 
 	/*** Utilities ***/
 export function route(path, event=null)

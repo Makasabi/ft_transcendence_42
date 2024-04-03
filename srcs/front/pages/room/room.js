@@ -2,51 +2,6 @@ import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
 
-/**
- * RoomView class
- *
- * This class is used to render the room page when created or joined by the users
- */
-export class RoomView extends IView {
-	static match_route(route) {
-		if (route.split("/")[1] === "room" && route.split("/")[2].length === 6 && route.split("/")[2] !== undefined) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Renders the room page after checking if the roomCode is valid or not
-	 *
-	 * if roomcode is valid, it renders the room page
-	 */
-	static async render() {
-		let code = document.URL.split("/")[4];
-		checkRoomCode(code)
-			.then(roomCheck => {
-				console.log("RoomCheck: ", roomCheck);
-				if (roomCheck.status === false) {
-					route("/unknown");
-				}
-				console.log("Room status: ", roomCheck.status);
-			})
-			.catch(error => {
-				console.error('Error checking room availability:', error);
-				route("/unknown");
-			});
-		let roomInfo = await fetch(`/api/rooms/info/${code}`, {
-			headers: {
-				'Authorization': `Token ${Login.getCookie('token')}`,}}).then(response => response.json());
-		let html = await fetch("/front/pages/room/room.html").then(response => response.text());
-
-		html = html.replace("{{roomMode}}" , roomInfo.roomMode);
-		html = html.replace("{{roomCode}}", roomInfo.code);
-		document.querySelector("main").innerHTML = html;
-	}
-
-}
-
 export class UnknownRoomView extends IView {
 
 	static match_route(route) {

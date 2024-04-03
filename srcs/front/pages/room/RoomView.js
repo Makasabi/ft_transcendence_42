@@ -27,7 +27,6 @@ export class RoomView extends IView {
 		let code = document.URL.split("/")[4];
 		checkRoomCode(code)
 			.then(roomCheck => {
-				console.log("RoomCheck: ", roomCheck);
 				if (roomCheck.status === false) {
 					route("/unknown");
 				}
@@ -45,5 +44,45 @@ export class RoomView extends IView {
 		html = html.replace("{{roomMode}}" , roomInfo.roomMode);
 		html = html.replace("{{roomCode}}", roomInfo.code);
 		document.querySelector("main").innerHTML = html;
+
+		createRoomSocket(roomInfo.room_id);
 	}
+}
+
+/**
+ * function to create a new socket when a user enters a room 
+ * (upon creation or joining (with code in URL, via home form, or via invite notification))
+ */
+export function createRoomSocket(roomid) {
+	console.log('Creating socket for room:', roomid);
+	const roomSocket = new WebSocket(
+		'ws://'
+		+ window.location.host
+		+ '/ws/room/'
+		+ roomid,
+	);
+	if (roomSocket.error) {
+		console.log('Error creating socket');
+		return;
+	}
+
+	// on socket open
+	roomSocket.onopen = function (e) {
+		console.log('Socket successfully connected.');
+	};
+
+	// on socket close
+	roomSocket.onclose = function (e) {
+		console.log('Socket closed unexpectedly');
+	};
+
+	// on receiving message on group
+	roomSocket.onmessage = function (e) {
+		const data = JSON.parse(e.data);
+		const message = data.message;
+		// check if message is for the user
+		if (data.room === roomid) {
+			console.log('Message is for room:', roomid);
+		}
+	};
 }

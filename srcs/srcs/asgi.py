@@ -12,18 +12,22 @@ import os
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from notification.middleware import WebSocketAuthMiddleware
+from .TokenAuthenticationMiddleware import TokenAuthMiddleware
 from channels.security.websocket import AllowedHostsOriginValidator
-from notification.routing import websocket_urlpatterns
+from django.urls import path
+from notification.consumers import NotificationConsumer
+from rooms.consumers import RoomConsumer
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'srcs.settings')
 
 application = ProtocolTypeRouter({
 	"http": get_asgi_application(),
-	"websocket": AllowedHostsOriginValidator(
-		WebSocketAuthMiddleware(
-			URLRouter(
-				websocket_urlpatterns
-			)
+	"websocket": TokenAuthMiddleware(
+		AllowedHostsOriginValidator(
+			URLRouter([
+				path('ws/notif/<str:username>', NotificationConsumer.as_asgi()),
+				path('ws/room/<int:room_id>', RoomConsumer.as_asgi()),
+			])
 		)
 	),
 })

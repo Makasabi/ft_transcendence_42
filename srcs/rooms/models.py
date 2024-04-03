@@ -11,5 +11,5 @@ class Rooms(models.Model):
 
 class Occupy(models.Model):
 	room_id = models.ForeignKey(Rooms, on_delete=models.CASCADE)
-	player_id = models.ForeignKey(Player, on_delete=models.CASCADE)
+	player_id = models.IntegerField()
 	is_master = models.BooleanField(default=False)
