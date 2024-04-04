@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Player(AbstractUser):
+	id = models.AutoField(primary_key=True)
 	groups = models.ManyToManyField('auth.Group', verbose_name=_('groups'), blank=True, related_name='custom_users')
 	user_permissions = models.ManyToManyField('auth.Permission', verbose_name=_('user permissions'), blank=True, related_name='custom_users')
 	

@@ -32,7 +32,9 @@ export class UnloggedHeaderView extends IView {
 	}
 }
 
-export class Forty2View extends IView {
+				/*** Views ***/
+export class Forty2View extends IView
+{
 	static match_route(route)
 	{
 		return route === "/forty2";
@@ -43,13 +45,14 @@ export class Forty2View extends IView {
 		const list_params = new URLSearchParams(window.location.search);
 		if (list_params.get('code'))
 		{
-			await forty2_signup();
+			await forty2_callback();
 			return ;
 		}
 	}
 }
 
-export class GoogleView extends IView {
+export class GoogleView extends IView
+{
 	static match_route(route)
 	{
 		return route === "/google";
@@ -61,12 +64,13 @@ export class GoogleView extends IView {
 		for (const [key, value] of list_params.entries()) {
 		    console.log(`${key}: ${value}`);
 		}
-		await google_signup();
+		await google_callback();
 		return ;
 	}
 }
 
-export class LoginView extends IView {
+export class LoginView extends IView
+{
 	static match_route(route) {
 		return route === "/login";
 	}
@@ -81,7 +85,8 @@ export class LoginView extends IView {
 	}
 }
 
-export class SignupView extends IView {
+export class SignupView extends IView
+{
 	static match_route(route) {
 		return route === "/signup";
 	}
@@ -93,15 +98,42 @@ export class SignupView extends IView {
 	}
 }
 
-export class UsernameView extends IView {
-	static match_route(route) {
-		return route === "/username";
+export class UsernameView extends IView
+{
+	set route(new_route)
+	{
+		this.route = new_route;
 	}
 
-	static async render() {
-		fetch("/front/pages/login/username.html")
+	get route()
+	{
+		return this.route;
+	}
+
+	static match_route(route)
+	{ 
+		const regex = /^\/username\b/;
+		if (route.match(regex))
+		{
+			this.route = route;
+			return true;
+		}
+		return false;
+		//return route.match(regex);//route === "/username";
+	}
+
+	static async render()
+	{
+		const regex = /^\/username\/([^\/]+)$/;
+		const match = this.route.match(regex);
+		if (!match)
+			return ;
+		await fetch("/front/pages/login/username.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
+		const username_button = document.getElementById("submit-username");
+		username_button.dataset.auth = match[1];
+		username_button.addEventListener("click", username_event);
 	}
 }
 
@@ -124,7 +156,10 @@ export async function is_logged()
 		headers: { 'Authorization': `Token ${token}` }
 	}).then(response => {
 		if (response.ok)
+		{
+			createNotificationSocket();
 			return true;
+		}
 		else
 			return false;
 	});
@@ -153,8 +188,8 @@ async function login(username, password)
 			console.log("token: ", data.token);
 			console.log("user: ", data.user);
 			setCookie("token", data.token, 1);
-			createNotificationSocket(username);
 			route("/home");
+			// createNotificationSocket(username);
 			return true;
 		})
 		.catch(error => {
@@ -166,7 +201,8 @@ async function login(username, password)
 
 async function signup(username, password, email)
 {
-	await fetch('api/auth/signup/',
+	console.log("EMAIL : ", email);
+	await fetch('/api/auth/signup/',
 		{
 			method: 'POST',
 			headers: { 'Content-type' : 'application/json' },
@@ -194,8 +230,8 @@ async function signup(username, password, email)
 				console.log("token : ", data.token);
 				console.log("user : ", data.user);
 				setCookie("token", data.token, 1);
-				createNotificationSocket(username);
 				route("/home");
+				// createNotificationSocket(username);
 			}
 		})
 		.catch(error => {
@@ -203,22 +239,77 @@ async function signup(username, password, email)
 		});
 }
 
-export async function google_signup()
+export async function google_callback()
 {
-	const auth = google_authentication();
-	route('/login');
-	return ;
+	const auth = await google_authentication();
+	console.log("auth : ", auth);
+	if (!auth)
+	{
+		route("/login");
+		return ;
+	}
+
+	const email = await getEmailFromGoogle();
+	console.log("email from api : ", email);
+	if (!email)
+	{
+		route("/login");
+		return;
+	}
+	try
+	{
+		const reg = await is_registered(email);
+		if (!reg)
+			route("/username/google");
+		else
+			route("/home");
+	}
+	catch(error)
+	{
+		console.error(error);
+		route("/login");
+	}
 }
 
 export async function google_authentication()
 {
-	const uid = "u-s4t2ud-778802c450d2090b49c6c92d251ff3d1fbb51b03a9284f8f43f5df0af1dae8fa";
-	const state = generateRandomString(15);
-	const authURL = `https://api.intra.42.fr/oauth/authorize?client_id=${uid}&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fusername&response_type=code&state=${state}`
-	window.location.href=authURL;
+	const list = new URLSearchParams(window.location.search);
+	const authCode = list.get('code');
+	const state = list.get('state');
+	const cookie_state = getCookie('Googlestate');
+	deleteCookie('Googlestate');
+	if (cookie_state !== state)
+	{
+		console.error('State received my API server does not match state sent');
+		return false;
+	}
+	try
+	{
+		const data = await fetch("api/auth/google_auth/", {
+			method : "POST",
+			headers: {'Content-type' : 'application/json'},
+			body: JSON.stringify({
+				"code" : authCode,
+				"state" : state,
+				})
+			})
+			.then(response => {return response.json();});
+		if (data.error)
+			throw new Error(data.error);
+
+		console.log(data);
+		console.log("Googletoken: ", data.access_token);
+		setCookie("Googletoken", data.access_token, 1);
+		return true;
+	}
+	catch(error)
+	{
+		console.log(error);
+		return false;
+	}
 }
 
-export async function forty2_signup()
+export async function forty2_callback()
 {
 	const auth = await forty2_authentication();
 	console.log("auth : ", auth);
@@ -240,7 +331,7 @@ export async function forty2_signup()
 		const reg = await is_registered(email);
 		// createNotificationSocket(username);
 		if (!reg)
-			route("/username")
+			route("/username/forty2");
 		else
 			route("/home");
 	}
@@ -383,6 +474,7 @@ export async function forty2_authentication()
 	}
 }
 
+
 function generateRandomString(length)
 {
 	const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -412,4 +504,42 @@ async function getEmailFrom42()
 	});
 	console.log("data from 42 :" , data);
 	return data.email;
+}
+
+async function getEmailFromGoogle()
+{
+	const data = await fetch("https://www.googleapis.com/oauth2/v1/userinfo", {
+		method : "GET",
+		headers: {
+			'Authorization' : `Bearer ${getCookie("Googletoken")}`
+		}})
+		.then(response => {
+			if (!response.ok)
+				throw new Error(response.json());
+			return response.json();
+		})
+		.catch(error => {
+			console.error(error);
+			return null;
+	});
+	console.log("data from Google :" , data);
+	return data.email;
+}
+
+function openOAuthPopup(url, name, width, height)
+{
+  const left = (window.innerWidth - width) / 2;
+  const top = (window.innerHeight - height) / 2;
+
+  const popup = window.open(
+    url,
+    name,
+    `popup=true,width=${width},height=${height},left=${left},top=${top}`
+  );
+
+  if (window.focus) {
+    popup.focus();
+  }
+
+  return popup;
 }

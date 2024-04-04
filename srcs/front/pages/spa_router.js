@@ -124,9 +124,6 @@ document.querySelector("main").addEventListener("click", async (e) => {
 			e.preventDefault();
 			login.google_signup_event(e);
 			break;
-		case "submit-username":
-			login.username_event(e);
-			break;
 		case "not-registered":
 			e.preventDefault();
 			route(e.target.href);
