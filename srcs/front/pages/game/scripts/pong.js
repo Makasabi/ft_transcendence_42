@@ -16,6 +16,7 @@ export class GameContext {
 	player;
 	keys = {};
 	last_time = performance.now();
+	end = false;
 
 	constructor(game_id) {
 		this.rendering_context = new RenderingContext();
@@ -39,6 +40,7 @@ export class GameContext {
 
 		this.websocket.onclose = function() {
 			console.log('Game socket closed unexpectedly');
+			this.end = true;
 		};
 
 		this.websocket.onmessage = function(e) {
@@ -208,15 +210,16 @@ export class GameContext {
 		this.game_objects.forEach(object => this.rendering_context.draw_object(object));
 		this.rendering_context.draw_origins();
 
-		requestAnimationFrame(this.run.bind(this));
+		if (!this.end)
+			requestAnimationFrame(this.run.bind(this));
 
-		function wait(ms){
-			var start = new Date().getTime();
-			var end = start;
-			while(end < start + ms) {
-			  end = new Date().getTime();
-			}
-		}
+		//function wait(ms){
+		//	var start = new Date().getTime();
+		//	var end = start;
+		//	while(end < start + ms) {
+		//	  end = new Date().getTime();
+		//	}
+		//}
 		// random wait to simulate a slower game
 		//wait(Math.random() * 100);
 	}

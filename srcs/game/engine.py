@@ -4,8 +4,8 @@ from channels.layers import get_channel_layer
 from time import sleep
 
 class GameState:
-	def __init__(self, room_id) -> None:
-		self.players = []
+	def __init__(self, room_id, players) -> None:
+		self.players = players
 		self.count = 0
 		self.room_id = room_id
 
@@ -30,11 +30,11 @@ class GameEngine(threading.Thread):
 				self.broadcast_state(self.games[room_id])
 			sleep(1)
 
-	def start_game(self, room_id: int) -> None:
+	def start_game(self, room_id: int, players: list) -> None:
 		if room_id in self.games:
 			raise ValueError(f"Game {room_id} already exists")
 		print(f"Starting game {room_id}")
-		self.games[room_id] = GameState(room_id)
+		self.games[room_id] = GameState(room_id, players)
 
 	def broadcast_state(self, state: GameState) -> None:
 		state_json = state.render()

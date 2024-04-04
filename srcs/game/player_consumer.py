@@ -11,6 +11,9 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 		self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
 		self.group_name = f"game_{self.game_id}"
 		self.group_send = f"game_engine"
+		self.user = self.scope["user"]
+		if self.user.is_anonymous:
+			await self.close()
 
 		# Join room group
 		await self.channel_layer.group_add(

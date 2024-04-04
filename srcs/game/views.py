@@ -30,12 +30,13 @@ def start(request, room_id):
 	}
 	"""
 	body = request.data
-	print(body)
+	players = None # @TODO
 	async_to_sync(get_channel_layer().send)(
 		"game_engine",
 		{
 			"type": "game.start",
-			"room_id": room_id
+			"room_id": room_id,
+			"players": players
 		}
 	)
 	return JsonResponse({

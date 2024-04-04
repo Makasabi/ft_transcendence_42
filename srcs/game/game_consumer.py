@@ -18,7 +18,7 @@ class GameConsumer(SyncConsumer):
 
 	def game_start(self, event):
 		try:
-			self.engine.start_game(event["room_id"])
+			self.engine.start_game(event["room_id"], event["players"])
 		except ValueError as e:
 			print(e)
 
