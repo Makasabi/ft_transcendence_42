@@ -2,8 +2,10 @@ import { footer, LoggedHeaderView, HomeView } from "./home/home.js";
 import { MeView } from "./user_mgt/MeView.js";
 import { UserView } from "./user_mgt/UserView.js";
 import * as login from "./login/login.js";
-import { GameView } from "/front/pages/game/game.js";
+import { GameView } from "./game/GameView.js";
 import { UnloggedHeaderView, LoginView, SignupView, Forty2View } from "./login/login.js";
+import { UnknownRoomView, createRoomView, } from "./room/room.js";
+import { RoomView } from "./room/RoomView.js";
 
 	/*** Utilities ***/
 export function route(path, event=null)
@@ -43,8 +45,11 @@ async function handleLoggedLocation()
 	const views = [
 		HomeView,
 		MeView,
+		// GameView,
+		createRoomView,
+		RoomView,
+		UnknownRoomView,
 		UserView,
-		GameView,
 	];
 
 	const match = views.filter(view => view.match_route(window.location.pathname));
