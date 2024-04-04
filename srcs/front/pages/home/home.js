@@ -6,14 +6,21 @@ import * as Login from "/front/pages/login/login.js";
 
 export class LoggedHeaderView extends IView {
 	async render() {
-		fetch("/front/pages/home/header.html")
+		let header_promise = fetch("/front/pages/home/header.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("header").innerHTML = html);
 			
 		let user = await fetch("/api/user_management/me", {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		}).then(response => response.json())
-		createNotificationSocket(user.username);
+		await header_promise;
+
+		this.notifSocket = createNotificationSocket(user.username);
+	}
+
+	destroy() {
+		if (this.notifSocket)
+			this.notifSocket.close();
 	}
 }
 

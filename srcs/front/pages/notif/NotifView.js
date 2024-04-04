@@ -37,7 +37,13 @@ export function createNotificationSocket(username) {
 
 	// on socket close
 	notifySocket.onclose = function (e) {
-		console.log('Socket closed unexpectedly');
+		switch (e.code) {
+			case 1000:
+				console.log('Socket closed normally');
+				break;
+			default:
+				console.log('Socket closed unexpectedly');
+		}
 	};
 	
 	notifySocket.onmessage = function (e) {
@@ -49,6 +55,7 @@ export function createNotificationSocket(username) {
 			newNotification(message);
 		}
 	};
+	return notifySocket;
 }
 
 // display new notification red dot
