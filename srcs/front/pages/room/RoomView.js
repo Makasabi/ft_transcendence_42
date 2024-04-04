@@ -97,6 +97,7 @@ export function createRoomSocket(roomid) {
 	// on socket close
 	roomSocket.onclose = function (e) {
 		console.log('Socket closed unexpectedly');
+		route("/fullroom");
 	};
 
 	// on receiving message on group

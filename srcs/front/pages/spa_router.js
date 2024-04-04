@@ -4,7 +4,7 @@ import { UserView } from "./user_mgt/UserView.js";
 import * as login from "./login/login.js";
 import { GameView } from "./game/GameView.js";
 import { UnloggedHeaderView, LoginView, SignupView, Forty2View } from "./login/login.js";
-import { UnknownRoomView, createRoomView, } from "./room/room.js";
+import { FullRoomView, UnknownRoomView, createRoomView, } from "./room/room.js";
 import { RoomView } from "./room/RoomView.js";
 
 	/*** Utilities ***/
@@ -49,6 +49,7 @@ async function handleLoggedLocation()
 		createRoomView,
 		RoomView,
 		UnknownRoomView,
+		FullRoomView,
 		UserView,
 	];
 

@@ -1,6 +1,8 @@
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from time import sleep
+from rooms.models import Rooms, Occupy
+
 
 class RoomConsumer(WebsocketConsumer):
 	def connect(self):
@@ -13,15 +15,16 @@ class RoomConsumer(WebsocketConsumer):
 		self.user = self.scope['user']
 		if self.user.is_anonymous:
 			self.close()
-
-		# checkRoomAvailability(self.room_id, self.roomMode)
-		# assignMaster(self.room_id)
-		# addPlayerToRoom(self.room_id)
-
+		elif (checkRoomAvailability(self.room_id) == False):
+			print('Room is full')
+			self.close() 
+		else :
+			addPlayerToRoom(self.room_id, self.user.id)
+			assignMaster(self.room_id, self.user.id)
+			self.accept()
 
 		# Accept the connection only of there's available spots in the room (in normal mode)
 		# If first player to enter - assign master role
-		self.accept()
 	
 	def disconnect(self, close_code):
 		async_to_sync(self.channel_layer.group_discard)(
@@ -35,17 +38,26 @@ class RoomConsumer(WebsocketConsumer):
 		pass
 
 
-def checkRoomAvailability(room_id, roomMode):
-	# check if room is private
-	# check if room is full
-	# return True if room is available
-	# return False if room is not available
-	pass
+def checkRoomAvailability(room_id):
+	if Rooms.objects.filter(room_id=room_id).exists():
+		room = Rooms.objects.get(room_id=room_id)
+		if room.roomMode == 'normal':
+			if Occupy.objects.filter(room_id=room_id).count() <= 6:
+				return True
+			else:
+				return False
+	else:
+		return False
 
-def assignMaster(room_id):
-	# assign master role to first player to enter room
-	pass
+def addPlayerToRoom(room_id, user_id):
+	room = Rooms.objects.get(room_id=room_id)
+	Occupy.objects.create(room_id=room, player_id=user_id)
 
-def addPlayerToRoom(room_id):
-	# add player to room
-	pass
+def assignMaster(room_id, user_id):
+	room = Rooms.objects.get(room_id=room_id)
+	occupant = Occupy.objects.get(player_id=user_id, room_id=room_id)
+	if Occupy.objects.filter(room_id=room_id).count() == 1:
+		occupant.is_master = True
+		occupant.save()
+	else:
+		pass

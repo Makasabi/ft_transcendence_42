@@ -20,6 +20,23 @@ export class UnknownRoomView extends IView {
 	}
 }
 
+export class FullRoomView extends IView {
+	static match_route(route) {
+		return route === "/fullroom" 
+	}
+
+	static async render() {
+		let html = await fetch("/front/pages/room/fullroom.html").then(response => response.text());
+		document.querySelector("main").innerHTML = html;
+
+		let backToHome = document.getElementById("backHomeFullRoom");
+		backToHome.addEventListener("click", (e) => {
+			e.preventDefault();
+			route("/home");
+		});
+	}
+}
+
 /**
  * createRoomView class
  *
