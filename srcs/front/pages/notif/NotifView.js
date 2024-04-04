@@ -70,12 +70,13 @@ async function handleNotificationDot() {
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	}).then(response => response.json())
 	.then(data => {
-		if (data.length > 0) {
-			console.log('Unread notifications:', data.length);
-			notificationDot.style.display = 'inline-block';
-		}
-		else
-				notificationDot.style.display = 'none';
+		if (data.length > 0)
+			newNotification();
+		// 	console.log('Unread notifications:', data.length);
+		// 	notificationDot.style.display = 'inline-block';
+		// }
+		// else
+		// 		notificationDot.style.display = 'none';
 	})
 	.catch((error) => {
 		console.error('Error:', error);
