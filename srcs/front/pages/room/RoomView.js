@@ -44,7 +44,7 @@ export class RoomView extends IView {
 		html = html.replace("{{roomMode}}" , roomInfo.roomMode);
 		html = html.replace("{{roomCode}}", roomInfo.code);
 		document.querySelector("main").innerHTML = html;
-
+		
 		this.roomSocket = createRoomSocket(roomInfo.room_id);
 
 		await document.getElementById("start").addEventListener("click", () => {
@@ -74,7 +74,7 @@ export class RoomView extends IView {
 	destroy() {
 		console.log("Destroying room view");
 		if (this.roomSocket) {
-			this.roomSocket.close(0, "User left room");
+			this.roomSocket.close();
 		}
 	}
 }
@@ -102,8 +102,10 @@ export function createRoomSocket(roomid) {
 	};
 
 	// on socket close
-	roomSocket.onclose = function (e, code, reason) {
-	
+	roomSocket.onclose = function (e) {
+		const code = e.code;
+		const reason = e.reason;
+		console.log('Socket closing:', code, reason);
 		switch (code) {
 			case 1000:
 				console.log('Socket closed normally');
@@ -111,6 +113,10 @@ export function createRoomSocket(roomid) {
 			case 3001:
 				console.log('Room is already full');
 				route("/fullroom");
+				break;
+			case 3002:
+				console.log('Unauthentified user');
+				route("/home");
 				break;
 			default:
 				console.log(reason);
@@ -120,12 +126,53 @@ export function createRoomSocket(roomid) {
 	// on receiving message on group
 	roomSocket.onmessage = function (e) {
 		const data = JSON.parse(e.data);
-		const message = data.message;
-		// check if message is for the user
-		if (data.room === roomid) {
-			console.log('Message is for room:', roomid);
+		const type = data.type;
+		switch (type) {
+			case 'new_player':
+				console.log('New player joined:', data.player_id);
+				addPlayer(data);
+				break;
+			case 'remove_player':
+				console.log('Player left:', data.player_id);
+				removePlayer(data);
+				break;
+			case 'game_start':
+				console.log('Game starting');
+				route(`/game/${roomid}`);
+				break;
+			default:
+				console.log('Unknown message type:', type);
 		}
 	};
 
 	return roomSocket;
+}
+
+async function	addPlayer(data) {
+
+	console.log("data: ", data);
+
+	let player = await fetch(`/api/user_management/user/id/${data.player_id}`, {
+		method: "GET",
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': `Token ${Login.getCookie('token')}`,
+		},
+	}).then(response => response.json());
+
+	let playerList = document.querySelector(".playersInTheRoom");
+	console.log("playerList: ", playerList);
+	let playerDiv = document.createElement("div");
+	playerDiv.id = `player${data.player_id}`;
+	playerDiv.innerHTML = `<p>${player.username}</p>`;
+	playerList.appendChild(playerDiv);
+
+
+}
+
+async function removePlayer(data) {
+	console.log(`Removing player ${data.player_id}`);
+	let playerList = document.querySelector(".playersInTheRoom");
+	let playerDiv = document.getElementById(`player${data.player_id}`);
+	playerList.removeChild(playerDiv);
 }

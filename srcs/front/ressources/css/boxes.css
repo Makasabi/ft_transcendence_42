@@ -24,3 +24,13 @@
     background-color: var(--transparent-dark);
     width: 100%;
 }
+
+.playersInTheRoom {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    align-content: center;
+    flex-wrap: wrap;
+}

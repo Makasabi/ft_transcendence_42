@@ -3,6 +3,7 @@ from asgiref.sync import async_to_sync
 from time import sleep
 from channels.exceptions import StopConsumer
 from rooms.models import Rooms, Occupy
+import json
 
 
 class RoomConsumer(WebsocketConsumer):
@@ -15,35 +16,81 @@ class RoomConsumer(WebsocketConsumer):
 		)
 		self.user = self.scope['user']
 		if self.user.is_anonymous:
-			self.close()
+			self.close(3002)
 		elif (checkRoomAvailability(self.room_id) == False):
-			print('Room is full')
+			print(f'Room {self.room_id} is full')
 			self.close(3001) 
 		else :
 			addPlayerToRoom(self.room_id, self.user.id)
 			assignMaster(self.room_id, self.user.id)
 			self.accept()
+			self.sendAddPlayer()
 
 		# Accept the connection only of there's available spots in the room (in normal mode)
 		# If first player to enter - assign master role
-	
+
 	def disconnect(self, close_code):
 		if Rooms.objects.filter(room_id=self.room_id).exists():
+			print (f'user id is {self.user.id} room id is {self.room_id}')
 			occupant = Occupy.objects.get(player_id=self.user.id, room_id=self.room_id)
 			occupant.delete()
 		async_to_sync(self.channel_layer.group_discard)(
 			self.room_group_name,
 			self.channel_name
 		)
-		print('Disconnected')
-		# room = Rooms.objects.get(room_id=self.room_id)
-		# occupant = Occupy.objects.get(player_id=self.user.id, room_id=self.room_id)
+		self.sendRemovePlayer()
+		self.close(close_code)
+		
 		# if player leaves room, remove player from occupy table
 		# if master leaves room, passs master to next player
 		# if last player leaves room, delete room_code
 
 	def receive(self, text_data):
 		pass
+
+	def sendAddPlayer(self):
+		async_to_sync(self.channel_layer.group_send)(
+			self.room_group_name,
+			{
+				'type': 'new_player',
+				'player_id': self.user.id,
+				'is_master': Occupy.objects.get(player_id=self.user.id, room_id=self.room_id).is_master	
+			}
+		)
+		occupy = Occupy.objects.filter(room_id=self.room_id)
+		for player in occupy:
+			if player.player_id != self.user.id:
+				self.send(text_data=json.dumps({
+					'type': 'new_player',
+					'player_id': player.player_id,
+					'is_master': player.is_master
+				}))
+
+
+	def sendRemovePlayer(self):
+		async_to_sync(self.channel_layer.group_send)(
+			self.room_group_name,
+			{
+				'type': 'remove_player',
+				'player_id': self.user.id
+			}
+		)
+
+	def new_player(self, event):
+		player_id = event['player_id']
+		is_master = event['is_master']
+		self.send(text_data=json.dumps({
+			'type': 'new_player',
+			'player_id': player_id,
+			'is_master': is_master
+		}))
+
+	def remove_player(self, event):
+		player_id = event['player_id']
+		self.send(text_data=json.dumps({
+			'type': 'remove_player',
+			'player_id': player_id
+		}))
 
 
 def checkRoomAvailability(room_id):
