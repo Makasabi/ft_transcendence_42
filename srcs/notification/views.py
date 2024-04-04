@@ -14,7 +14,6 @@ import requests
 def index(request):
 	return render(request, 'index.html')
 
-
 @api_view(['POST'])
 def create_notif(request, type, target):
 	"""
@@ -33,36 +32,6 @@ def create_notif(request, type, target):
 	# Create new Notification
 	create_send_notification(user1, target.json(), type)
 	return JsonResponse({'message': 'Notification sent'})
-
-
-@api_view(['POST'])
-def notif_add_friend(request, username):
-	"""
-	Notify the 'friend' user that 'username' added them as friend
-	"""
-	user1 = request.user
-
-	# print(f'{user1} added {username} as friend')
-
-	url = f"http://localhost:8000/api/user_management/user/{username}"
-	token = request.COOKIES.get('token')
-	headers = {'Authorization': "Token " + token}
-	target = requests.get(url, headers=headers)
-
-	# Create new Notification
-	create_send_notification(user1, target.json(), 'friend_request')
-	return JsonResponse({'message': 'Notification sent'})
-
-
-@api_view(['POST'])
-def notif_remove_friend(request, username):
-	"""
-	Notify the 'friend' user that 'username' added them as friend
-	"""
-	user1 = request.user.username
-
-	return JsonResponse({'message': 'Notification sent'})
-
 
 # get unread notifs ?
 @api_view(['GET'])
