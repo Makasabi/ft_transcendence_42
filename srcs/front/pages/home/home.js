@@ -1,12 +1,19 @@
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
 import { createRoomForm, joinRoomForm } from "/front/pages/room/room.js";
+import { createNotificationSocket } from "../notif/NotifView.js";
+import * as Login from "/front/pages/login/login.js";
 
 export class LoggedHeaderView extends IView {
 	async render() {
 		fetch("/front/pages/home/header.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("header").innerHTML = html);
+			
+		let user = await fetch("/api/user_management/me", {
+			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+		}).then(response => response.json())
+		createNotificationSocket(user.username);
 	}
 }
 

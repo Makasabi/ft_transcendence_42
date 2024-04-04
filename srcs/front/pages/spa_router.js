@@ -31,12 +31,12 @@ const unloggedViews = [
 ];
 	
 	/*** Utilities ***/
-export function route(path, event=null)
+export async function route(path, event=null)
 {
 	if (event)
 		event.preventDefault();
 	window.history.pushState({}, "", path);
-	handleLocation();
+	await handleLocation();
 }
 
 async function handleLocationViews(views, defaultRoute)
@@ -59,35 +59,35 @@ async function handleLocationViews(views, defaultRoute)
 	await view.render();
 }
 
-function handleLocation()
+async function handleLocation()
 {
 	var was_logged;
 
-	login.is_logged().then(is_logged => {
+	await login.is_logged().then(async (is_logged) => {
 		console.log("is_logged", is_logged);
 		if (was_logged !== is_logged)
-			update_header(is_logged);
+			await update_header(is_logged);
 		if (is_logged)
 		{
-			handleLocationViews(loggedViews, "/home");
+			await handleLocationViews(loggedViews, "/home");
 			was_logged = true;
 		}
 		else
 		{
-			handleLocationViews(unloggedViews, "/login");
+			await handleLocationViews(unloggedViews, "/login");
 			was_logged = false;
 		}
 	});
 }
 
-function update_header(is_logged)
+async function update_header(is_logged)
 {
 	var headerView = null;
 	
 	if (headerView)
 		headerView.destroy();
 	headerView = new (is_logged ? LoggedHeaderView : UnloggedHeaderView)();
-	headerView.render();
+	await headerView.render();
 }
 
 /*** Events ***/

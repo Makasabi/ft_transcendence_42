@@ -1,6 +1,5 @@
-import { createNotificationSocket } from "/front/pages/notif/NotifView.js";
-import { route } from "/front/pages/spa_router.js";
-import { IView } from "/front/pages/IView.js";
+import { route } from "../spa_router.js";
+import { IView } from "../IView.js";
 
 				/*** Cookies ***/
 export function setCookie(name, value, days)
@@ -170,12 +169,11 @@ async function login(username, password)
 				});
 			}
 		})
-		.then(data => {
+		.then(async data => {
 			console.log("token: ", data.token);
 			console.log("user: ", data.user);
 			setCookie("token", data.token, 1);
-			route("/home");
-			createNotificationSocket(username);
+			await route("/home");
 			return true;
 		})
 		.catch(error => {
@@ -206,7 +204,7 @@ async function signup(username, password, email)
 				});
 			}
 		})
-		.then(data =>
+		.then(async data =>
 		{
 			if (!data)
 				return ;
@@ -214,10 +212,9 @@ async function signup(username, password, email)
 			{
 				console.log("Registration successfull!");
 				console.log("token : ", data.token);
-				console.log("user : ", data.user);
+ 				console.log("user : ", data.user);
 				setCookie("token", data.token, 1);
-				route("/home");
-				createNotificationSocket(username);
+				await route("/home");
 			}
 		})
 		.catch(error => {
@@ -316,10 +313,9 @@ export async function forty2_callback()
 	{
 		const reg = await is_registered(email);
 		if (!reg)
-			route("/username/forty2");
+			await route("/username/forty2");
 		else
-			route("/home");
-		createNotificationSocket(username);
+			await route("/home");
 	}
 	catch(error)
 	{

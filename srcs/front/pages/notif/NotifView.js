@@ -18,20 +18,21 @@ export class NotifView extends IView {
 export function createNotificationSocket(username) {
 	console.log('Creating socket for:', username);
 	const notifySocket = new WebSocket(
-	'ws://'
-	+ window.location.host
-	+ '/ws/notif/'
-	+ username
+		'ws://'
+		+ window.location.host
+		+ '/ws/notif/'
+		+ username
 	);
 	if (notifySocket.error) {
 		console.log('Error creating socket');
 		return;
 	}
-	handleNotificationDot();
+	else
+		handleNotificationDot();
 
 	// on socket open
 	notifySocket.onopen = function (e) {
-		console.log('Socket successfully connected.');
+		console.log('Socket successfully connected for:', username);
 	};
 
 	// on socket close
@@ -72,11 +73,6 @@ async function handleNotificationDot() {
 	.then(data => {
 		if (data.length > 0)
 			newNotification();
-		// 	console.log('Unread notifications:', data.length);
-		// 	notificationDot.style.display = 'inline-block';
-		// }
-		// else
-		// 		notificationDot.style.display = 'none';
 	})
 	.catch((error) => {
 		console.error('Error:', error);

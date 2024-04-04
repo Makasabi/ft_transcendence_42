@@ -14,29 +14,34 @@ export class UserView extends IView {
 		console.log("UserView.render");
 		let call = "/api/user_management/user/" + window.location.pathname.split('/')[2];
 
+		//  retrieve current requester
+		let requester = await fetch("/api/user_management/me", {
+			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+		}).then(response => response.json());
+
+		
 		let html = await fetch("/front/pages/user_mgt/user.html").then(response => response.text());
 		let user = await fetch(call, {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-			
 		}).then(response => response.json());
 		if (user.error)
 		{
 			MeView.render();
 			return;
 		}
-
+		
 		// profile-infos
 		html = getProfileInfos(html, user);
 		// history-stats
 		html = getHistoryStats(html, user);
-
+		
 		document.querySelector("main").innerHTML = html;
-		addFriendButton(user.username);
+		addFriendButton(requester.username);
 	}
 }
 
 function addFriend(username, user2) {
-	// console.log("Add friend request + notif");
+	console.log("Add friend request + notif");
 	fetch("/api/user_management/add_friend/" + user2, {
 		method: 'POST',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
@@ -49,7 +54,7 @@ function addFriend(username, user2) {
 }
 
 function removeFriend(username, user2) {
-	// console.log("Remove friend request + notif");
+	console.log("Remove friend request + notif");
 	fetch("/api/user_management/remove_friend/" + user2, {
 		method: 'DELETE',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
