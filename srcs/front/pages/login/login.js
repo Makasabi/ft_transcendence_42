@@ -186,8 +186,8 @@ async function login(username, password)
 			console.log("user: ", data.user);
 			setCookie("token", data.token, 1);
 			route("/home");
-			return true;
 			createNotificationSocket(username);
+			return true;
 		})
 		.catch(error => {
 			console.error(error);
@@ -471,55 +471,6 @@ export async function forty2_authentication()
 	}
 }
 
-export async function username_event(e, getEmail)
-{
-	e.preventDefault();
-	const form = document.getElementById("username-form");
-	const username = form.elements.signup_username.value;
-	const username_button = document.getElementById("submit-username");
-	let email = null;
-	if (username_button.dataset.auth === "google")
-		email = await getEmailFromGoogle();
-	else if (username_button.dataset.auth === "forty2")
-		email = await getEmailFrom42();
-	const password = generateRandomString(15);
-	signup(username, password, email);
-}
-
-
-				/*** Utilities ***/
-export async function is_registered(email)
-{
-	const result = await fetch('api/auth/is_registered/', {
-		method: 'POST',
-		headers: {	'Content-type' : 'application/json'},
-		body: JSON.stringify({ 'email' : email }),
-	})
-	.then(response => {
-		if (response.ok)
-			return (response.json().then(data => {
-				setCookie("token", data['token'], 1);
-				console.log("User registered : ", data['token']);
-				return true;
-			}));
-		else if (response.status === 400)
-		{
-			return response.json().then(data => {
-				console.log("Not registered");
-				return false;
-			});
-		}
-		else
-			return response.json().then(data => {
-				throw new Error("Error in registration");
-			});
-	})
-	.catch(error => {
-		throw new Error(error);
-		return false;
-	})
-	return result;
-}
 
 function generateRandomString(length)
 {
