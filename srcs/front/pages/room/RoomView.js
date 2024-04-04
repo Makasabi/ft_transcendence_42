@@ -61,8 +61,7 @@ export class RoomView extends IView {
 			}).then(response => {
 				if (response.status === 200) {
 					roomSocket.send(JSON.stringify({
-						"message": "Game starting",
-						"room": roomInfo.room_id,
+						"type": "start"
 					}));
 				} else {
 					console.error("Error starting game");
@@ -103,10 +102,15 @@ export function createRoomSocket(roomid) {
 	// on receiving message on group
 	roomSocket.onmessage = function (e) {
 		const data = JSON.parse(e.data);
+		const type = data.type;
 		const message = data.message;
 		// check if message is for the user
 		if (data.room === roomid) {
 			console.log('Message is for room:', roomid);
+		}
+		if (type === "start") {
+			console.log("Game starting");
+			route(`/game/${roomid}`);
 		}
 	};
 

@@ -1,9 +1,11 @@
-import { GameContext, events } from "/front/pages/game/scripts/pong.js";
+import { GameContext } from "/front/pages/game/scripts/pong.js";
 import { IView } from "/front/pages/IView.js";
 
 export class GameView extends IView {
 	static match_route(route) {
-		return route === "/game";
+		const regex = new RegExp("^/game/[0-9]+$");
+		console.log("GameView.match_route", route, regex.test(route));
+		return regex.test(route);
 	}
 
 	static async render() {
@@ -33,24 +35,24 @@ export class GameView extends IView {
 		};
 		document.head.appendChild(stylesheet);
 
-		let script = document.createElement("script");
-		script.src = "/front/pages/game/scripts/pong.js";
-		script.type = "module";
-		script.onload = () => {
-			ready_state++;
-		};
+		//let script = document.createElement("script");
+		//script.src = "/front/pages/game/scripts/pong.js";
+		//script.type = "module";
+		//script.onload = () => {
+		//	ready_state++;
+		//};
 
 		while (!main_set)
 			await new Promise(resolve => setTimeout(resolve, 100));
-		main.appendChild(script);
+		//main.appendChild(script);
 
-		while (ready_state < 2)
+		while (ready_state < 1)
 			await new Promise(resolve => setTimeout(resolve, 100));
 
 		try {
-			let game = new GameContext();
+			const game_id = document.URL.split("/")[4];
+			let game = new GameContext(game_id);
 
-			events(game);
 			await game.load();
 			game.run();
 		}

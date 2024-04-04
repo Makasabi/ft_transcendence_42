@@ -8,6 +8,8 @@ const BALL_SIZE = 0.4;
 
 export class GameContext {
 	rendering_context;
+	websocket;
+	state = {};
 	game_objects;
 	arena;
 	ball;
@@ -15,9 +17,95 @@ export class GameContext {
 	keys = {};
 	last_time = performance.now();
 
-	constructor() {
+	constructor(game_id) {
 		this.rendering_context = new RenderingContext();
 		this.game_objects = [];
+
+		this.websocket = new WebSocket(
+			'ws://'
+			+ window.location.host
+			+ '/ws/game/'
+			+ game_id,
+		);
+
+		if (this.websocket.error) {
+			console.error("Error creating game socket");
+			return;
+		}
+
+		this.websocket.onopen = function() {
+			console.log('Game socket open');
+		};
+
+		this.websocket.onclose = function() {
+			console.log('Game socket closed unexpectedly');
+		};
+
+		this.websocket.onmessage = function(e) {
+			const data = JSON.parse(e.data);
+			const type = data.type;
+			if (type === "update") {
+				console.log("Game update", data);
+				this.state = data;
+			}
+		};
+
+		this.events(this);
+	}
+
+	events(game) {
+		window.addEventListener("resize", resize_canvas);
+
+		let x_rotate_slider = document.querySelector("#x_rotation");
+		let y_rotate_slider = document.querySelector("#y_rotation");
+		let z_rotate_slider = document.querySelector("#z_rotation");
+		let reset_rotation_button = document.querySelector("#reset_rotation");
+
+		function rotate_view(game) {
+			game.rendering_context.rotate_view([x_rotate_slider.value * Math.PI / 180., y_rotate_slider.value * Math.PI / 180., z_rotate_slider.value * Math.PI / 180.]);
+		}
+
+		x_rotate_slider.addEventListener("input", rotate_view.bind(null, game));
+		y_rotate_slider.addEventListener("input", rotate_view.bind(null, game));
+		z_rotate_slider.addEventListener("input", rotate_view.bind(null, game));
+
+		reset_rotation_button.addEventListener("click", function() {
+			x_rotate_slider.value = 180;
+			y_rotate_slider.value = 180;
+			z_rotate_slider.value = 180;
+			rotate_view(game);
+		});
+
+		document.addEventListener("keydown", function(event) {
+			//console.log(event.key);
+			if (event.key == "ArrowLeft" || event.key == "q" || event.key == "a" || event.key == "Q" || event.key == "A") {
+				//console.log("DOWN left");
+				game.keys.left = true;
+			}
+			else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
+				//console.log("DOWN right");
+				game.keys.right = true;
+			}
+			else if (event.key == "Shift") {
+				//console.log("DOWN turbo");
+				game.keys.turbo = true;
+			}
+		});
+
+		document.addEventListener("keyup", function(event) {
+			if (event.key == "ArrowLeft" || event.key == "q" || event.key == "a" || event.key == "Q" || event.key == "A") {
+				//console.log("UP left");
+				game.keys.left = false;
+			}
+			else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
+				//console.log("UP right");
+				game.keys.right = false;
+			}
+			else if (event.key == "Shift") {
+				//console.log("UP turbo");
+				game.keys.turbo = false;
+			}
+		});
 	}
 
 	async load() {
@@ -112,6 +200,7 @@ export class GameContext {
 	}
 
 	run() {
+		//console.log("GameContext.state", this.state);
 		this.game_loop();
 
 		this.rendering_context.clear();
@@ -121,71 +210,16 @@ export class GameContext {
 
 		requestAnimationFrame(this.run.bind(this));
 
-		//function wait(ms){
-		//	var start = new Date().getTime();
-		//	var end = start;
-		//	while(end < start + ms) {
-		//	  end = new Date().getTime();
-		//	}
-		//}
-		//// random wait to simulate a slower game
+		function wait(ms){
+			var start = new Date().getTime();
+			var end = start;
+			while(end < start + ms) {
+			  end = new Date().getTime();
+			}
+		}
+		// random wait to simulate a slower game
 		//wait(Math.random() * 100);
 	}
-}
-
-export function events(game) {
-	window.addEventListener("resize", resize_canvas);
-
-	let x_rotate_slider = document.querySelector("#x_rotation");
-	let y_rotate_slider = document.querySelector("#y_rotation");
-	let z_rotate_slider = document.querySelector("#z_rotation");
-	let reset_rotation_button = document.querySelector("#reset_rotation");
-
-	function rotate_view(game) {
-		game.rendering_context.rotate_view([x_rotate_slider.value * Math.PI / 180., y_rotate_slider.value * Math.PI / 180., z_rotate_slider.value * Math.PI / 180.]);
-	}
-
-	x_rotate_slider.addEventListener("input", rotate_view.bind(null, game));
-	y_rotate_slider.addEventListener("input", rotate_view.bind(null, game));
-	z_rotate_slider.addEventListener("input", rotate_view.bind(null, game));
-
-	reset_rotation_button.addEventListener("click", function() {
-		x_rotate_slider.value = 180;
-		y_rotate_slider.value = 180;
-		z_rotate_slider.value = 180;
-		rotate_view(game);
-	});
-
-	document.addEventListener("keydown", function(event) {
-		console.log(event.key);
-		if (event.key == "ArrowLeft" || event.key == "q" || event.key == "a" || event.key == "Q" || event.key == "A") {
-			//console.log("DOWN left");
-			game.keys.left = true;
-		}
-		else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
-			//console.log("DOWN right");
-			game.keys.right = true;
-		}
-		else if (event.key == "Shift") {
-			//console.log("DOWN turbo");
-			game.keys.turbo = true;
-		}
-	});
-
-	document.addEventListener("keyup", function(event) {
-		if (event.key == "ArrowLeft" || event.key == "q" || event.key == "a" || event.key == "Q" || event.key == "A") {
-			//console.log("UP left");
-			game.keys.left = false;
-		}
-		else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
-			//console.log("UP right");
-			game.keys.right = false;
-		}
-		else if (event.key == "Shift") {
-			//console.log("UP turbo");
-			game.keys.turbo = false;
-		}
-	});
 }
 
 async function resize_canvas() {

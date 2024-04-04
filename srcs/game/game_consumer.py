@@ -2,6 +2,7 @@
 import json
 
 from channels.generic.websocket import SyncConsumer
+from asgiref.sync import async_to_sync
 
 from .engine import GameEngine
 
@@ -25,7 +26,7 @@ class GameConsumer(SyncConsumer):
 		state = event["state"]
 		room_id = event["room_id"]
 		print(f"GameConsumer.game_update: {room_id}", state)
-		self.channel_layer.group_send(f"game_{room_id}", {
+		async_to_sync(self.channel_layer.group_send)(f"game_{room_id}", {
 			"type": "game.update",
 			"state": state
 		})

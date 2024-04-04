@@ -45,7 +45,7 @@ async function handleLoggedLocation()
 	const views = [
 		HomeView,
 		MeView,
-		// GameView,
+		GameView,
 		createRoomView,
 		RoomView,
 		UnknownRoomView,
@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	};
 
 	footer().then(html => {
-		document.querySelector("footer").innerHTML = html;
+		//document.querySelector("footer").innerHTML = html;
 	});
 	handleLocation();
 	let tag = this.querySelector("header");
