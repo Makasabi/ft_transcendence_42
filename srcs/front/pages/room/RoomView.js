@@ -23,7 +23,7 @@ export class RoomView extends IView {
 	 * if roomcode is valid, it renders the room page
 	 * TODO: else it redirects to unknown room code view -> explaining that the room code is either invalid or the room has been closed since.
 	 */
-	static async render() {
+	async render() {
 		let code = document.URL.split("/")[4];
 		checkRoomCode(code)
 			.then(roomCheck => {
@@ -45,7 +45,7 @@ export class RoomView extends IView {
 		html = html.replace("{{roomCode}}", roomInfo.code);
 		document.querySelector("main").innerHTML = html;
 
-		const roomSocket = createRoomSocket(roomInfo.room_id);
+		this.roomSocket = createRoomSocket(roomInfo.room_id);
 
 		await document.getElementById("start").addEventListener("click", () => {
 			console.log("Starting game");
@@ -60,7 +60,7 @@ export class RoomView extends IView {
 				}),
 			}).then(response => {
 				if (response.status === 200) {
-					roomSocket.send(JSON.stringify({
+					this.roomSocket.send(JSON.stringify({
 						"message": "Game starting",
 						"room": roomInfo.room_id,
 					}));
@@ -69,6 +69,13 @@ export class RoomView extends IView {
 				}
 			})
 		});
+	}
+
+	destroy() {
+		console.log("Destroying room view");
+		if (this.roomSocket) {
+			this.roomSocket.close(0, "User left room");
+		}
 	}
 }
 
@@ -95,9 +102,19 @@ export function createRoomSocket(roomid) {
 	};
 
 	// on socket close
-	roomSocket.onclose = function (e) {
-		console.log('Socket closed unexpectedly');
-		route("/fullroom");
+	roomSocket.onclose = function (e, code, reason) {
+	
+		switch (code) {
+			case 1000:
+				console.log('Socket closed normally');
+				break;
+			case 3001:
+				console.log('Room is already full');
+				route("/fullroom");
+				break;
+			default:
+				console.log(reason);
+		}
 	};
 
 	// on receiving message on group

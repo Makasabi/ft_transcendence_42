@@ -7,6 +7,29 @@ import { UnloggedHeaderView, LoginView, SignupView, Forty2View } from "./login/l
 import { FullRoomView, UnknownRoomView, createRoomView, } from "./room/room.js";
 import { RoomView } from "./room/RoomView.js";
 
+
+/*** Views ***/
+var view = null;
+
+const loggedViews = [
+	HomeView,
+	MeView,
+	// GameView,
+	createRoomView,
+	RoomView,
+	UnknownRoomView,
+	FullRoomView,
+	UserView,
+];
+
+const unloggedViews = [
+	LoginView,
+	SignupView,
+	Forty2View,
+	login.GoogleView,
+	login.UsernameView,
+];
+	
 	/*** Utilities ***/
 export function route(path, event=null)
 {
@@ -16,20 +39,12 @@ export function route(path, event=null)
 	handleLocation();
 }
 
-function handleUnloggedLocation()
+async function handleLocationViews(views, defaultRoute)
 {
-	const views = [
-		LoginView,
-		SignupView,
-		Forty2View,
-		login.GoogleView,
-		login.UsernameView,
-	];
-
 	const match = views.filter(view => view.match_route(window.location.pathname));
 	if (match.length === 0) {
 		console.warn("No route matches the path:", window.location.pathname);
-		route("/login");
+		route(defaultRoute);
 		return;
 	}
 	if (match.length > 1)
@@ -37,34 +52,11 @@ function handleUnloggedLocation()
 		console.warn("Multiple routes match the same path:", window.location.pathname);
 		return;
 	}
-	match[0].render();
-}
-
-async function handleLoggedLocation()
-{
-	const views = [
-		HomeView,
-		MeView,
-		// GameView,
-		createRoomView,
-		RoomView,
-		UnknownRoomView,
-		FullRoomView,
-		UserView,
-	];
-
-	const match = views.filter(view => view.match_route(window.location.pathname));
-	if (match.length === 0) {
-		console.warn("No route matches the path:", window.location.pathname);
-		route("/home");
-		return;
-	}
-	if (match.length > 1)
-	{
-		console.warn("Multiple routes match the same path:", window.location.pathname);
-		return;
-	}
-	match[0].render();
+	console.log("this is the current view:", view);
+	if (view)
+		view.destroy();
+	view = new match[0]();
+	await view.render();
 }
 
 function handleLocation()
@@ -77,12 +69,12 @@ function handleLocation()
 			update_header(is_logged);
 		if (is_logged)
 		{
-			handleLoggedLocation();
+			handleLocationViews(loggedViews, "/home");
 			was_logged = true;
 		}
 		else
 		{
-			handleUnloggedLocation();
+			handleLocationViews(unloggedViews, "/login");
 			was_logged = false;
 		}
 	});
@@ -90,10 +82,12 @@ function handleLocation()
 
 function update_header(is_logged)
 {
-	if (is_logged)
-		LoggedHeaderView.render();
-	else
-		UnloggedHeaderView.render();
+	var headerView = null;
+	
+	if (headerView)
+		headerView.destroy();
+	headerView = new (is_logged ? LoggedHeaderView : UnloggedHeaderView)();
+	headerView.render();
 }
 
 /*** Events ***/

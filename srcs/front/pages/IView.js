@@ -15,13 +15,13 @@ export class IView {
 	/**
 	 * Renders the view.
 	 */
-	static async render() {
+	async render() {
 		document.querySelector("main").innerHTML = "<h1>Not implemented</h1>";
 	}
 
 	/**
 	 * Make the view disappear and stop any ongoing processes.
 	 */
-	static destroy() {
+	destroy() {
 	}
 }

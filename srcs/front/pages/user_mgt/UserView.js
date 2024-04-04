@@ -10,7 +10,7 @@ export class UserView extends IView {
 		return regex.test(route);
 	}
 
-	static async render() {
+	async render() {
 		console.log("UserView.render");
 		let call = "/api/user_management/user/" + window.location.pathname.split('/')[2];
 

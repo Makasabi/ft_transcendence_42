@@ -3,7 +3,7 @@ import { route } from "/front/pages/spa_router.js";
 import { createRoomForm, joinRoomForm } from "/front/pages/room/room.js";
 
 export class LoggedHeaderView extends IView {
-	static async render() {
+	async render() {
 		fetch("/front/pages/home/header.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("header").innerHTML = html);
@@ -15,7 +15,7 @@ export class HomeView extends IView {
 		return route === "/home";
 	}
 
-	static async render() {
+	async render() {
 		await fetch("/front/pages/home/home.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
@@ -45,7 +45,7 @@ export class HomeView extends IView {
 		joinRoomForm(); // from room.js
 	}
 
-	static destroy() {
+	destroy() {
 	}
 }
 

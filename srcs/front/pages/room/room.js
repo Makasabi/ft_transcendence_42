@@ -8,7 +8,7 @@ export class UnknownRoomView extends IView {
 		return route === "/unknown" 
 	}
 
-	static async render() {
+	async render() {
 		let html = await fetch("/front/pages/room/unknown.html").then(response => response.text());
 		document.querySelector("main").innerHTML = html;
 
@@ -25,7 +25,7 @@ export class FullRoomView extends IView {
 		return route === "/fullroom" 
 	}
 
-	static async render() {
+	async render() {
 		let html = await fetch("/front/pages/room/fullroom.html").then(response => response.text());
 		document.querySelector("main").innerHTML = html;
 
@@ -53,7 +53,7 @@ export class createRoomView extends IView {
 		}
 	}
 
-	static async render() {
+	async render() {
 		console.log(document.URL)
 		let roomMode = document.URL.split("/")[4];
 		console.log("roomMode: ", roomMode);

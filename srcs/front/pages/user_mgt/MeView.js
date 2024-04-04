@@ -7,7 +7,7 @@ export class MeView extends IView {
 		return route === "/me";
 	}
 
-	static async render() {
+	async render() {
 		let html = await fetch("/front/pages/user_mgt/me.html").then(response => response.text());
 		let user = await fetch("/api/user_management/me", {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }

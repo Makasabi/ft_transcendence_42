@@ -18,7 +18,7 @@ class RoomConsumer(WebsocketConsumer):
 			self.close()
 		elif (checkRoomAvailability(self.room_id) == False):
 			print('Room is full')
-			self.close() 
+			self.close(3001) 
 		else :
 			addPlayerToRoom(self.room_id, self.user.id)
 			assignMaster(self.room_id, self.user.id)
@@ -28,14 +28,14 @@ class RoomConsumer(WebsocketConsumer):
 		# If first player to enter - assign master role
 	
 	def disconnect(self, close_code):
-		print('Disconnected')
+		if Rooms.objects.filter(room_id=self.room_id).exists():
+			occupant = Occupy.objects.get(player_id=self.user.id, room_id=self.room_id)
+			occupant.delete()
 		async_to_sync(self.channel_layer.group_discard)(
 			self.room_group_name,
 			self.channel_name
 		)
-		if Rooms.objects.filter(room_id=self.room_id, player_id=self.user.id).exists():
-			occupant = Occupy.objects.get(player_id=self.user.id, room_id=self.room_id)
-			occupant.delete()
+		print('Disconnected')
 		# room = Rooms.objects.get(room_id=self.room_id)
 		# occupant = Occupy.objects.get(player_id=self.user.id, room_id=self.room_id)
 		# if player leaves room, remove player from occupy table

@@ -8,7 +8,7 @@ export class NotifView extends IView {
 		return regex.test(route);
 	}
 
-	static async render() {
+	async render() {
 		console.log("NotifView.render");
 		HomeView.render();
 	}
