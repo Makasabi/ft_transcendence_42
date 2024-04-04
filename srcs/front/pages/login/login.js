@@ -35,18 +35,39 @@ export class GameTestView extends IView
 		await fetch("/front/pages/login/game_test.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
-		let socket = new WebSocket("ws://localhost:8000/ws/game_test/");
+		try
+		{
+			let socket = new WebSocket("ws://localhost:8000/ws/game_test/");
 
-		const form = document.getElementById('janken-form');
-		form.addEventListener('submit', e => {
-			e.preventDefault();
-			socket.send(JSON.stringify(form.choice.value));
-		})
-		socket.onmessage = event => {
-	  		const result = JSON.parse(event.data);
-			if (result["message"])
-				console.log(result["message"]);
-			document.getElementById('janken-result').textContent = result;
+			const form = document.getElementById('janken-form');
+			form.addEventListener('submit', e => {
+				e.preventDefault();
+				console.log("EVENT");
+				socket.send(JSON.stringify(form.choice.value));
+			});
+
+			socket.onerror = error => {
+				console.log("Ws error : ", error);
+			};
+
+			socket.onopen = e => {
+				console.log("Open : " , e);
+			};
+
+			socket.onclose = e => {
+				console.log('Socket closed');
+			};
+
+			socket.onmessage = event => {
+	  			const result = JSON.parse(event.data);
+				if (result["message"])
+					console.log(result["message"]);
+				document.getElementById('janken-result').textContent = result;
+			}
+		}
+		catch (error)
+		{
+			console.log(error);
 		}
 	}
 }
