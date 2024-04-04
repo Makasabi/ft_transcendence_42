@@ -1,6 +1,7 @@
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from time import sleep
+from channels.exceptions import StopConsumer
 from rooms.models import Rooms, Occupy
 
 
@@ -27,12 +28,19 @@ class RoomConsumer(WebsocketConsumer):
 		# If first player to enter - assign master role
 	
 	def disconnect(self, close_code):
+		print('Disconnected')
 		async_to_sync(self.channel_layer.group_discard)(
 			self.room_group_name,
 			self.channel_name
 		)
-
+		if Rooms.objects.filter(room_id=self.room_id, player_id=self.user.id).exists():
+			occupant = Occupy.objects.get(player_id=self.user.id, room_id=self.room_id)
+			occupant.delete()
+		# room = Rooms.objects.get(room_id=self.room_id)
+		# occupant = Occupy.objects.get(player_id=self.user.id, room_id=self.room_id)
+		# if player leaves room, remove player from occupy table
 		# if master leaves room, passs master to next player
+		# if last player leaves room, delete room_code
 
 	def receive(self, text_data):
 		pass
@@ -46,10 +54,13 @@ def checkRoomAvailability(room_id):
 				return True
 			else:
 				return False
+		elif room.roomMode == 'tournament':
+			return True
 	else:
 		return False
 
 def addPlayerToRoom(room_id, user_id):
+	print(f"User_id is {user_id} Room_id is {room_id}")
 	room = Rooms.objects.get(room_id=room_id)
 	Occupy.objects.create(room_id=room, player_id=user_id)
 
