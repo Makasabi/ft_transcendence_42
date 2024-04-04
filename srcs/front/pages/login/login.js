@@ -156,7 +156,10 @@ export async function is_logged()
 		headers: { 'Authorization': `Token ${token}` }
 	}).then(response => {
 		if (response.ok)
+		{
+			createNotificationSocket();
 			return true;
+		}
 		else
 			return false;
 	});
@@ -186,7 +189,7 @@ async function login(username, password)
 			console.log("user: ", data.user);
 			setCookie("token", data.token, 1);
 			route("/home");
-			createNotificationSocket(username);
+			// createNotificationSocket(username);
 			return true;
 		})
 		.catch(error => {
@@ -228,7 +231,7 @@ async function signup(username, password, email)
 				console.log("user : ", data.user);
 				setCookie("token", data.token, 1);
 				route("/home");
-				createNotificationSocket(username);
+				// createNotificationSocket(username);
 			}
 		})
 		.catch(error => {
