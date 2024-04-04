@@ -45,12 +45,35 @@ export class RoomView extends IView {
 		html = html.replace("{{roomCode}}", roomInfo.code);
 		document.querySelector("main").innerHTML = html;
 
-		createRoomSocket(roomInfo.room_id);
+		const roomSocket = createRoomSocket(roomInfo.room_id);
+
+		await document.getElementById("start").addEventListener("click", () => {
+			console.log("Starting game");
+			fetch(`/api/game/start/${roomInfo.room_id}`, {
+				method: "POST",
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Token ${Login.getCookie('token')}`,
+				},
+				body: JSON.stringify({
+					"room_id": roomInfo.room_id,
+				}),
+			}).then(response => {
+				if (response.status === 200) {
+					roomSocket.send(JSON.stringify({
+						"message": "Game starting",
+						"room": roomInfo.room_id,
+					}));
+				} else {
+					console.error("Error starting game");
+				}
+			})
+		});
 	}
 }
 
 /**
- * function to create a new socket when a user enters a room 
+ * function to create a new socket when a user enters a room
  * (upon creation or joining (with code in URL, via home form, or via invite notification))
  */
 export function createRoomSocket(roomid) {
@@ -86,4 +109,6 @@ export function createRoomSocket(roomid) {
 			console.log('Message is for room:', roomid);
 		}
 	};
+
+	return roomSocket;
 }
