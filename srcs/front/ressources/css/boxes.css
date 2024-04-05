@@ -81,19 +81,29 @@
 	margin: 0 0 2vh 0;;
 }
 
-.player_box img {
+#master p{
+	display: inline-block;
+	vertical-align: middle;
+	margin-left: 5px;
+}
+
+#master #crown {
+	display: inline-block;
+	vertical-align: middle;
+	width: 1.5vh;
+	height: 1.5vh;
+	filter: invert(80%) sepia(74%) saturate(1710%) hue-rotate(354deg) brightness(99%) contrast(94%);
+}
+
+.player_box .room_avatar {
 	width: 10vh;
-	height: 10vh;
 	border-radius: 50%;
 	margin: 1vh;
 }
 
-.master {
-	border: var(--primary-color) 2px solid;
-}
-
 #unauthorosedToStart {
 	display: block;
+	align-self: center;
 }
 
 #start {

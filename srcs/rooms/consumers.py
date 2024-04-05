@@ -112,9 +112,23 @@ def checkRoomAvailability(room_id):
 		return False
 
 def addPlayerToRoom(room_id, user_id):
-	print(f"User_id is {user_id} Room_id is {room_id}")
+	print(f">>------->>>>> User_id is {user_id} Room_id is {room_id}")
 	room = Rooms.objects.get(room_id=room_id)
+	if Occupy.objects.filter(player_id=user_id, room_id=room_id).exists():
+		
+		occupant = Occupy.objects.get(player_id=user_id, room_id=room_id)
+		print (f'Occupant is {occupant.player_id}')
+		if occupant.is_master == True:
+			newMaster = Occupy.objects.filter(room_id=room_id).first()
+			if newMaster == occupant:
+				newMaster = Occupy.objects.filter(room_id=room_id).last()
+			newMaster = True
+			print(f'New master is {newMaster.player_id}')
+			occupant.delete()
+		else:
+			occupant.delete()
 	Occupy.objects.create(room_id=room, player_id=user_id)
+
 
 def assignMaster(room_id, user_id):
 	room = Rooms.objects.get(room_id=room_id)

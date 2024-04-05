@@ -93,30 +93,30 @@ export function createRoomSocket(roomid) {
 		+ roomid,
 	);
 	if (roomSocket.error) {
-		console.log('Error creating socket');
+		console.log('Rooms - Error creating socket');
 		return;
 	}
 
 	// on socket open
 	roomSocket.onopen = function (e) {
-		console.log('Socket successfully connected.');
+		console.log('Rooms - Socket successfully connected.');
 	};
 
 	// on socket close
 	roomSocket.onclose = function (e) {
-		console.log('--------> Socket closing:', e.code, e.reason);
+		console.log('Rooms - Socket closing:', e.code, e.reason);
 		const code = e.code;
 		const reason = e.reason;
 		switch (code) {
 			case 1000:
-				console.log('Socket closed normally');
+				console.log('Rooms - Socket closed normally');
 				break;
 			case 3001:
-				console.log('Room is already full');
+				console.log('Room - is already full');
 				route("/fullroom");
 				break;
 			case 3002:
-				console.log('Unauthentified user');
+				console.log('Rooms - Unauthentified user');
 				route("/home");
 				break;
 			default:
