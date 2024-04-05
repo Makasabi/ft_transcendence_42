@@ -1,36 +1,101 @@
 @media (min-width: 48em) {
-	.box_module {
+	.room {
 		margin: 0 auto;
-		width: 50%;
+		width: 80%;
 	}
+
+}
+
+.room {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	align-items: center;
+	align-content: center;
+	flex-wrap: wrap;
+
 }
 
 .box_module {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    width: 70vh;
-    align-content: center;
-    flex-wrap: wrap;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	align-items: center;
+	width: 80vw;
+	align-content: center;
+	flex-wrap: wrap;
 }
 
 .sub_box {
-    margin: 1vh auto;
-    border-radius: 10px;
-    border: var(--border-light) 1px solid;
-    padding: 3em;
-    backdrop-filter: blur(4px);
-    background-color: var(--transparent-dark);
-    width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 2vh;
+	margin: 1vh auto;
+	border-radius: 10px;
+	border: var(--border-light) 1px solid;
+	padding: 3em;
+	backdrop-filter: blur(4px);
+	background-color: var(--transparent-dark);
+	width: 100%;
 }
 
 .playersInTheRoom {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
-    align-content: center;
-    flex-wrap: wrap;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+	width: 100%;
+	align-content: center;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	gap: 2vw;
+}
+
+	.playersInTheRoom::-webkit-scrollbar-track
+	{
+		border-radius: 10px;
+		background-color: var(--border-light);
+	}
+
+	.playersInTheRoom::-webkit-scrollbar
+	{
+		width: 12px;
+		background-color: var(--transparent-dark);
+	}
+
+	.playersInTheRoom::-webkit-scrollbar-thumb
+	{
+		border-radius: 10px;
+		background-color: var(--transparent-primary);
+	} 
+
+.player_box {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	align-items: center;
+	width: 20vh;
+	align-content: center;
+	flex-wrap: wrap;
+	margin: 0 0 2vh 0;;
+}
+
+.player_box img {
+	width: 10vh;
+	height: 10vh;
+	border-radius: 50%;
+	margin: 1vh;
+}
+
+.master {
+	border: var(--primary-color) 2px solid;
+}
+
+#unauthorosedToStart {
+	display: block;
+}
+
+#start {
+	display: none;
 }

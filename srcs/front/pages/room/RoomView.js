@@ -2,6 +2,7 @@ import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
 import { checkRoomCode } from "/front/pages/room/room.js";
+import { addPlayer, removePlayer} from "/front/pages/room/roomUtils.js";
 
 /**
  * RoomView class
@@ -103,9 +104,9 @@ export function createRoomSocket(roomid) {
 
 	// on socket close
 	roomSocket.onclose = function (e) {
+		console.log('--------> Socket closing:', e.code, e.reason);
 		const code = e.code;
 		const reason = e.reason;
-		console.log('Socket closing:', code, reason);
 		switch (code) {
 			case 1000:
 				console.log('Socket closed normally');
@@ -146,33 +147,4 @@ export function createRoomSocket(roomid) {
 	};
 
 	return roomSocket;
-}
-
-async function	addPlayer(data) {
-
-	console.log("data: ", data);
-
-	let player = await fetch(`/api/user_management/user/id/${data.player_id}`, {
-		method: "GET",
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': `Token ${Login.getCookie('token')}`,
-		},
-	}).then(response => response.json());
-
-	let playerList = document.querySelector(".playersInTheRoom");
-	console.log("playerList: ", playerList);
-	let playerDiv = document.createElement("div");
-	playerDiv.id = `player${data.player_id}`;
-	playerDiv.innerHTML = `<p>${player.username}</p>`;
-	playerList.appendChild(playerDiv);
-
-
-}
-
-async function removePlayer(data) {
-	console.log(`Removing player ${data.player_id}`);
-	let playerList = document.querySelector(".playersInTheRoom");
-	let playerDiv = document.getElementById(`player${data.player_id}`);
-	playerList.removeChild(playerDiv);
 }

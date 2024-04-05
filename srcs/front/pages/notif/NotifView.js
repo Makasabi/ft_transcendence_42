@@ -24,7 +24,7 @@ export function createNotificationSocket(username) {
 		+ username
 	);
 	if (notifySocket.error) {
-		console.log('Error creating socket');
+		console.log('Notif Error creating socket');
 		return;
 	}
 	else
@@ -32,12 +32,12 @@ export function createNotificationSocket(username) {
 
 	// on socket open
 	notifySocket.onopen = function (e) {
-		console.log('Socket successfully connected for:', username);
+		console.log('Notif Socket successfully connected for:', username);
 	};
 
 	// on socket close
 	notifySocket.onclose = function (e) {
-		console.log('Socket closed unexpectedly');
+		console.log('Notif Socket closed unexpectedly');
 	};
 	
 	notifySocket.onmessage = function (e) {

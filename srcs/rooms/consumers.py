@@ -4,7 +4,7 @@ from time import sleep
 from channels.exceptions import StopConsumer
 from rooms.models import Rooms, Occupy
 import json
-
+import channels.exceptions
 
 class RoomConsumer(WebsocketConsumer):
 	def connect(self):
@@ -16,11 +16,13 @@ class RoomConsumer(WebsocketConsumer):
 		)
 		self.user = self.scope['user']
 		if self.user.is_anonymous:
+			self.accept()
 			self.close(3002)
 		elif (checkRoomAvailability(self.room_id) == False):
+			self.accept()
+			self.close(3001)
 			print(f'Room {self.room_id} is full')
-			self.close(3001) 
-		else :
+		else:
 			addPlayerToRoom(self.room_id, self.user.id)
 			assignMaster(self.room_id, self.user.id)
 			self.accept()
@@ -32,8 +34,9 @@ class RoomConsumer(WebsocketConsumer):
 	def disconnect(self, close_code):
 		if Rooms.objects.filter(room_id=self.room_id).exists():
 			print (f'user id is {self.user.id} room id is {self.room_id}')
-			occupant = Occupy.objects.get(player_id=self.user.id, room_id=self.room_id)
-			occupant.delete()
+			if Occupy.objects.filter(player_id=self.user.id, room_id=self.room_id).exists():
+				occupant = Occupy.objects.get(player_id=self.user.id, room_id=self.room_id)
+				occupant.delete()
 		async_to_sync(self.channel_layer.group_discard)(
 			self.room_group_name,
 			self.channel_name
@@ -97,7 +100,9 @@ def checkRoomAvailability(room_id):
 	if Rooms.objects.filter(room_id=room_id).exists():
 		room = Rooms.objects.get(room_id=room_id)
 		if room.roomMode == 'normal':
-			if Occupy.objects.filter(room_id=room_id).count() <= 6:
+			count = Occupy.objects.filter(room_id=room_id).count()
+			print(f'Room {room_id} has {count} players')
+			if count < 6:
 				return True
 			else:
 				return False
