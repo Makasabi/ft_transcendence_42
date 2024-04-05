@@ -34,10 +34,10 @@ class Player:
 		self.posx = self.posx + self.speed*xFac * timestamp
 
 		#Contraintes de bordures
-		if self.posx <= 0:
-			self.posx = 0
-		elif self.posx + PLAYER_WIDTH >= ARENA_WIDTH:
-			self.posx = ARENA_WIDTH-PLAYER_WIDTH
+		if self.posx - PLAYER_WIDTH / 2 <= 0:
+			self.posx = PLAYER_WIDTH / 2
+		elif self.posx + PLAYER_WIDTH / 2 >= ARENA_WIDTH:
+			self.posx = ARENA_WIDTH - PLAYER_WIDTH / 2
 
 	def render(self):
 		return {
@@ -51,6 +51,8 @@ class Ball:
 	def __init__(self):
 		self.posx = BALL_BASE_POSITION[0]
 		self.posy = BALL_BASE_POSITION[1]
+		self.just_bounced_wall = False
+		self.just_bounced_players = False
 		self.radius = BALL_RADIUS
 		self.speed = BALL_SPEED
 		self.xFac = -1
@@ -68,14 +70,26 @@ class Ball:
 		self.posx += self.speed*self.xFac * timestamp
 		self.posy += self.speed*self.yFac * timestamp
 
-		print(self.posx)
-		if self.posx <= 0 or self.posx >= ARENA_WIDTH:
-			self.xFac *= -1
-        #Collision with players
-		if self.posy <= 0 and self.firstTime:
+		if self.posx - self.radius <= 0 or self.posx + self.radius >= ARENA_WIDTH:
+			if not self.just_bounced_wall:
+				self.xFac *= -1
+			self.just_bounced_wall = True
+		else:
+			self.just_bounced_wall = False
+
+		#Collision with players
+		if any(self.has_intersection(player) for player in players.values()):
+			if not self.just_bounced_players:
+				self.yFac *= -1
+			self.just_bounced_players = True
+		else:
+			self.just_bounced_players = False
+		
+		#Collision with top and bottom
+		if self.posy - self.radius <= 0 and self.firstTime:
 			self.firstTime = 0
 			return 1
-		elif self.posy >= ARENA_HEIGHT and self.firstTime:
+		elif self.posy >= ARENA_HEIGHT + self.radius and self.firstTime:
 			self.firstTime = 0
 			return -1
 		else:
@@ -88,10 +102,12 @@ class Ball:
 		self.posy = BALL_BASE_POSITION[1]
 		self.xFac *= -1
 		self.firstTime = 1
-
-	# Used to reflect the ball along the X-axis
-	def hit(self):
-		self.yFac *= -1
+	
+	def has_intersection(self, player):
+		return self.posx + self.radius >= player.posx - PLAYER_WIDTH / 2 \
+			and self.posx - self.radius <= player.posx + PLAYER_WIDTH / 2 \
+			and self.posy + self.radius >= player.posy - PLAYER_HEIGHT / 2 \
+			and self.posy - self.radius <= player.posy + PLAYER_HEIGHT / 2
 
 class GameEngine(threading.Thread):
 	# INITIALIZATION
@@ -106,8 +122,8 @@ class GameEngine(threading.Thread):
 
 	def create_players(self, players: list) -> None:
 		self.players = {
-			players[0]['player_id']: Player(players[0]['player_id'], 0, 20),
-			players[1]['player_id']: Player(players[1]['player_id'], 20, ARENA_HEIGHT - 20)
+			players[0]['player_id']: Player(players[0]['player_id'], ARENA_WIDTH // 2, 20),
+			players[1]['player_id']: Player(players[1]['player_id'], ARENA_WIDTH // 2, ARENA_HEIGHT - 20),
 		}
 
 	def is_ready(self) -> bool:
@@ -164,7 +180,6 @@ class GameEngine(threading.Thread):
 			"right_released": self.right_released,
 			"sprint_pressed": self.sprint_pressed,
 			"sprint_released": self.sprint_released,
-			"hit": self.ball.hit,
 		}
 		func = switcher.get(input_type, lambda: "Invalid input")
 		if (player_id is not None):

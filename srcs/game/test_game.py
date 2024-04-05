@@ -63,27 +63,23 @@ while not engine.is_ready():
 	sleep(1/30)
 
 def render_game(state):
-	print(state)
+	#print(state)
 	players = state['players']
 	player_rects = []
 	for player in players:
-		player_rects.append(pygame.Rect(player['posx'], player['posy'], player['width'], player['height']))
+		player_rects.append(pygame.Rect(
+			player['posx'] - player['width']//2,
+			player['posy'] - player['height']//2,
+			player['width'],
+			player['height']
+		))
 	ball_data = state['ball']
-	ball_rect = pygame.Rect(ball_data['posx'], ball_data['posy'], ball_data['radius'], ball_data['radius'])
-
-	#Check for collision
-	if ball_rect.colliderect(player_rects[0]):
-		print('collide 0')
-		engine.input('hit')
-		return 0
-	elif ball_rect.colliderect(player_rects[1]):
-		print('collide 1')
-		engine.input('hit')
-		return 0
-#	if ball_rect.collidelist(player_rects):
-#		print('collide')
-#		engine.input('hit')
-#		return 0
+	ball_rect = pygame.Rect(
+		ball_data['posx'] - ball_data['radius'] // 2,
+		ball_data['posy'] - ball_data['radius'] // 2,
+		ball_data['radius'],
+		ball_data['radius']
+	)
 
 	#Draw on screen
 	screen.fill(BLACK)
