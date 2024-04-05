@@ -32,7 +32,7 @@ def start(request, room_id):
 	body = request.data
 	players = None # @TODO
 	async_to_sync(get_channel_layer().send)(
-		"game_engine",
+		"game_consumer",
 		{
 			"type": "game.start",
 			"room_id": room_id,

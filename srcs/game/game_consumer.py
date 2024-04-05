@@ -3,6 +3,7 @@ import json
 
 from channels.generic.websocket import SyncConsumer
 from asgiref.sync import async_to_sync
+from game.models import Game
 
 from .engine import GameEngine
 
@@ -12,30 +13,26 @@ class GameConsumer(SyncConsumer):
 		Created on demand when the first player joins.
 		"""
 		super().__init__(*args, **kwargs)
-		print("GameConsumer.__init__")
-		self.engine = GameEngine()
-		self.engine.start()
+		self.engines = {}
 
 	def game_start(self, event):
-		try:
-			self.engine.start_game(event["room_id"], event["players"])
-		except ValueError as e:
-			print(e)
+		game = Game.objects.create()
+		game.save()
+		game_id = game.id
+		engine = GameEngine(game_id, []) # @TODO add players
+		engine.start()
+		self.engines[game.game_id] = engine
 
 	def game_update(self, event):
 		state = event["state"]
-		room_id = event["room_id"]
-		print(f"GameConsumer.game_update: {room_id}", state)
-		async_to_sync(self.channel_layer.group_send)(f"game_{room_id}", {
+		game_id = event["game_id"]
+		print(f"GameConsumer.game_update: {game_id}", state)
+		async_to_sync(self.channel_layer.group_send)(f"game_{game_id}", {
 			"type": "game.update",
 			"state": state
 		})
-
-
-
-	#def player_new(self, event):
-	#	self.engine.join_queue(event["player"])
-
-	#def player_direction(self, event):
-	#	direction = event.get("direction", "UP")
-	#	self.engine.set_player_direction(event["player"], direction)
+	
+	def input(self, event):
+		game_id = event["game_id"]
+		engine = self.engines[game_id]
+		engine.input(event["player_id"], event["input"])

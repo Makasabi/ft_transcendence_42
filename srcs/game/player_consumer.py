@@ -2,18 +2,20 @@
 import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
-from asgiref.sync import async_to_sync
+from game.models import Game
 
 class PlayerConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
-		# @TODO: Verify the player is in the game
 		print("PlayerConsumer.connect")
 		self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
+		if Game.objects.filter(id=self.game_id).count() == 0:
+			await self.close()
 		self.group_name = f"game_{self.game_id}"
-		self.group_send = f"game_engine"
+		self.group_send = f"game_consumer"
 		self.user = self.scope["user"]
 		if self.user.is_anonymous:
 			await self.close()
+		# @TODO: Verify the player is in the game
 
 		# Join room group
 		await self.channel_layer.group_add(
@@ -28,14 +30,17 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 		await self.send(json.dumps(state))
 
 	async def receive(self, text_data=None, bytes_data=None):
-		pass
-		#content = json.loads(text_data)
-		#msg_type = content["type"]
-		#msg = content["msg"]
-		#if msg_type == "direction":
-		#	return await self.direction(msg)
-		#elif msg_type == "join":
-		#	return await self.join(msg)
+		print("PlayerConsumer.receive")
+		text_data_json = json.loads(text_data)
+		await self.channel_layer.send(
+			self.group_send,
+			{
+				"type": "input",
+				"game_id": self.game_id,
+				"player_id": self.user.id,
+				"input": text_data_json,
+			},
+		)
 
 	async def disconnect(self, close_code):
 		# Leave room group
