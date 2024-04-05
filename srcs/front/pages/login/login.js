@@ -208,6 +208,8 @@ export async function is_logged()
 		}
 		else
 			return false;
+	}).catch(error => {
+		return false;
 	});
 }
 
