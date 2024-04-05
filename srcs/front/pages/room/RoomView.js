@@ -2,7 +2,7 @@ import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
 import { checkRoomCode } from "/front/pages/room/room.js";
-import { addPlayer, removePlayer} from "/front/pages/room/roomUtils.js";
+import { addPlayer, removePlayer, updatePlayer } from "/front/pages/room/roomUtils.js";
 
 /**
  * RoomView class
@@ -136,6 +136,10 @@ export function createRoomSocket(roomid) {
 			case 'remove_player':
 				console.log('Player left:', data.player_id);
 				removePlayer(data);
+				break;
+			case 'update_player':
+				console.log('Player updated:', data.player_id);
+				updatePlayer(data);
 				break;
 			case 'game_start':
 				console.log('Game starting');
