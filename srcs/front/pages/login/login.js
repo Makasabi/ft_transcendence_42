@@ -80,8 +80,33 @@ export class LoginView extends IView
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
 
+		const input_username = document.getElementById("login_username");
+		const input_password = document.getElementById("login_password");
+		input_username.focus();
+
 		const log_button = document.getElementById("submit-login");
 		log_button.addEventListener("click", login_event);
+
+		input_username.onkeydown = function(e) {
+			if (e.key === 'Enter')
+				e.preventDefault();
+		};
+
+		input_password.onkeydown = function(e) {
+			if (e.key === 'Enter')
+				e.preventDefault();
+		};
+
+		input_username.onkeyup = function(e) {
+			if (e.key === 'Enter') {  // enter, return
+				log_button.click();
+			}
+		};
+		input_password.onkeyup = function(e) {
+			if (e.key === 'Enter') {  // enter, return
+				log_button.click();
+			}
+		};
 	}
 }
 
