@@ -132,12 +132,3 @@ header .menu-btn {
 	display: none;
 	}
 }
-
-.notification-dot {
-	display: none;
-	width: 8px;
-	height: 8px;
-	background-color: red;
-	border-radius: 50%;
-	margin-left: 5px; /* Adjust as needed for positioning */
-}
