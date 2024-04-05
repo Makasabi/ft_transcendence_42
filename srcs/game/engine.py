@@ -55,11 +55,12 @@ class Player:
 class Ball:
 	def __init__(self):
 		self.position = [BALL_BASE_POSITION[0], BALL_BASE_POSITION[1]]
-		self.direction = [1, 1]
-		self.speed = [BALL_SPEED, BALL_SPEED]
+		self.direction = [0.894427, 0.447214]
+		self.speed = BALL_SPEED
 		self.just_bounced_wall = False
 		self.just_bounced_players = False
 		self.firstTime = 1
+		self.radius = BALL_RADIUS
 
 	def render(self):
 		return {
@@ -69,32 +70,42 @@ class Ball:
 		}
 
 	def update(self, timestamp, players, walls):
-		self.position[0] += self.direction[0] * self.speed[0] * timestamp
-		self.position[1] += self.direction[1] * self.speed[1] * timestamp
+		self.position[0] += self.direction[0] * self.speed * timestamp
+		self.position[1] += self.direction[1] * self.speed * timestamp
 
-		if any(self.has_wall_intersection(wall) for wall in walls):
+		for wall in walls:
+			if not self.has_wall_intersection(wall):
+				continue
 			if not self.just_bounced_wall:
-				# wall_vect = np.array(wall[1][0] - wall[0][0], wall[1][1] - wall[0][1])
-				# normal_vect =  np.array(-wall_vect[1], wall_vect[0])
-				# vec_norm = np.linalg.norm(np.array(wall[0], wall[1]))
+				print("Intersection !")
+				print("Ball : ", self.position)
+				A = np.array(wall[0])
+				B = np.array(wall[1])
+				print("Wall : ", A, " ", B)
+				wall_vect = B - A
+				normal_vect =  np.array([-wall_vect[1], wall_vect[0]])
 					#Check for direction of normal vector
 				normal_vect = normal_vect / np.linalg.norm(normal_vect)
 				dot_product = np.dot(self.direction, normal_vect)
 				self.direction = self.direction - 2 * dot_product * normal_vect
 					#self.direction = reflected_vect(self.direction, wall)
-				#self.speed[1] *= -1
-			self.just_bounced_wall = True
-		else:
-			self.just_bounced_wall = False
+				if self.speed <= 500:
+					self.speed *= 1.5
+					print("SPEEEEEED : ", self.speed)
+				self.just_bounced_wall = True
+				break
+			else:
+				self.just_bounced_wall = False
 
 		#Collision with players
 		if any(self.has_intersection(player) for player in players.values()):
 			if not self.just_bounced_players:
-				self.speed[1] *= -1
+				self.direction[0] *= -1
+				self.direction[1] *= -1
 			self.just_bounced_players = True
 		else:
 			self.just_bounced_players = False
-		
+
 		#Collision with top and bottom
 		if self.position[1] - BALL_RADIUS <= 0 and self.firstTime:
 			self.firstTime = 0
@@ -111,7 +122,7 @@ class Ball:
 		self.position = [BALL_BASE_POSITION[0], BALL_BASE_POSITION[1]]
 		self.speed = [BALL_SPEED, BALL_SPEED]
 		self.firstTime = 1
-	
+
 
 	def find_distance(a,b):
 		return math.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
@@ -126,6 +137,21 @@ class Ball:
 			and self.position[1] - BALL_RADIUS <= player.posy + PLAYER_HEIGHT / 2
 
 	def has_wall_intersection(self, wall):
+		A = np.array(wall[0])
+		B = np.array(wall[1])
+		O = np.array(self.position)
+		d = B - A
+		OA = A - O
+
+		a = np.dot(d, d)
+		b = 2 * np.dot(d, OA)
+		c = np.dot(OA, OA) - self.radius**2
+		delta = b**2 - 4*a*c
+
+		if delta >= 0:
+			return True
+		return False
+
 		# Check if the ball is in the wall
 		# line = LineString(wall)
 		# # print("Line", line)
@@ -134,9 +160,8 @@ class Ball:
 		# distance = circle.distance(line)
 		# print("Distance", distance)
 
-		if Ball.is_between(self.position, wall[0], wall[1]):
-			print("Collision!!!!!!!!!!!")
-		return False
+		#if Ball.is_between(self.position, wall[0], wall[1]):
+		#	print("Collision!!!!!!!!!!!")
 
 class GameEngine(threading.Thread):
 	# INITIALIZATION
@@ -171,7 +196,7 @@ class GameEngine(threading.Thread):
 		]
 
 		radius = ARENA_WIDTH // 2
-		wall_points = [(radius * x, radius * y) for x, y in hexa_points]
+		wall_points = [(radius * x + ARENA_WIDTH // 2, radius * y + ARENA_HEIGHT // 2) for x, y in hexa_points]
 
 		self.walls = [
 			# 6 walls segments
@@ -200,14 +225,15 @@ class GameEngine(threading.Thread):
 				wall_points[0],
 			],
 		]
+		print("Engine Walls")
+		print(self.walls)
 		self.create_corners(hexa_points, wall_points)
-	
+
 	def create_corners(self, hexa_points, pilar_centers) -> None:
 		self.pilars = []
 		r = (ARENA_WIDTH // 2) * 0.05
 		for center in pilar_centers:
 			self.pilars.append([(x * r + center[0], y * r + center[1]) for x, y in hexa_points])
-		print(self.pilars)
 		return
 
 	def is_ready(self) -> bool:
