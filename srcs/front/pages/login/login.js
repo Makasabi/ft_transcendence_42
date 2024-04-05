@@ -117,9 +117,12 @@ export class SignupView extends IView
 	}
 
 	static async render() {
-		fetch("/front/pages/login/signup.html")
+		await fetch("/front/pages/login/signup.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
+
+		const input_email = document.getElementById("signup_email");
+		input_email.focus();
 	}
 }
 
@@ -136,7 +139,7 @@ export class UsernameView extends IView
 	}
 
 	static match_route(route)
-	{ 
+	{
 		const regex = /^\/username\b/;
 		if (route.match(regex))
 		{
