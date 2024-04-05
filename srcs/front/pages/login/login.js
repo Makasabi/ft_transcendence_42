@@ -79,8 +79,42 @@ export class LoginView extends IView
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
 
+		const input_username = document.getElementById("login_username");
+		const input_password = document.getElementById("login_password");
+		input_username.focus();
+
 		const log_button = document.getElementById("submit-login");
 		log_button.addEventListener("click", login_event);
+
+		input_username.onkeydown = function(e) {
+			if (e.key === 'Enter')
+				e.preventDefault();
+		};
+
+		input_password.onkeydown = function(e) {
+			if (e.key === 'Enter')
+				e.preventDefault();
+		};
+
+		input_username.onkeyup = function(e) {
+			if (e.key === 'Enter') {  // enter, return
+				log_button.click();
+			}
+		};
+		input_password.onkeyup = function(e) {
+			if (e.key === 'Enter') {  // enter, return
+				log_button.click();
+			}
+		};
+
+		const google_button = document.getElementById("google-auth-btn");
+		google_button.addEventListener("click", (e) => {
+			e.preventDefault();
+			google_signup_event(e);
+		});
+
+		const forty2_button = document.getElementById("forty2-auth-btn");
+		forty2_button.addEventListener("click", forty2_signup_event);
 	}
 }
 
@@ -91,16 +125,28 @@ export class SignupView extends IView
 	}
 
 	async render() {
-		fetch("/front/pages/login/signup.html")
+		await fetch("/front/pages/login/signup.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
+
+		const input_email = document.getElementById("signup_email");
+		input_email.focus();
+
+		const signup_button = document.getElementById("submit-signup");
+		signup_button.addEventListener("click", signup_event);
+
+		const not_registered = document.getElementById("not-registered");
+		not_registered.addEventListener("click", (e) => {
+			e.preventDefault();
+			route("/login");
+		});
 	}
 }
 
 export class UsernameView extends IView
 {
 	static match_route(route)
-	{ 
+	{
 		const regex = /^\/username\b/;
 		if (route.match(regex))
 		{
@@ -147,6 +193,8 @@ export async function is_logged()
 			return true;
 		else
 			return false;
+	}).catch(error => {
+		return false;
 	});
 }
 
