@@ -34,6 +34,6 @@ application = ProtocolTypeRouter({
 		)
 	),
 	"channel": ChannelNameRouter({
-		"game_engine": GameConsumer.as_asgi(),
+		"game_consumer": GameConsumer.as_asgi(),
 	}),
 })

@@ -26,7 +26,11 @@ SECRET_KEY = config('DJANGO_SECRET_KEY', default='django-insecure-qmdr&-k$vi)z$6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+	'localhost',
+	'0.0.0.0',
+	'paul-f4br6s3'
+]
 
 
 # Application definition

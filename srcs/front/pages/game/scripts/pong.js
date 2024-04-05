@@ -51,7 +51,6 @@ export class GameContext {
 				this.state = data;
 			}
 		};
-
 		this.events(this);
 	}
 
