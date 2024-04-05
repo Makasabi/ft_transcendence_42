@@ -59,7 +59,7 @@
 }
 
 .centered_box h1 {
-	font-size: 50px;
+	font-size: 50px; 
 	font-weight: 700;
 	text-align: center;
 	color:var(--primary-color);

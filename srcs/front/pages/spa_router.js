@@ -4,9 +4,10 @@ import { UserView } from "./user_mgt/UserView.js";
 import * as login from "./login/login.js";
 import { GameView } from "./game/GameView.js";
 import { UnloggedHeaderView, LoginView, SignupView, Forty2View } from "./login/login.js";
-import { FullRoomView, UnknownRoomView, createRoomView, } from "./room/room.js";
 import { RoomView } from "./room/RoomView.js";
-
+import { FullRoomView } from "./room/FullRoomView.js";
+import { UnknownRoomView } from "./room/UnknownRoomView.js";
+import { CreateRoomView } from "./room/CreateRoomView.js";
 
 /*** Views ***/
 var view = null;
@@ -15,7 +16,7 @@ const loggedViews = [
 	HomeView,
 	MeView,
 	// GameView,
-	createRoomView,
+	CreateRoomView,
 	RoomView,
 	UnknownRoomView,
 	FullRoomView,

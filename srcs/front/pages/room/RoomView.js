@@ -1,8 +1,7 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
-import { checkRoomCode } from "/front/pages/room/room.js";
-import { addPlayer, removePlayer, updatePlayer } from "/front/pages/room/roomUtils.js";
+import { checkRoomCode, addPlayer, removePlayer, updatePlayer } from "/front/pages/room/roomUtils.js";
 
 /**
  * RoomView class
@@ -25,18 +24,14 @@ export class RoomView extends IView {
 	 * TODO: else it redirects to unknown room code view -> explaining that the room code is either invalid or the room has been closed since.
 	 */
 	async render() {
+
 		let code = document.URL.split("/")[4];
-		checkRoomCode(code)
-			.then(roomCheck => {
-				if (roomCheck.status === false) {
-					route("/unknown");
-				}
-				console.log("Room status: ", roomCheck.status);
-			})
-			.catch(error => {
-				console.error('Error checking room availability:', error);
-				route("/unknown");
-			});
+		let roomExists = await checkRoomCode(code);
+		if (roomExists === false) {
+			route("/unknown");
+			return;
+		}
+
 		let roomInfo = await fetch(`/api/rooms/info/${code}`, {
 			headers: {
 				'Authorization': `Token ${Login.getCookie('token')}`,}}).then(response => response.json());

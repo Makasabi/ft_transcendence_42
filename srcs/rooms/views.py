@@ -7,6 +7,8 @@ from rooms.models import Rooms, Occupy
 import random
 import string
 
+# TODO: Implement serialiser for rooms
+
 # Create your views here.
 @api_view(['POST'])
 def create_room(request):
