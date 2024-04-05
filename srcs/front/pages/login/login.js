@@ -107,6 +107,15 @@ export class LoginView extends IView
 				log_button.click();
 			}
 		};
+
+		const google_button = document.getElementById("google-auth-btn");
+		google_button.addEventListener("click", (e) => {
+			e.preventDefault();
+			google_signup_event(e);
+		});
+
+		const forty2_button = document.getElementById("forty2-auth-btn");
+		forty2_button.addEventListener("click", forty2_signup_event);
 	}
 }
 
@@ -123,6 +132,15 @@ export class SignupView extends IView
 
 		const input_email = document.getElementById("signup_email");
 		input_email.focus();
+
+		const signup_button = document.getElementById("submit-signup");
+		signup_button.addEventListener("click", signup_event);
+
+		const not_registered = document.getElementById("not-registered");
+		not_registered.addEventListener("click", (e) => {
+			e.preventDefault();
+			route("/login");
+		});
 	}
 }
 

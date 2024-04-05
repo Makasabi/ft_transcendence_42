@@ -111,25 +111,25 @@ document.addEventListener("DOMContentLoaded", function () {
 	parent.insertBefore(document.getElementsByClassName("particles-js-canvas-el")[0], tag);
 });
 
-document.querySelector("main").addEventListener("click", async (e) => {
-	switch (e.target.id)
-	{
-		case "submit-signup":
-			login.signup_event(e);
-			break;
-		case "forty2-auth-btn":
-			login.forty2_signup_event(e);
-			break;
-		case "google-auth-btn":
-			e.preventDefault();
-			login.google_signup_event(e);
-			break;
-		case "not-registered":
-			e.preventDefault();
-			route(e.target.href);
-			break;
-	}
-});
+//document.querySelector("main").addEventListener("click", async (e) => {
+	//switch (e.target.id)
+	//{
+		//case "submit-signup":
+		//	login.signup_event(e);
+		//	break;
+		//case "forty2-auth-btn":
+		//	login.forty2_signup_event(e);
+		//	break;
+		//case "google-auth-btn":
+		//	e.preventDefault();
+		//	login.google_signup_event(e);
+		//	break;
+		//case "not-registered":
+		//	e.preventDefault();
+		//	route(e.target.href);
+		//	break;
+	//}
+//});
 
 document.route = route;
 document.logout = login.logout;
