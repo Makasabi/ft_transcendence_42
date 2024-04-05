@@ -4,6 +4,11 @@ import pygame
 
 """
 state = {
+    'globals':
+    {
+        'ARENA_WIDTH' : 600,
+        'ARENA_HEIGHT' : 600,
+    },
 	'players': [
 		{
 			'score': 0,
@@ -28,18 +33,30 @@ state = {
 	},
 }
 """
-pygame.init()
+PLAYER_WIDTH = 100
+PLAYER_HEIGHT = 10
+PLAYER_BASIC_SPEED = 150
+PLAYER_RUNNING_SPEED = 150
+
+ARENA_WIDTH = 600
+ARENA_HEIGHT = 800
+
+BALL_BASE_POSITION = (ARENA_WIDTH//2 + 100, ARENA_HEIGHT//2)
+BALL_RADIUS = 10
+BALL_SPEED = 150
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 
-screen = pygame.display.set_mode((600, 800))
+pygame.init()
+screen = pygame.display.set_mode((ARENA_WIDTH, ARENA_HEIGHT))
 font20 = pygame.font.Font('freesansbold.ttf', 20)
 pygame.display.set_caption("Pong")
 clock = pygame.time.Clock()
 FPS = 30
 
 state = {}
+
 engine = GameEngine(1, [{'player_id':0}, {'player_id':1}], state)
 engine.start()
 while not engine.is_ready():
@@ -47,7 +64,7 @@ while not engine.is_ready():
 
 def render_game(state):
 	print(state)
-	players = state['players']	
+	players = state['players']
 	player_rects = []
 	for player in players:
 		player_rects.append(pygame.Rect(player['posx'], player['posy'], player['width'], player['height']))
@@ -93,7 +110,6 @@ def render_game(state):
 				engine.input('right_released', 1)
 
 	for rect in player_rects:
-		print('rect')
 		pygame.draw.rect(screen, GREEN, rect)
 	pygame.draw.rect(screen, WHITE, ball_rect)
 	pygame.display.update()
@@ -105,13 +121,4 @@ if __name__ == '__main__':
 	while True:
 		if render_game(state) == 1:
 			break
-	#	print(state)
-	#	engine.input('left_pressed', 3)
-	#	sleep(1)
-	#	engine.input('right_pressed', 3)
-	#	print(state)
-	#	sleep(1)
-	#	engine.input('left_released', 3)
-	#	print(state)
-	#	enfine.input('hit')
 	pygame.quit()
