@@ -1,7 +1,7 @@
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
 import { createRoomForm, joinRoomForm } from "/front/pages/room/room.js";
-import { createNotificationSocket } from "../notif/NotifView.js";
+import { NotifView, createNotificationSocket } from "../notif/NotifView.js";
 import * as Login from "/front/pages/login/login.js";
 
 export class LoggedHeaderView extends IView {
@@ -16,6 +16,7 @@ export class LoggedHeaderView extends IView {
 		await header_promise;
 
 		this.notifSocket = createNotificationSocket(user.username);
+		new NotifView().render();
 	}
 
 	destroy() {

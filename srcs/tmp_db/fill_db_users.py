@@ -33,9 +33,18 @@ def import_users(csv_file):
 					Player.objects.create_user(username=username, email=email, password=password, avatar_file=avatar_file)
 					print(f'User "{username}" created successfully')
 
-	
+
 	except FileNotFoundError:
 		print("File not found. Please provide a valid CSV file path.")
+
+def create_super_user(username, email, password):
+    # Check if the superuser already exists
+    if Player.objects.filter(username=username).exists():
+        print("Superuser already exists.")
+    else:
+        # Create superuser
+        Player.objects.create_superuser(username, email, password)
+        print("Superuser created successfully.")
 
 if __name__ == "__main__":
 	if len(sys.argv) < 2:
@@ -43,3 +52,4 @@ if __name__ == "__main__":
 		sys.exit(1)
 	csv_file = sys.argv[1]
 	import_users(csv_file)
+	create_super_user("admin", "admin@admin.ad", "admin")

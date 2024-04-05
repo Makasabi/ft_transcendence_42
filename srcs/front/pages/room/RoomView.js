@@ -2,6 +2,7 @@ import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
 import { checkRoomCode } from "/front/pages/room/room.js";
+import { addPlayer, removePlayer} from "/front/pages/room/roomUtils.js";
 
 /**
  * RoomView class
@@ -44,7 +45,7 @@ export class RoomView extends IView {
 		html = html.replace("{{roomMode}}" , roomInfo.roomMode);
 		html = html.replace("{{roomCode}}", roomInfo.code);
 		document.querySelector("main").innerHTML = html;
-
+		
 		this.roomSocket = createRoomSocket(roomInfo.room_id);
 
 		await document.getElementById("start").addEventListener("click", () => {
@@ -74,7 +75,7 @@ export class RoomView extends IView {
 	destroy() {
 		console.log("Destroying room view");
 		if (this.roomSocket) {
-			this.roomSocket.close(0, "User left room");
+			this.roomSocket.close();
 		}
 	}
 }
@@ -92,25 +93,31 @@ export function createRoomSocket(roomid) {
 		+ roomid,
 	);
 	if (roomSocket.error) {
-		console.log('Error creating socket');
+		console.log('Rooms - Error creating socket');
 		return;
 	}
 
 	// on socket open
 	roomSocket.onopen = function (e) {
-		console.log('Socket successfully connected.');
+		console.log('Rooms - Socket successfully connected.');
 	};
 
 	// on socket close
-	roomSocket.onclose = function (e, code, reason) {
-	
+	roomSocket.onclose = function (e) {
+		console.log('Rooms - Socket closing:', e.code, e.reason);
+		const code = e.code;
+		const reason = e.reason;
 		switch (code) {
 			case 1000:
-				console.log('Socket closed normally');
+				console.log('Rooms - Socket closed normally');
 				break;
 			case 3001:
-				console.log('Room is already full');
+				console.log('Room - is already full');
 				route("/fullroom");
+				break;
+			case 3002:
+				console.log('Rooms - Unauthentified user');
+				route("/home");
 				break;
 			default:
 				console.log(reason);
@@ -120,10 +127,22 @@ export function createRoomSocket(roomid) {
 	// on receiving message on group
 	roomSocket.onmessage = function (e) {
 		const data = JSON.parse(e.data);
-		const message = data.message;
-		// check if message is for the user
-		if (data.room === roomid) {
-			console.log('Message is for room:', roomid);
+		const type = data.type;
+		switch (type) {
+			case 'new_player':
+				console.log('New player joined:', data.player_id);
+				addPlayer(data);
+				break;
+			case 'remove_player':
+				console.log('Player left:', data.player_id);
+				removePlayer(data);
+				break;
+			case 'game_start':
+				console.log('Game starting');
+				route(`/game/${roomid}`);
+				break;
+			default:
+				console.log('Unknown message type:', type);
 		}
 	};
 
