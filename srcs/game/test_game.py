@@ -9,6 +9,32 @@ state = {
         'ARENA_WIDTH' : 600,
         'ARENA_HEIGHT' : 600,
     },
+	'walls': (
+		{
+			'posx': 0,
+			'posy': 0,
+			'width': 10,
+			'height': 600,
+		},
+		{
+			'posx': 590,
+			'posy': 0,  
+			'width': 10,
+			'height': 600,
+		},
+		{
+			'posx': 0,
+			'posy': 0,
+			'width': 600,
+			'height': 10,
+		},
+		{
+			'posx': 0,  
+			'posy': 590,
+			'width': 600,
+			'height': 10,
+		},
+    ),
 	'players': [
 		{
 			'score': 0,
@@ -47,6 +73,7 @@ BALL_SPEED = 150
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
+RED = (255, 0, 0)
 
 pygame.init()
 screen = pygame.display.set_mode((ARENA_WIDTH, ARENA_HEIGHT))
@@ -107,7 +134,26 @@ def render_game(state):
 
 	for rect in player_rects:
 		pygame.draw.rect(screen, GREEN, rect)
-	pygame.draw.rect(screen, WHITE, ball_rect)
+
+	walls = state.get('walls', [])
+	#print(walls)
+	for wall in walls:
+		pygame.draw.line(screen, WHITE,
+			(wall[0][0] + state['width'] // 2, wall[0][1] + state['height'] // 2),
+			(wall[1][0] + state['width'] // 2, wall[1][1] + state['height'] // 2),
+			3
+		)
+	
+	for pilar in state.get('pilars', []):
+		for i in range(0, len(pilar) + 1):
+			pygame.draw.line(screen, RED,
+				(pilar[i%len(pilar)][0] + state['width'] // 2, pilar[i%len(pilar)][1] + state['height'] // 2),
+				(pilar[(i+1)%len(pilar)][0] + state['width'] // 2, pilar[(i+1)%len(pilar)][1] + state['height'] // 2),
+				1
+			)
+
+
+	pygame.draw.ellipse(screen, WHITE, ball_rect)
 	pygame.display.update()
 	clock.tick(FPS)
 	return 0
