@@ -1,4 +1,3 @@
-import math
 from GameEngine import GameEngine
 from time import sleep
 import pygame
@@ -81,16 +80,6 @@ clock = pygame.time.Clock()
 FPS = 30
 
 def render_game(state):
-	#print(state)
-
-		# player_rects.append(pygame.Rect(
-		# 	player['posx'] - player['width']//2,
-		# 	player['posy'] - player['height']//2,
-		# 	player['width'],
-		# 	player['height']
-		# ))
-		# player_angles.append(player['angle'])
-
 	ball_data = state['ball']
 	ball_rect = pygame.Rect(
 		ball_data['posx'] - ball_data['radius'] // 2,
@@ -123,13 +112,7 @@ def render_game(state):
 			if event.key == pygame.K_d:
 				engine.input('right_released', 1)
 
-	# for rect in player_rects:
-	# 	pygame.draw.rect(screen, GREEN, rect)
-	# for rect, angle in zip(player_rects, player_angles):
-
-
 	walls = state.get('walls', [])
-	#print(walls)
 	for wall in walls:
 		pygame.draw.line(screen, WHITE,
 			(wall[0][0], wall[0][1]),
@@ -158,7 +141,6 @@ def render_game(state):
 			2,
 			2
 		))
-		# print("Player", player['positions'][0], player['positions'][1])
 
 	pygame.draw.ellipse(screen, WHITE, ball_rect)
 	pygame.display.update()

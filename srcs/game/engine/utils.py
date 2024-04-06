@@ -44,7 +44,7 @@ def get_hexagon_borders(radius) -> None:
 	]
 	return  borders
 
-def get_hexagon_pilars(arena_radius) -> None:
+def get_arena_pilars(arena_radius):
 	pilars = []
 	arena_vertices = [(arena_radius * x, arena_radius * y) for x, y in hexagon_vertices]
 	radius = arena_radius * 0.05
@@ -52,6 +52,10 @@ def get_hexagon_pilars(arena_radius) -> None:
 	for center in arena_vertices:
 		pilars.append([(x * radius + center[0] + CENTER_X, y * radius + center[1] + CENTER_Y) for x, y in hexagon_vertices])
 	return pilars
+
+def get_middle_pilar(pilar_radius):
+	return [(pilar_radius * x + CENTER_X, pilar_radius * y + CENTER_Y) for x, y in hexagon_vertices]
+
 
 def get_players_arrangement(player_count):
 	if player_count == 1:
@@ -67,3 +71,6 @@ def get_players_arrangement(player_count):
 	if player_count == 6:
 		return (5, 0, 1, 2, 3, 4)
 	raise ValueError("Player count must be less than 7")
+
+def rotate(l, n):
+	return l[n:] + l[:n]

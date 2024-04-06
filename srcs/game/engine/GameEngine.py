@@ -1,7 +1,5 @@
 import math
 import numpy as np
-from shapely.geometry import LineString, Point
-# from shapely.geometry import intersects
 import threading
 from xml.etree.ElementTree import PI
 from asgiref.sync import async_to_sync
@@ -11,7 +9,7 @@ from time import sleep, time
 from Ball import Ball
 from Player import Player
 from constants import ARENA_HEIGHT, ARENA_WIDTH, FPS, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED
-from utils import get_hexagon_borders, get_hexagon_pilars, get_players_arrangement
+from utils import get_hexagon_borders, get_arena_pilars, get_players_arrangement, rotate, get_middle_pilar
 
 class GameEngine(threading.Thread):
 	# INITIALIZATION
@@ -21,7 +19,8 @@ class GameEngine(threading.Thread):
 
 		arena_borders = get_hexagon_borders(ARENA_WIDTH // 2)
 
-		self.pilars = get_hexagon_pilars(ARENA_WIDTH // 2)
+		self.pilars = get_arena_pilars(ARENA_WIDTH // 2)
+		self.pilars.append(get_middle_pilar(80))
 
 		self.walls = []
 		self.players = {}
@@ -30,6 +29,11 @@ class GameEngine(threading.Thread):
 				self.walls.append(arena_borders[i])
 			else:
 				self.players[players[side]['player_id']] = Player(players[side]['player_id'], arena_borders[i])
+
+		self.collisions_walls = list(self.walls)
+		for pilar in self.pilars:
+			for wall in list(zip(pilar, rotate(pilar, 1))):
+				self.collisions_walls.append(wall)
 
 		self.ball = Ball()
 
@@ -59,13 +63,7 @@ class GameEngine(threading.Thread):
 	def game_loop(self, timestamp) -> None:
 		for player in self.players.values():
 			player.update(timestamp)
-		score = self.ball.update(timestamp, self.players, self.walls)
-		if score == 1:
-			self.players[0].HP -= 1
-			self.ball.reset()
-		elif score == -1:
-			self.players[1].HP -= 1
-			self.ball.reset()
+		self.ball.update(1 / 60, self.players, self.collisions_walls)
 
 	# RENDER
 	def render(self) -> dict:
