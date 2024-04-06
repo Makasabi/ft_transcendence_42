@@ -9,8 +9,9 @@ from channels.layers import get_channel_layer
 from time import sleep, time
 
 from Ball import Ball
+from Player import Player
 from constants import ARENA_HEIGHT, ARENA_WIDTH, FPS, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED
-from utils import get_hexagon_borders, get_hexagon_pilars, get_players_arrangement, create_player
+from utils import get_hexagon_borders, get_hexagon_pilars, get_players_arrangement
 
 class GameEngine(threading.Thread):
 	# INITIALIZATION
@@ -19,7 +20,7 @@ class GameEngine(threading.Thread):
 		self.state = state
 
 		arena_borders = get_hexagon_borders(ARENA_WIDTH // 2)
-		
+
 		self.pilars = get_hexagon_pilars(ARENA_WIDTH // 2)
 
 		self.walls = []
@@ -28,7 +29,7 @@ class GameEngine(threading.Thread):
 			if side == -1:
 				self.walls.append(arena_borders[i])
 			else:
-				self.players[players[side]['player_id']] = create_player(players[side]['player_id'], arena_borders[i])
+				self.players[players[side]['player_id']] = Player(players[side]['player_id'], arena_borders[i])
 
 		self.ball = Ball()
 
@@ -57,20 +58,13 @@ class GameEngine(threading.Thread):
 
 	def game_loop(self, timestamp) -> None:
 		for player in self.players.values():
-			if player.inputs['left']:
-				player.update(timestamp, -1)
-			elif player.inputs['right']:
-				player.update(timestamp, 1)
-			if player.inputs['sprint']:
-				player.speed = PLAYER_RUNNING_SPEED
-			else:
-				player.speed = PLAYER_BASIC_SPEED
+			player.update(timestamp)
 		score = self.ball.update(timestamp, self.players, self.walls)
 		if score == 1:
-			self.players[0].score += 1
+			self.players[0].HP -= 1
 			self.ball.reset()
 		elif score == -1:
-			self.players[1].score += 1
+			self.players[1].HP -= 1
 			self.ball.reset()
 
 	# RENDER

@@ -64,6 +64,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 
 state = {}
 
@@ -125,7 +126,7 @@ def render_game(state):
 	# for rect in player_rects:
 	# 	pygame.draw.rect(screen, GREEN, rect)
 	# for rect, angle in zip(player_rects, player_angles):
-		
+
 
 	walls = state.get('walls', [])
 	#print(walls)
@@ -147,10 +148,16 @@ def render_game(state):
 	players = state['players']
 	for player in players:
 		pygame.draw.line(screen, GREEN,
-			(player['positions'][0]),
-			(player['positions'][1]),
-			5
+			(player['left']),
+			(player['right']),
+			player['width']
 		)
+		pygame.draw.rect(screen, BLUE, pygame.Rect(
+			int(player['posx']),
+			int(player['posy']),
+			2,
+			2
+		))
 		# print("Player", player['positions'][0], player['positions'][1])
 
 	pygame.draw.ellipse(screen, WHITE, ball_rect)

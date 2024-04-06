@@ -1,5 +1,4 @@
-from constants import PLAYER_LENGTH, CENTER_X, CENTER_Y
-from Player import Player
+from constants import CENTER_X, CENTER_Y
 import math
 
 cosPiSur3 = math.cos(math.pi / 3)
@@ -68,30 +67,3 @@ def get_players_arrangement(player_count):
 	if player_count == 6:
 		return (5, 0, 1, 2, 3, 4)
 	raise ValueError("Player count must be less than 7")
-
-def create_player(player_id, border) -> Player:
-	"""
-	Create a player object with the given id and border
-	params:
-		player_id: int
-		border: [(float, float), (float, float)]
-	returns:
-		Player
-	"""
-
-	# Calculate the position based on the wall coordinates
-	x1, y1 = border[0]
-	x2, y2 = border[1]
-	x = (x1 + x2) // 2
-	y = (y1 + y2) // 2
-	angle = math.atan2(y2 - y1, x2 - x1) * 180 / math.pi
-	# posistions = middle of border + half of the player length
-	offset_x = (PLAYER_LENGTH / 2) * math.cos(math.radians(angle))
-	offset_y = (PLAYER_LENGTH / 2) * math.sin(math.radians(angle))
-	# Calculate positions for left and right sides
-	left_position = (x - offset_x, y - offset_y)
-	right_position = (x + offset_x, y + offset_y)
-	print("positions : ", left_position, right_position)
-	print("angle : ", angle)
-	positions = [left_position, right_position]
-	return Player(player_id, positions, border, angle)

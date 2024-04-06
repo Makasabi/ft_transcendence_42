@@ -20,13 +20,14 @@ class Ball:
 		self.position[1] += self.direction[1] * self.speed * timestamp
 
 		for player in players.values():
-			if not self.has_wall_intersection(player.positions):
+			player_sides = player.get_sides()
+			if not self.has_wall_intersection(player_sides):
 				continue
 			if not self.just_bounced_player:
 
 				print("INTERSECTION WITH PLAYER")
-				A = np.array(player.positions[0])
-				B = np.array(player.positions[1])
+				A = np.array(player_sides[0])
+				B = np.array(player_sides[1])
 				wall_vect = B - A
 				normal_vect =  np.array([-wall_vect[1], wall_vect[0]])
 				normal_vect = normal_vect / np.linalg.norm(normal_vect)
@@ -85,7 +86,7 @@ class Ball:
 		# random direction
 		random_angle = random.uniform(0, 2 * math.pi)
 		self.direction = [math.cos(random_angle), math.sin(random_angle)]
-		
+
 		self.speed = BALL_SPEED
 		self.just_bounced_wall = False
 		self.just_bounced_player = False
