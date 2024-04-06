@@ -20,7 +20,7 @@ class GameEngine(threading.Thread):
 		arena_borders = get_hexagon_borders(ARENA_WIDTH // 2)
 
 		self.pilars = get_arena_pilars(ARENA_WIDTH // 2)
-		self.pilars.append(get_middle_pilar(80))
+		#self.pilars.append(get_middle_pilar(80))
 
 		self.walls = []
 		self.players = {}
@@ -74,6 +74,7 @@ class GameEngine(threading.Thread):
 			'pilars': self.pilars,
 			'width': ARENA_WIDTH,
 			'height': ARENA_HEIGHT,
+			'collisions_walls': self.collisions_walls,
 		}
 
 	# INPUTS

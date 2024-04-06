@@ -64,6 +64,7 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
 
 state = {}
 
@@ -141,6 +142,13 @@ def render_game(state):
 			2,
 			2
 		))
+
+	for collision_wall in state['collisions_walls']:
+		pygame.draw.line(screen, YELLOW,
+			(collision_wall[0][0], collision_wall[0][1]),
+			(collision_wall[1][0], collision_wall[1][1]),
+			1
+		)
 
 	pygame.draw.ellipse(screen, WHITE, ball_rect)
 	pygame.display.update()

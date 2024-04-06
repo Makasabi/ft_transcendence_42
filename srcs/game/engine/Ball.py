@@ -9,6 +9,15 @@ class Ball:
 	def __init__(self):
 		self.reset()
 
+	def reset(self):
+		self.position = [CENTER_X, CENTER_Y]
+
+		random_angle = random.uniform(0, 2 * math.pi)
+		self.direction = [math.cos(random_angle), math.sin(random_angle)]
+
+		self.speed = BALL_SPEED
+		self.start = True
+
 	def render(self):
 		return {
 			'posx': self.position[0],
@@ -57,17 +66,6 @@ class Ball:
 		#			break
 		#		else:
 		#			self.just_bounced_player = False
-
-	# Used to reset the position of the ball
-	# to the center of the screen
-	def reset(self):
-		self.position = [CENTER_X, CENTER_Y]
-
-		random_angle = random.uniform(0, 2 * math.pi)
-		self.direction = [math.cos(random_angle), math.sin(random_angle)]
-
-		self.speed = BALL_SPEED
-		self.firstTime = 1
 
 	def find_distance(a,b):
 		return math.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
