@@ -45,7 +45,7 @@ class GameEngine(threading.Thread):
 
 	# GAME LOOP
 	def run(self) -> None:
-		with open('log.log', 'w') as f:
+		if self.state is None:
 			while True:
 				current_time = time()
 				elapsed_time = current_time - self.time
@@ -54,13 +54,22 @@ class GameEngine(threading.Thread):
 				self.time = current_time
 
 				self.game_loop(elapsed_time)
-				if self.state is not None:
+				self.broadcast_state(self.render())
+				self.ready = True
+		else:
+			with open('log.log', 'w') as f:
+				while True:
+					current_time = time()
+					elapsed_time = current_time - self.time
+					if elapsed_time < 1 / FPS:
+						sleep(1 / FPS - elapsed_time)
+					self.time = current_time
+
+					self.game_loop(elapsed_time)
 					for key, value in self.render().items():
 						self.state[key] = value
 					f.write(str(self.state) + '\n')
-				else:
-					self.broadcast_state(self.render())
-				self.ready = True
+					self.ready = True
 
 	def game_loop(self, timestamp) -> None:
 		for player in self.players.values():
