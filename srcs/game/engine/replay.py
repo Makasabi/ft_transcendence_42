@@ -32,6 +32,8 @@ def events(inputs):
 				inputs['left_frame'] = True
 			if event.key == pygame.K_d:
 				inputs['right_frame'] = True
+			if event.key == pygame.K_p:
+				inputs['print'] = True
 		if event.type == pygame.KEYUP:
 			if event.key == pygame.K_LEFT:
 				inputs['left'] = False
@@ -41,14 +43,6 @@ def events(inputs):
 				inputs['sprint'] = False
 
 def render_game(state, inputs):
-	ball_data = state['ball']
-	ball_rect = pygame.Rect(
-		ball_data['posx'] - ball_data['radius'] // 2,
-		ball_data['posy'] - ball_data['radius'] // 2,
-		ball_data['radius'],
-		ball_data['radius']
-	)
-
 	#Draw on screen
 	screen.fill(BLACK)
 
@@ -89,26 +83,36 @@ def render_game(state, inputs):
 			1
 		)
 
-	for wall in state['ball']['debug'].get('wall_collisionned', []):
+	ball_data = state['ball']
+	ball_rect = pygame.Rect(
+		ball_data['posx'] - ball_data['radius'],
+		ball_data['posy'] - ball_data['radius'],
+		ball_data['radius'] * 2,
+		ball_data['radius'] * 2
+	)
+
+	for wall in ball_data['debug'].get('wall_collisionned', []):
 		pygame.draw.line(screen, COOL_BLUE,
-			(wall[0][0], wall[0][1]),
-			(wall[1][0], wall[1][1]),
+			(int(wall[0][0]), int(wall[0][1])),
+			(int(wall[1][0]), int(wall[1][1])),
 			1
 		)
 
-	color = CYAN
-	for next_position in state['ball']['debug'].get('next_positions', []):
-		color = (0, color[1] - 10, color[2] - 10)
-		if color[1] < 0 or color[2] < 0:
-			color = CYAN
-		pygame.draw.ellipse(screen, color, pygame.Rect(
-			next_position[0] - ball_data['radius'] // 2,
-			next_position[1] - ball_data['radius'] // 2,
-			ball_data['radius'],
-			ball_data['radius']
-		))
+	if ball_data['debug'].get('has_wall_collision', False):
+		color = CYAN
+		for next_position in ball_data['debug'].get('next_positions', []):
+			color = (0, color[1] - 10, color[2] - 10)
+			if color[1] < 0 or color[2] < 0:
+				color = CYAN
+			pygame.draw.ellipse(screen, color, pygame.Rect(
+				next_position[0] - ball_data['radius'],
+				next_position[1] - ball_data['radius'],
+				ball_data['radius'] * 2,
+				ball_data['radius'] * 2
+			))
 
-	ball_color = MAGENTA if state['ball']['debug'].get('has_wall_collision', False) else WHITE
+
+	ball_color = MAGENTA if ball_data['debug'].get('has_wall_collision', False) else WHITE
 	pygame.draw.ellipse(screen, ball_color, ball_rect)
 	pygame.display.update()
 
@@ -134,7 +138,8 @@ if __name__ == '__main__':
 		'right': False,
 		'left_frame': False,
 		'right_frame': False,
-		'exit': False
+		'exit': False,
+		'print': False,
 	}
 
 	i = 0
@@ -145,15 +150,18 @@ if __name__ == '__main__':
 		if inputs['space']:
 			i = i
 		if inputs['left']:
-			i -= inputs['sprint'] + 1
+			i -= 5 * int(inputs['sprint']) + 1
 		elif inputs['right'] or not inputs['space']:
-			i += inputs['sprint'] + 1
+			i += 5 * int(inputs['sprint']) + 1
 		if inputs['left_frame']:
 			i -= 1
 			inputs['left_frame'] = False
 		if inputs['right_frame']:
 			i += 1
 			inputs['right_frame'] = False
+		if inputs['print']:
+			print(i, states[i])
+			inputs['print'] = False
 		i = max(0, min(len(states) - 1, i))
 		render_game(states[i], inputs)
 		clock.tick(FPS)

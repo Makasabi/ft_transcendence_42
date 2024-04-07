@@ -25,6 +25,7 @@ class Ball:
 			debug_info['has_wall_collision'] = self.has_wall_collision
 			debug_info['next_positions'] = self.next_positions
 			debug_info['wall_collisionned'] = self.wall_collisionned
+			debug_info['collision_infos'] = self.collision_infos
 		return {
 			'posx': self.position[0],
 			'posy': self.position[1],
@@ -40,6 +41,7 @@ class Ball:
 			self.has_wall_collision = False
 			self.next_positions = []
 			self.wall_collisionned = []
+			self.collision_infos = []
 		new_dir = self.direction
 		next_position = None
 		speed_factor = 1
@@ -88,7 +90,7 @@ class Ball:
 
 	def handle_walls_collisions(self, walls, next_position):
 		for wall in walls:
-			if has_wall_intersection(wall, next_position):
+			if self.has_wall_intersection(wall, next_position):
 				if self.debug:
 					self.has_wall_collision = True
 					self.wall_collisionned.append(wall)
@@ -101,36 +103,26 @@ class Ball:
 				return self.direction - 2 * dot_product * normal_vect
 		return None
 
-def has_wall_intersection(wall, next_position):
-	segment_length = math.sqrt((wall[0][0] - wall[1][0])**2 + (wall[0][1] - wall[1][1])**2)
-	return has_line_intersection(wall, next_position) and distance_segment_ball(wall, next_position) <= segment_length / 2
+	def has_wall_intersection(self, line_points, ball_position):
+		A = np.array(line_points[0])
+		B = np.array(line_points[1])
+		O = np.array(ball_position)
+		d = B - A
+		OA = A - O
 
-def has_line_intersection(line_points, ball_position):
-	A = np.array(line_points[0])
-	B = np.array(line_points[1])
-	O = np.array(ball_position)
-	d = B - A
-	OA = A - O
+		a = np.dot(d, d)
+		b = 2 * np.dot(d, OA)
+		c = np.dot(OA, OA) - BALL_RADIUS**2
+		delta = b**2 - 4*a*c
 
-	a = np.dot(d, d)
-	b = 2 * np.dot(d, OA)
-	c = np.dot(OA, OA) - BALL_RADIUS**2
-	delta = b**2 - 4*a*c
-
-	if delta >= 0:
-		return True
-	return False
-
-def distance_segment_ball(line_points, ball_position):
-	"""
-	Compute the distance between a segment and a ball.
-	params:
-		line_points: [(float, float), (float, float)]
-		ball_position: (float, float)
-	returns:
-		float
-	"""
-	line_middle = [(line_points[0][0] + line_points[1][0]) / 2, (line_points[0][1] + line_points[1][1]) / 2]
-	ball_center_to_middle = [line_middle[0] - ball_position[0], line_middle[1] - ball_position[1]]
-	ball_to_middle = list(map(lambda x: x - BALL_RADIUS, ball_center_to_middle))
-	return math.sqrt(ball_to_middle[0]**2 + ball_to_middle[1]**2)
+		if delta < 0:
+			return False
+		t = [(-b + math.sqrt(delta)) / (2 * a), (-b - math.sqrt(delta)) / (2 * a)]
+		d_norm = np.linalg.norm(d)
+		self.collision_infos.append({
+			't': t,
+			'd_norm': d_norm
+		})
+		if (t[0] > 0 and t[0] < 1) or (t[1] > 0 and t[1] < 1):
+			return True
+		return False

@@ -71,10 +71,10 @@ FPS = 30
 def render_game(state):
 	ball_data = state['ball']
 	ball_rect = pygame.Rect(
-		ball_data['posx'] - ball_data['radius'] // 2,
-		ball_data['posy'] - ball_data['radius'] // 2,
-		ball_data['radius'],
-		ball_data['radius']
+		ball_data['posx'] - ball_data['radius'],
+		ball_data['posy'] - ball_data['radius'],
+		ball_data['radius'] * 2,
+		ball_data['radius'] * 2
 	)
 
 	#Draw on screen
@@ -140,7 +140,10 @@ def render_game(state):
 if __name__ == '__main__':
 	state = {}
 
-	engine = GameEngine(1, [{'player_id':0}, {'player_id':1}], state)
+	engine = GameEngine(1, [
+		{'player_id':0},
+		{'player_id':1},
+		], state)
 	engine.start()
 	while not engine.is_ready():
 		sleep(1/30)
