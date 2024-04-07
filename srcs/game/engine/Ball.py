@@ -45,6 +45,7 @@ class Ball:
 		new_dir = self.direction
 		next_position = None
 		speed_factor = 1
+		is_collision = False
 		while new_dir is not None:
 			next_position = [
 				self.position[0] + new_dir[0] * self.speed * timestamp * speed_factor,
@@ -55,10 +56,12 @@ class Ball:
 			new_dir = self.handle_walls_collisions(walls, next_position)
 
 			if new_dir is not None:
+				is_collision = True
+				new_dir = new_dir / np.linalg.norm(new_dir)
 				self.direction = new_dir
 				speed_factor *= 1.1
-				if self.speed <= 500:
-					self.speed += 10
+		if self.speed <= 500 and is_collision:
+			self.speed += 10
 		self.position = next_position
 
 		#for player in players.values():
