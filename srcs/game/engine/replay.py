@@ -66,9 +66,36 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
-FPS = 30
+FPS = 60
 
-def render_game(state):
+def events(inputs):
+	for event in pygame.event.get():
+		if event.type == pygame.QUIT:
+			inputs['exit'] = True
+		if event.type == pygame.KEYDOWN:
+			if event.key == pygame.K_LEFT:
+				inputs['left'] = True
+			if event.key == pygame.K_RIGHT:
+				inputs['right'] = True
+			if event.key == pygame.K_SPACE:
+				inputs['space'] = not inputs['space']
+			if event.key == pygame.K_LSHIFT:
+				inputs['sprint'] = True
+			if event.key == pygame.K_ESCAPE:
+				inputs['exit'] = True
+			if event.key == pygame.K_a:
+				inputs['left_frame'] = True
+			if event.key == pygame.K_d:
+				inputs['right_frame'] = True
+		if event.type == pygame.KEYUP:
+			if event.key == pygame.K_LEFT:
+				inputs['left'] = False
+			if event.key == pygame.K_RIGHT:
+				inputs['right'] = False
+			if event.key == pygame.K_LSHIFT:
+				inputs['sprint'] = False
+
+def render_game(state, inputs):
 	ball_data = state['ball']
 	ball_rect = pygame.Rect(
 		ball_data['posx'] - ball_data['radius'] // 2,
@@ -79,27 +106,6 @@ def render_game(state):
 
 	#Draw on screen
 	screen.fill(BLACK)
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			return 1
-		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_LEFT:
-				engine.input('left_pressed', 0)
-			if event.key == pygame.K_RIGHT:
-				engine.input('right_pressed', 0)
-			if event.key == pygame.K_a:
-				engine.input('left_pressed', 1)
-			if event.key == pygame.K_d:
-				engine.input('right_pressed', 1)
-		if event.type == pygame.KEYUP:
-			if event.key == pygame.K_LEFT:
-				engine.input('left_released', 0)
-			if event.key == pygame.K_RIGHT:
-				engine.input('right_released', 0)
-			if event.key == pygame.K_a:
-				engine.input('left_released', 1)
-			if event.key == pygame.K_d:
-				engine.input('right_released', 1)
 
 	walls = state.get('walls', [])
 	for wall in walls:
@@ -140,24 +146,47 @@ def render_game(state):
 
 	pygame.draw.ellipse(screen, WHITE, ball_rect)
 	pygame.display.update()
-	return 0
 
 if __name__ == '__main__':
-	state = {}
-
-	engine = GameEngine(1, [{'player_id':0}, {'player_id':1}], state)
-	engine.start()
-	while not engine.is_ready():
-		sleep(1/30)
+	states = []
+	with open('log.log', 'r') as f:
+		for line in f.readlines():
+			states.append(eval(line))
 
 	pygame.init()
-	screen = pygame.display.set_mode((state['width'], state['height']))
+	screen = pygame.display.set_mode((states[0]['width'], states[0]['height']))
 	font20 = pygame.font.Font('freesansbold.ttf', 20)
 	pygame.display.set_caption("Pong")
 	clock = pygame.time.Clock()
 
+	inputs = {
+		'space': False,
+		'sprint': False,
+		'left': False,
+		'right': False,
+		'left_frame': False,
+		'right_frame': False,
+		'exit': False
+	}
+
+	i = 0
 	while True:
-		if render_game(state) == 1:
+		events(inputs)
+		if inputs['exit']:
 			break
+		if inputs['space']:
+			i = i
+		if inputs['left']:
+			i -= inputs['sprint'] + 1
+		elif inputs['right'] or not inputs['space']:
+			i += inputs['sprint'] + 1
+		if inputs['left_frame']:
+			i -= 1
+			inputs['left_frame'] = False
+		if inputs['right_frame']:
+			i += 1
+			inputs['right_frame'] = False
+		i = max(0, min(len(states) - 1, i))
+		render_game(states[i], inputs)
 		clock.tick(FPS)
 	pygame.quit()
