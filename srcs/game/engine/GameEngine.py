@@ -15,6 +15,11 @@ class GameEngine(threading.Thread):
 	# INITIALIZATION
 	def __init__(self, game_id: int, players: list, state = None) -> None:
 		super().__init__()
+		if state is None:
+			self.debug = False
+		else:
+			self.debug = True
+		self.is_stop = False
 		self.state = state
 
 		arena_borders = get_hexagon_borders(ARENA_WIDTH // 2)
@@ -28,25 +33,28 @@ class GameEngine(threading.Thread):
 			if side == -1:
 				self.walls.append(arena_borders[i])
 			else:
-				self.players[players[side]['player_id']] = Player(players[side]['player_id'], arena_borders[i])
+				self.players[players[side]['player_id']] = Player(players[side]['player_id'], arena_borders[i], self.debug)
 
 		self.collisions_walls = list(self.walls)
 		for pilar in self.pilars:
 			for wall in list(zip(pilar, rotate(pilar, 1))):
 				self.collisions_walls.append(wall)
 
-		self.ball = Ball()
+		self.ball = Ball(self.debug)
 
 		self.ready = False
 		self.time = time()
+
+	def stop(self) -> None:
+		self.is_stop = True
 
 	def is_ready(self) -> bool:
 		return self.ready
 
 	# GAME LOOP
 	def run(self) -> None:
-		if self.state is None:
-			while True:
+		if not self.debug:
+			while not self.is_stop:
 				current_time = time()
 				elapsed_time = current_time - self.time
 				if elapsed_time < 1 / FPS:
@@ -58,7 +66,7 @@ class GameEngine(threading.Thread):
 				self.ready = True
 		else:
 			with open('log.log', 'w') as f:
-				while True:
+				while not self.is_stop:
 					current_time = time()
 					elapsed_time = current_time - self.time
 					if elapsed_time < 1 / FPS:

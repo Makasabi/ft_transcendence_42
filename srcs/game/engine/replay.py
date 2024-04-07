@@ -1,70 +1,15 @@
-from GameEngine import GameEngine
-from time import sleep
 import pygame
+import sys
 
-"""
-state = {
-    'globals':
-    {
-        'ARENA_WIDTH' : 600,
-        'ARENA_HEIGHT' : 600,
-    },
-	'walls': (
-		{
-			'posx': 0,
-			'posy': 0,
-			'width': 10,
-			'height': 600,
-		},
-		{
-			'posx': 590,
-			'posy': 0,
-			'width': 10,
-			'height': 600,
-		},
-		{
-			'posx': 0,
-			'posy': 0,
-			'width': 600,
-			'height': 10,
-		},
-		{
-			'posx': 0,
-			'posy': 590,
-			'width': 600,
-			'height': 10,
-		},
-    ),
-	'players': [
-		{
-			'score': 0,
-			'posx': 0,
-			'posy': 0,
-			'width': 10,
-			'height': 10,
-		},
-		{
-			'score': 0,
-			'posx': 0,
-			'posy': 0,
-			'width': 10,
-			'height': 10,
-		},
-	],
-	'ball': {
-		'posx': 0,
-		'posy': 0,
-		'radius': 10,
-		'yFac
-	},
-}
-"""
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
+MAGENTA = (255, 0, 255)
+CYAN = (0, 255, 255)
+COOL_BLUE = (87, 85, 254)
 
 FPS = 60
 
@@ -144,12 +89,35 @@ def render_game(state, inputs):
 			1
 		)
 
-	pygame.draw.ellipse(screen, WHITE, ball_rect)
+	for wall in state['ball']['debug'].get('wall_collisionned', []):
+		pygame.draw.line(screen, COOL_BLUE,
+			(wall[0][0], wall[0][1]),
+			(wall[1][0], wall[1][1]),
+			1
+		)
+
+	color = CYAN
+	for next_position in state['ball']['debug'].get('next_positions', []):
+		color = (0, color[1] - 10, color[2] - 10)
+		if color[1] < 0 or color[2] < 0:
+			color = CYAN
+		pygame.draw.ellipse(screen, color, pygame.Rect(
+			next_position[0] - ball_data['radius'] // 2,
+			next_position[1] - ball_data['radius'] // 2,
+			ball_data['radius'],
+			ball_data['radius']
+		))
+
+	ball_color = MAGENTA if state['ball']['debug'].get('has_wall_collision', False) else WHITE
+	pygame.draw.ellipse(screen, ball_color, ball_rect)
 	pygame.display.update()
+
 
 if __name__ == '__main__':
 	states = []
-	with open('log.log', 'r') as f:
+	args = sys.argv
+	file_name = args[1] if len(args) == 2 else 'log.log'
+	with open(file_name, 'r') as f:
 		for line in f.readlines():
 			states.append(eval(line))
 

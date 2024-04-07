@@ -83,6 +83,8 @@ def render_game(state):
 		if event.type == pygame.QUIT:
 			return 1
 		if event.type == pygame.KEYDOWN:
+			if event.key == pygame.K_ESCAPE:
+				return 1
 			if event.key == pygame.K_LEFT:
 				engine.input('left_pressed', 0)
 			if event.key == pygame.K_RIGHT:
@@ -131,13 +133,6 @@ def render_game(state):
 			2
 		))
 
-	for collision_wall in state['collisions_walls']:
-		pygame.draw.line(screen, YELLOW,
-			(collision_wall[0][0], collision_wall[0][1]),
-			(collision_wall[1][0], collision_wall[1][1]),
-			1
-		)
-
 	pygame.draw.ellipse(screen, WHITE, ball_rect)
 	pygame.display.update()
 	return 0
@@ -161,3 +156,4 @@ if __name__ == '__main__':
 			break
 		clock.tick(FPS)
 	pygame.quit()
+	engine.stop()

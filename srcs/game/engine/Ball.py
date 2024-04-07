@@ -6,8 +6,9 @@ from time import sleep
 from constants import ARENA_WIDTH, ARENA_HEIGHT, BALL_SPEED, BALL_RADIUS, PLAYER_WIDTH, PLAYER_LENGTH, CENTER_X, CENTER_Y
 
 class Ball:
-	def __init__(self):
+	def __init__(self, debug):
 		self.reset()
+		self.debug = debug
 
 	def reset(self):
 		self.position = [CENTER_X, CENTER_Y]
@@ -19,16 +20,26 @@ class Ball:
 		self.start = True
 
 	def render(self):
+		debug_info = {}
+		if self.debug:
+			debug_info['has_wall_collision'] = self.has_wall_collision
+			debug_info['next_positions'] = self.next_positions
+			debug_info['wall_collisionned'] = self.wall_collisionned
 		return {
 			'posx': self.position[0],
 			'posy': self.position[1],
 			'radius': BALL_RADIUS,
+			'debug': debug_info
 		}
 
 	def update(self, timestamp, players, walls):
 		if self.position[0] - BALL_RADIUS <= 0 or self.position[0] + BALL_RADIUS >= ARENA_WIDTH or self.position[1] - BALL_RADIUS <= 0 or self.position[1] + BALL_RADIUS >= ARENA_HEIGHT:
 			self.reset()
 
+		if self.debug:
+			self.has_wall_collision = False
+			self.next_positions = []
+			self.wall_collisionned = []
 		new_dir = self.direction
 		next_position = None
 		speed_factor = 1
@@ -37,8 +48,10 @@ class Ball:
 				self.position[0] + new_dir[0] * self.speed * timestamp * speed_factor,
 				self.position[1] + new_dir[1] * self.speed * timestamp * speed_factor
 			]
+			self.next_positions.append(next_position)
 
 			new_dir = self.handle_walls_collisions(walls, next_position)
+
 			if new_dir is not None:
 				self.direction = new_dir
 				speed_factor *= 1.1
@@ -76,6 +89,9 @@ class Ball:
 	def handle_walls_collisions(self, walls, next_position):
 		for wall in walls:
 			if has_wall_intersection(wall, next_position):
+				if self.debug:
+					self.has_wall_collision = True
+					self.wall_collisionned.append(wall)
 				A = np.array(wall[0])
 				B = np.array(wall[1])
 				wall_vect = B - A

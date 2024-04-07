@@ -3,7 +3,7 @@ import math
 from constants import PLAYER_WIDTH, PLAYER_LENGTH, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED
 
 class Player:
-	def __init__(self, player_id, border):
+	def __init__(self, player_id, border, debug):
 		"""
 		Player class.
 		params:
@@ -14,6 +14,8 @@ class Player:
 		"""
 		self.player_id = player_id
 		self.border = border
+		self.debug = debug
+
 		self.border_relative_x = 0
 		border_dist = math.sqrt((border[0][0] - border[1][0]) ** 2 + (border[0][1] - border[1][1]) ** 2)
 		self.left_pilar_x = -border_dist / 2
