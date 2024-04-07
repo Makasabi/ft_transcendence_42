@@ -55,6 +55,9 @@ class Ball:
 
 			new_dir = self.handle_walls_collisions(walls, next_position)
 
+			if new_dir is None:
+				new_dir = self.handle_player_collisions(players, next_position)
+
 			if new_dir is not None:
 				is_collision = True
 				new_dir = new_dir / np.linalg.norm(new_dir)
@@ -63,27 +66,6 @@ class Ball:
 		if self.speed <= 500 and is_collision:
 			self.speed += 10
 		self.position = next_position
-
-		#for player in players.values():
-		#	player_sides = player.get_sides()
-		#	if not self.has_wall_intersection(player_sides):
-		#		continue
-		#	if not self.just_bounced_player:
-
-		#		print("INTERSECTION WITH PLAYER")
-		#		A = np.array(player_sides[0])
-		#		B = np.array(player_sides[1])
-		#		wall_vect = B - A
-		#		normal_vect =  np.array([-wall_vect[1], wall_vect[0]])
-		#		normal_vect = normal_vect / np.linalg.norm(normal_vect)
-		#		dot_product = np.dot(self.direction, normal_vect)
-		#		self.direction = self.direction - 2 * dot_product * normal_vect
-		#		if self.speed <= 500:
-		#			self.speed *= 1.2
-		#			self.just_bounced_player = True
-		#			break
-		#		else:
-		#			self.just_bounced_player = False
 
 	def find_distance(a,b):
 		return math.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
@@ -129,3 +111,17 @@ class Ball:
 		if (t[0] > 0 and t[0] < 1) or (t[1] > 0 and t[1] < 1):
 			return True
 		return False
+
+	def handle_player_collisions(self, players, next_position):
+		for i in players:
+			player = players[i]
+			if self.has_wall_intersection(player.get_sides(), next_position):
+				print("Collision with player")
+				if self.debug:
+					self.has_wall_collision = True
+					self.wall_collisionned.append(player.get_sides())
+				P = np.array(player.get_center())
+				O = np.array(next_position)
+				new_direction = O - P # <3
+				return [new_direction[0], new_direction[1]]
+		return None

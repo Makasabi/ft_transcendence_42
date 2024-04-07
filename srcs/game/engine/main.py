@@ -126,9 +126,21 @@ def render_game(state):
 			(player['right']),
 			player['width']
 		)
-		pygame.draw.rect(screen, BLUE, pygame.Rect(
+		pygame.draw.rect(screen, RED, pygame.Rect(
 			int(player['posx']),
 			int(player['posy']),
+			2,
+			2
+		))
+		pygame.draw.rect(screen, WHITE, pygame.Rect(
+			int(player['left'][0]),
+			int(player['left'][1]),
+			2,
+			2
+		))
+		pygame.draw.rect(screen, WHITE, pygame.Rect(
+			int(player['right'][0]),
+			int(player['right'][1]),
 			2,
 			2
 		))
