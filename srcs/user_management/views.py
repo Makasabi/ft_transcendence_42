@@ -123,7 +123,7 @@ def user_id(request, id):
 	return JsonResponse(profile_serializer(user))
 
 @api_view(['POST'])
-def add_friend(request, username):
+def add_friend(request, user_id):
 	"""
 	Add a friend to the user's friend list
 
@@ -133,15 +133,13 @@ def add_friend(request, username):
 	Returns:
 	- JsonResponse: Response containing the new user data
 	"""
-	user1 = request.user.username
-	user2 = username
-	# add connection in BeFriends table
-	BeFriends.objects.create(user1=Player.objects.get(username=user1), user2=Player.objects.get(username=user2))
-	BeFriends.objects.create(user1=Player.objects.get(username=user2), user2=Player.objects.get(username=user1))
+	user1 = request.user.id
+	user2 = user_id
+	BeFriends.objects.create(user1=user1, user2=user2)
 	return JsonResponse(profile_serializer(request.user))
 
 @api_view(['DELETE'])
-def remove_friend(request, username):
+def remove_friend(request, user_id):
 	"""
 	Remove a friend from the user's friend list
 
@@ -149,15 +147,15 @@ def remove_friend(request, username):
 	- request: Request containing the friend's username
 
 	"""
-	user1 = request.user.username
-	user2 = username
-	# remove connection in BeFriends table
-	BeFriends.objects.filter(user1__username=user1, user2__username=user2).delete()
-	BeFriends.objects.filter(user1__username=user2, user2__username=user1).delete()
+	user1 = request.user.id
+	user2 = user_id
+
+	BeFriends.objects.filter(user1=user1, user2=user2).delete()
+	BeFriends.objects.filter(user1=user2, user2=user1).delete()
 	return JsonResponse(profile_serializer(request.user))
 
 @api_view(['GET'])
-def is_friend(request, username):
+def is_friend(request, user_id):
 	"""
 	Check if two users are friends
 	
@@ -167,11 +165,15 @@ def is_friend(request, username):
 	Returns:
 	- bool: True if the two users are friends, False otherwise
 	"""
-	user1 = request.user.username
-	user2 = username
-	if BeFriends.objects.filter(user1__username=user1, user2__username=user2).exists() \
-		or BeFriends.objects.filter(user1__username=user2, user2__username=user1).exists():
+	user1 = request.user.id
+	user2 = user_id
+	if BeFriends.objects.filter(user1=user1, user2=user2).exists() \
+		and BeFriends.objects.filter(user1=user2, user2=user1).exists():
 		return JsonResponse({'friends': True})
+	elif BeFriends.objects.filter(user1=user1, user2=user2).exists():
+		return JsonResponse({'friends': "Request Pending"})
+	elif BeFriends.objects.filter(user1=user2, user2=user1).exists():
+		return JsonResponse({'friends': "Invite Pending"})
 	return JsonResponse({'friends': False})
 
 # gett all friends of a user
@@ -183,17 +185,12 @@ def get_friends(request):
 	Returns:
 	- JsonResponse: Response containing the list of friends
 	"""
-	user = request.user
-
-	# friends = BeFriends.objects.filter(user1=user)
-	# friends = [profile_serializer(friend.user2) for friend in friends]
-	# print(friends)
- 
 	friends_json = []
-	for friend in BeFriends.objects.filter(user1=user):
-		# append only username and avatar_file
+	for friend in BeFriends.objects.filter(user1=request.user.id):
+		data = Player.objects.get(id=friend.user2)
 		friends_json.append({
-			"username": friend.user2.username,
-			"avatar_file": friend.user2.avatar_file
+			"username": data.username,
+			"avatar_file": data.avatar_file
 		})
+
 	return JsonResponse(friends_json, safe=False)

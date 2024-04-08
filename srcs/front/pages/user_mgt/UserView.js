@@ -39,51 +39,75 @@ export class UserView extends IView {
 	}
 }
 
-function addFriend(username, user2) {
+function addFriend(username, user_id) {
 	console.log("Add friend request + notif");
-	fetch("/api/user_management/add_friend/" + user2, {
+	fetch("/api/user_management/add_friend/" + user_id, {
 		method: 'POST',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	})
-	fetch("/api/notif/create_notif/friend_request/" + user2, {
+	fetch("/api/notif/create_notif/friend_request/" + username, {
 		method: 'POST',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	})
 	return "Remove Friend";
 }
 
-function removeFriend(username, user2) {
+function removeFriend(username, user_id) {
 	console.log("Remove friend request + notif");
-	fetch("/api/user_management/remove_friend/" + user2, {
+	fetch("/api/user_management/remove_friend/" + user_id, {
 		method: 'DELETE',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	})
-	fetch("/api/notif/create_notif/friend_removal/" + user2, {
+	fetch("/api/notif/create_notif/friend_removal/" + username, {
 		method: 'POST',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	})
 	return "Add Friend";
 }
 
-function addFriendButton(username)
+function acceptRequest(username, user_id) {
+	console.log("Accept friend request + notif");
+	fetch("/api/user_management/add_friend/" + user_id, {
+		method: 'POST',
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	})
+	fetch("/api/notif/create_notif/accept_friend/" + username, {
+		method: 'POST',
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	})
+	return "Remove Friend";
+}
+
+async function addFriendButton(username)
 {
 	let button = document.getElementById("add-friend");
 	let user2 = window.location.pathname.split('/')[2];
 
-	fetch("/api/user_management/friends/" + user2, {
+	let friend = await fetch("/api/user_management/user/" + user2, {
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	}).then(response => response.json())
+
+	fetch("/api/user_management/friends/" + friend.id, {
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	}).then(response => response.json()).then(response => {
 		if (response.friends === true)
 			button.textContent = "Remove Friend";
-		else
+		else if (response.friends === false)
 			button.textContent = "Add Friend";
+		else if (response.friends === "Request Pending")
+			button.textContent = "Request Pending";
+		else if (response.friends === "Invite Pending")
+			button.textContent = "Accept Friend Request";
+		console.log("response.friends: ", response.friends);
 	});
 
 	// Event listener to button to add or remove friend
 	button.addEventListener("click", () => {
 		if (button.textContent === "Add Friend")
-			button.textContent = addFriend(username, user2)
-		else
-			button.textContent = removeFriend(username, user2)
+			button.textContent = addFriend(friend.username, friend.id)
+		else if (button.textContent === "Remove Friend")
+			button.textContent = removeFriend(friend.username, friend.id)
+		else if (button.textContent === "Accept Friend Request")
+		button.textContent = acceptRequest(friend.username, friend.id)
 	});
 }

@@ -1,13 +1,10 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from user_management.models import Player, BeFriends
-from game.models import Play
 from rest_framework.decorators import api_view
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.http import JsonResponse
 from notification.models import Notification, UserNotifies, IsNotified
-from notification.consumers import NotificationConsumer
 import requests
  
 
@@ -23,7 +20,7 @@ def create_notif(request, type, target):
 	"""
 	user1 = request.user
 
-	# get target user infos
+	# @TODO : change localhost for scalable solution
 	url = f"http://localhost:8000/api/user_management/user/{target}"
 	token = request.COOKIES.get('token')
 	headers = {'Authorization': "Token " + token}
@@ -46,7 +43,7 @@ def get_notifs(request, type):
 	elif (type == 'all'):
 		notifs = Notification.objects.filter(isnotified__user_id=user_id)
 	for notif in notifs:
-		notif_json.append({'notif_id': notif.notif_id, 'type': notif.type, 'date': notif.date, 'message': notif.message, 'is_seen': notif.is_seen})
+		notif_json.append({'notif_id': notif.notif_id, 'type': notif.type, 'date': notif.date, 'message': notif.message, 'is_seen': notif.is_seen, 'sender_id': notif.usernotifies_set.all()[0].user_id})
 	return JsonResponse(notif_json, safe=False)
 
 
@@ -86,7 +83,7 @@ def build_message(user, type):
 	message = ''
 	if type == 'friend_request':
 		message = f'{user} added you as friend'
-	elif type == 'friend_request_accepted':
+	elif type == 'accept_friend':
 		message = f'{user} accepted your friend request !'
 	elif type == 'friend_removal':
 		message = f'{user} is no longer your friend :('
@@ -102,6 +99,7 @@ def build_message(user, type):
 	# 	message = f'{target} accepted {user}\'s game invitation'
 	# elif type == 'game_down':
 	# 	message = 'GAME is down'
+	print(f'Notification created: {message}')
 	return message
 
 @api_view(['POST'])
@@ -110,7 +108,6 @@ def set_seen(request):
 	Set all notifications as seen
 	"""
 	notifs = IsNotified.objects.filter(user_id=request.user.id)
-	# print(notifs)
 	for notif in notifs:
 		notif.notif.is_seen = True
 		notif.notif.save()
@@ -126,6 +123,5 @@ def delete_notif(request, id):
 	- id: Notification id
 
 	"""
-	notif = Notification.objects.get(notif_id=id)
-	notif.delete()
+	Notification.objects.get(notif_id=id).delete()
 	return JsonResponse({'message': 'Notification deleted'})
