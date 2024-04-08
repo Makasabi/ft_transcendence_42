@@ -136,7 +136,7 @@ function displayNotifBox(notifs) {
 				notificationElement.classList.add('notification');
 				notificationElement.textContent = notification.message;
 				notificationElement.id = notification.notif_id;
-=				notificationsContainer.appendChild(notificationElement);
+				notificationsContainer.appendChild(notificationElement);
 				renderNotifIcons(notification, notificationElement);
 			});
 
@@ -162,7 +162,7 @@ async function displayNotifications () {
 	let notifs = await fetch('/api/notif/get_notifs/all', {
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	}).then(response => response.json())
-	console.log('Notifications fetched', notifs)
+	// console.log('Notifications fetched', notifs)
 	displayNotifBox(notifs);
 }
 

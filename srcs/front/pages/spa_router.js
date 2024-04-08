@@ -1,5 +1,6 @@
 import { footer, LoggedHeaderView, HomeView } from "./home/home.js";
 import { MeView } from "./user_mgt/MeView.js";
+import { FriendsView } from "./user_mgt/FriendsView.js";
 import { UserView } from "./user_mgt/UserView.js";
 import * as login from "./login/login.js";
 import { GameView } from "./game/GameView.js";
@@ -14,12 +15,13 @@ var view = null;
 const loggedViews = [
 	HomeView,
 	MeView,
+	FriendsView,
+	UserView,
 	// GameView,
 	createRoomView,
 	RoomView,
 	UnknownRoomView,
 	FullRoomView,
-	UserView,
 ];
 
 const unloggedViews = [

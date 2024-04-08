@@ -19,7 +19,7 @@ def add_random_friendships():
 	all_players = Player.objects.all()
 
 	for player in all_players:
-		num_friends = random.randint(1, 5)  # Choose a random number of friends for the player
+		num_friends = random.randint(1, 10)  # Choose a random number of friends for the player
 
 		# Choose random users to be friends with
 		friends_to_add = random.sample(list(all_players.exclude(id=player.id)), min(num_friends, len(all_players)-1))
