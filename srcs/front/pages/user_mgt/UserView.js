@@ -2,7 +2,7 @@ import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { MeView } from "/front/pages/user_mgt/MeView.js";
 import { getProfileInfos, getHistoryStats } from "/front/pages/user_mgt/user_mgt.js";
-
+import { route } from "/front/pages/spa_router.js";
 
 export class UserView extends IView {
 	static match_route(route) {
@@ -18,7 +18,6 @@ export class UserView extends IView {
 		let requester = await fetch("/api/user_management/me", {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		}).then(response => response.json());
-
 		
 		let html = await fetch("/front/pages/user_mgt/user.html").then(response => response.text());
 		let user = await fetch(call, {
@@ -26,7 +25,7 @@ export class UserView extends IView {
 		}).then(response => response.json());
 		if (user.error)
 		{
-			MeView.render();
+			route("/me");
 			return;
 		}
 		

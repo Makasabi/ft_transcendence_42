@@ -93,7 +93,11 @@ function renderDeclineIcon(notificationElement) {
 		console.log('Notification deleted');
 		// api call to delete notification from DB
 		const notificationElement = event.target.closest('.notification');
-
+		fetch("/api/notif/delete_notif/" + notificationElement.id, {
+			method: 'DELETE',
+			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+		})
+		
 		if (notificationElement) {
 			notificationElement.style.display = 'none';
 		}
@@ -131,15 +135,15 @@ function displayNotifBox(notifs) {
 				const notificationElement = document.createElement('div');
 				notificationElement.classList.add('notification');
 				notificationElement.textContent = notification.message;
+				notificationElement.id = notification.notif_id;
 				notificationsContainer.appendChild(notificationElement);
-				console.log('Notification:', notification.message);
 				renderNotifIcons(notification, notificationElement);
 			});
 
 			const closeForegroundBox = function(event) {
 				if (!foregroundBox.contains(event.target)) {
-					foregroundBox.remove(); // Remove the foreground box when clicked outside
-					document.removeEventListener('click', closeForegroundBox); // Remove the event listener
+					foregroundBox.remove();
+					document.removeEventListener('click', closeForegroundBox);
 				}
 			}
 			document.addEventListener('click', closeForegroundBox);
@@ -158,24 +162,23 @@ async function displayNotifications () {
 	let notifs = await fetch('/api/notif/get_notifs/all', {
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	}).then(response => response.json())
-	console.log('Notifications fetched', notifs)
+	// console.log('Notifications fetched', notifs)
 	displayNotifBox(notifs);
 }
 
 // display new notification red dot
-function displayNotifDot(message) {
+function displayNotifDot() {
 	document.getElementById('notificationDot').style.display = 'inline-block';
 }
 
 // Handle red dot for Notifications
 async function handleNotificationDot() {	
-	var notificationDot = document.getElementById('notificationDot');
 	await fetch('/api/notif/get_notifs/unseen',{
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	}).then(response => response.json())
 	.then(data => {
 		if (data.length > 0)
-		displayNotifDot(message);
+			displayNotifDot();
 	})
 	.catch((error) => {
 		console.error('Error:', error);
@@ -185,11 +188,8 @@ async function handleNotificationDot() {
 
 
 // @TODO
-
-// on decline, delete notification from DB
 // on accept, add friend to DB and delete notification from DB
 
 // USER_MGT : unilateral friendship (we love consent in this house)
 // USER_MGT : replace Add Friend with Accept request if other user sent request
-
 // USER_MGT : friends page

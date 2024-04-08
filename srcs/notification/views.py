@@ -10,14 +10,16 @@ from notification.models import Notification, UserNotifies, IsNotified
 from notification.consumers import NotificationConsumer
 import requests
  
-# Create your views here.
-def index(request):
-	return render(request, 'index.html')
 
 @api_view(['POST'])
 def create_notif(request, type, target):
 	"""
 	Notify the 'target' user of the 'type' notification
+
+	Args:
+	- type: Type of notification
+	- target: Target user id
+
 	"""
 	user1 = request.user
 
@@ -35,7 +37,7 @@ def create_notif(request, type, target):
 @api_view(['GET'])
 def get_notifs(request, type):
 	"""
-	Return all notifications for the user
+	Return notifications for the user, either all or unseen
 	"""
 	user_id = request.user.id
 	notif_json = []
@@ -44,7 +46,7 @@ def get_notifs(request, type):
 	elif (type == 'all'):
 		notifs = Notification.objects.filter(isnotified__user_id=user_id)
 	for notif in notifs:
-		notif_json.append({'type': notif.type, 'date': notif.date, 'message': notif.message, 'is_seen': notif.is_seen})
+		notif_json.append({'notif_id': notif.notif_id, 'type': notif.type, 'date': notif.date, 'message': notif.message, 'is_seen': notif.is_seen})
 	return JsonResponse(notif_json, safe=False)
 
 
@@ -73,6 +75,13 @@ def create_send_notification(user, target, type):
 def build_message(user, type):
 	"""
 	Build the message of the notification
+	
+	Args:
+	- user: User that triggered the notification
+	- type: Type of notification
+
+	Returns:
+	- message: Message of the notification
 	"""
 	message = ''
 	if type == 'friend_request':
@@ -89,12 +98,10 @@ def build_message(user, type):
 		message = f'{user} won the tournament'
 	elif type == 'number_one':
 		message = f'Congrats {user}, you are the number one !'
-	# elif type == 'friend_removal':
-	# 	message = f'{user} removed {target} as friend'
 	# elif type == 'game_invitation_accepted':
 	# 	message = f'{target} accepted {user}\'s game invitation'
 	# elif type == 'game_down':
-	# 	message = f'{user} is down'
+	# 	message = 'GAME is down'
 	return message
 
 @api_view(['POST'])
@@ -108,3 +115,17 @@ def set_seen(request):
 		notif.notif.is_seen = True
 		notif.notif.save()
 	return JsonResponse({'message': 'Notification seen'})
+
+
+@api_view(['DELETE'])
+def delete_notif(request, id):
+	"""
+	Remove a notification from DB
+
+	Args:
+	- id: Notification id
+
+	"""
+	notif = Notification.objects.get(notif_id=id)
+	notif.delete()
+	return JsonResponse({'message': 'Notification deleted'})

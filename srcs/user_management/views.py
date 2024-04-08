@@ -157,7 +157,7 @@ def remove_friend(request, username):
 	return JsonResponse(profile_serializer(request.user))
 
 @api_view(['GET'])
-def friends(request, username):
+def is_friend(request, username):
 	"""
 	Check if two users are friends
 	
@@ -173,4 +173,27 @@ def friends(request, username):
 		or BeFriends.objects.filter(user1__username=user2, user2__username=user1).exists():
 		return JsonResponse({'friends': True})
 	return JsonResponse({'friends': False})
-	
+
+# gett all friends of a user
+@api_view(['GET'])
+def get_friends(request):
+	"""
+	Return all friends of the user
+
+	Returns:
+	- JsonResponse: Response containing the list of friends
+	"""
+	user = request.user
+
+	# friends = BeFriends.objects.filter(user1=user)
+	# friends = [profile_serializer(friend.user2) for friend in friends]
+	# print(friends)
+ 
+	friends_json = []
+	for friend in BeFriends.objects.filter(user1=user):
+		# append only username and avatar_file
+		friends_json.append({
+			"username": friend.user2.username,
+			"avatar_file": friend.user2.avatar_file
+		})
+	return JsonResponse(friends_json, safe=False)

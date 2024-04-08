@@ -1,0 +1,68 @@
+.friends {
+	padding: 3em;
+	display: flex;
+	flex-direction: column;
+	gap: 2em;
+	border-radius: 10px;
+	border: var(--border-light) 1px solid;
+	backdrop-filter: blur(4px);
+	background-color: var(--transparent-dark);
+	height: 70vh;
+}
+
+.search-bar {
+	display: block;
+	padding: 1vh 1vw;
+}
+
+
+.current-friends {
+	display: flex;
+	flex-wrap: wrap;
+	overflow-y: auto;
+	justify-content: left;
+	text-align: center;
+	gap: 4em;
+
+}
+
+.friend-avatar {
+	width:10vh;
+	border-radius: 100px;
+	margin: 1vh
+}
+
+.friend-avatar:hover {
+	/*filter: invert(48%) sepia(17%) saturate(2843%) hue-rotate(208deg) brightness(100%) contrast(102%) opacity(50%);
+	*/
+	filter: opacity(50%);
+	transition-duration: .2s;
+	transition-timing-function: ease-in-out;
+	cursor: pointer;
+}
+
+
+@media (min-width: 48em) {
+	.friends {
+		margin: 3vh 5vw;
+	}
+
+}
+
+.current-friends::-webkit-scrollbar-track
+{
+	border-radius: 10px;
+	background-color: var(--border-light);
+}
+
+.current-friends::-webkit-scrollbar
+{
+	width: 12px;
+	background-color: var(--transparent-dark);
+}
+
+.current-friends::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	background-color: var(--transparent-primary);
+} 
