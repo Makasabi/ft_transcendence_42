@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view
 from django.conf import settings
 import os
 
+
 def profile_serializer(user):
 	"""
 	Retrieve user's data
@@ -47,6 +48,7 @@ def profile_serializer(user):
 	user_data["global_rank"] = f"{higher_scores + 1}/{Player.objects.count()}"
 	return user_data
 
+
 @api_view(['GET'])
 def me(request):
 	"""
@@ -69,9 +71,6 @@ def me(request):
 	"""
 	return JsonResponse(profile_serializer(request.user))
 
-@api_view(['GET'])
-def test(request):
-	pass
 
 @api_view(['POST'])
 def edit_profile(request):
@@ -88,8 +87,6 @@ def edit_profile(request):
 	user = request.user
 	if "username" in request.data:
 		user.username = request.data["username"]
-	if "email" in request.data:
-		user.email = request.data["email"]
 	if "avatar_file" in request.data:
 		user.avatar_file = request.data["avatar_file"]
 	if "password" in request.data:
@@ -122,11 +119,11 @@ def upload_avatar(request):
 	else:
 		return JsonResponse({'error': 'No avatar file provided'}, status=400)
 
-# function to get a specific user
+
 @api_view(['GET'])
 def user_username(request, username):
 	"""
-	Return a user from the database
+	Get user by username
 
 	json response format:
 	"""
@@ -135,11 +132,11 @@ def user_username(request, username):
 		return JsonResponse({'error': 'User not found'}, status=404)
 	return JsonResponse(profile_serializer(user))
 
-# function to get a specific user
+
 @api_view(['GET'])
 def user_id(request, id):
 	"""
-	Return a user from the database
+	Get user by id
 
 	json response format:
 	"""
@@ -148,6 +145,7 @@ def user_id(request, id):
 	if user is None:
 		return JsonResponse({'error': 'User not found'}, status=404)
 	return JsonResponse(profile_serializer(user))
+
 
 @api_view(['POST'])
 def add_friend(request, user_id):
@@ -165,6 +163,7 @@ def add_friend(request, user_id):
 	BeFriends.objects.create(user1=user1, user2=user2)
 	return JsonResponse(profile_serializer(request.user))
 
+
 @api_view(['DELETE'])
 def remove_friend(request, user_id):
 	"""
@@ -180,6 +179,7 @@ def remove_friend(request, user_id):
 	BeFriends.objects.filter(user1=user1, user2=user2).delete()
 	BeFriends.objects.filter(user1=user2, user2=user1).delete()
 	return JsonResponse(profile_serializer(request.user))
+
 
 @api_view(['GET'])
 def is_friend(request, user_id):
@@ -203,7 +203,7 @@ def is_friend(request, user_id):
 		return JsonResponse({'friends': "Invite Pending"})
 	return JsonResponse({'friends': False})
 
-# gett all friends of a user
+
 @api_view(['GET'])
 def get_friends(request):
 	"""
@@ -219,5 +219,4 @@ def get_friends(request):
 			"username": data.username,
 			"avatar_file": data.avatar_file
 		})
-
 	return JsonResponse(friends_json, safe=False)

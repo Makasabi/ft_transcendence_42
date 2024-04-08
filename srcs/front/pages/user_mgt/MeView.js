@@ -80,7 +80,6 @@ function editProfileButton()
 		if (edit === true) {
 			editProfile();
 			edit = editModeOff(editables);
-			// Remove overlay if edit mode is turned off
 			avatarContainer.classList.remove("edit-mode");
 		} else {
 			edit = editModeOn(editables);

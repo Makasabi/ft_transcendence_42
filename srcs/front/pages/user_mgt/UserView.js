@@ -1,6 +1,5 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
-import { MeView } from "/front/pages/user_mgt/MeView.js";
 import { getProfileInfos, getHistoryStats } from "/front/pages/user_mgt/user_mgt.js";
 import { route } from "/front/pages/spa_router.js";
 

@@ -15,7 +15,6 @@ class Player(AbstractUser):
 	global_score = models.IntegerField(default=0)
 
 class BeFriends(models.Model):
-
 	user1 = models.IntegerField()
 	user2 = models.IntegerField()
 	created_at = models.DateTimeField(auto_now_add=True)
