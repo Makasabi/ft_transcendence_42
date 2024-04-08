@@ -21,7 +21,7 @@ def create_notif(request, type, target):
 	user1 = request.user
 
 	# @TODO : change localhost for scalable solution
-	url = f"http://localhost:8000/api/user_management/user/{target}"
+	url = f"http://localhost:8000/api/user_management/user/username/{target}"
 	token = request.COOKIES.get('token')
 	headers = {'Authorization': "Token " + token}
 	target = requests.get(url, headers=headers)

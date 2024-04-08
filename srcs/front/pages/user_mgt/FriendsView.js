@@ -28,7 +28,7 @@ export class FriendsView extends IView {
 			avatar.alt = friend.username;
 			avatar.classList.add("friend-avatar");
 			
-			let friend_profile = "/user/" + friend.username;
+			let friend_profile = "/user/username/" + friend.username;
 			avatar.addEventListener("click", (e) => {
 				e.preventDefault();
 				route(friend_profile);

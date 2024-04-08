@@ -186,12 +186,3 @@ async function handleNotificationDot() {
 		console.error('Error:', error);
 	});
 }
-
-
-
-// @TODO
-// on accept, add friend to DB and delete notification from DB
-
-// USER_MGT : unilateral friendship (we love consent in this house)
-// USER_MGT : replace Add Friend with Accept request if other user sent request
-// USER_MGT : friends page

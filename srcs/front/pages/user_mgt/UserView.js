@@ -6,13 +6,14 @@ import { route } from "/front/pages/spa_router.js";
 
 export class UserView extends IView {
 	static match_route(route) {
-		let regex = new RegExp("^/user/[\\w]+$");
+		let regex = new RegExp("^/user/username/[\\w]+$");
+		console.log("UserView.match_route: ",route);
 		return regex.test(route);
 	}
 
 	async render() {
 		console.log("UserView.render");
-		let call = "/api/user_management/user/" + window.location.pathname.split('/')[2];
+		let call = "/api/user_management/user/username/" + window.location.pathname.split('/')[3];
 
 		//  retrieve current requester
 		let requester = await fetch("/api/user_management/me", {
@@ -20,6 +21,7 @@ export class UserView extends IView {
 		}).then(response => response.json());
 		
 		let html = await fetch("/front/pages/user_mgt/user.html").then(response => response.text());
+		console.log("UserView.render: ", call);
 		let user = await fetch(call, {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		}).then(response => response.json());
@@ -81,9 +83,9 @@ function acceptRequest(username, user_id) {
 async function addFriendButton(username)
 {
 	let button = document.getElementById("add-friend");
-	let user2 = window.location.pathname.split('/')[2];
+	let user2 = window.location.pathname.split('/')[3];
 
-	let friend = await fetch("/api/user_management/user/" + user2, {
+	let friend = await fetch("/api/user_management/user/username/" + user2, {
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	}).then(response => response.json())
 
