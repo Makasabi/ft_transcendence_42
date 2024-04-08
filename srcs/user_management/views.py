@@ -45,6 +45,16 @@ def profile_serializer(user):
 	user_data["global_rank"] = f"{higher_scores + 1}/{Player.objects.count()}"
 	return user_data
 
+def get_user_list(users):
+	"""
+	Return a list of users from the database
+	"""
+	user_list = {
+		"id" : users.id,
+	}
+
+
+
 @api_view(['GET'])
 def me(request):
 	"""
@@ -121,6 +131,23 @@ def user_id(request, id):
 	if user is None:
 		return JsonResponse({'error': 'User not found'}, status=404)
 	return JsonResponse(profile_serializer(user))
+
+# function to return an array of users that match the username
+@api_view(['GET'])
+def user_search(request, username):
+	"""
+	Return a list of users from the database that match the username
+
+	json response format:
+	"""
+	users = Player.objects.filter(username__startswith=username)
+	print(users)
+	users_json = []
+	for user in users:
+		users_json.append({
+			"username": user.username,
+		})
+	return JsonResponse(users_json, safe=False)
 
 @api_view(['POST'])
 def add_friend(request, username):

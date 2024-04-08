@@ -14,6 +14,7 @@ const isRegisteredAPI = "api/auth/is_registered/"; // static method
 const meAPI = "api/user_management/me"; // static method
 const userIdAPI = "api/user_management/user/id/" // dynamic method -> add user_id
 const userViewAPI = "api/user_management/user/"; // dynamic method -> add user_id from window.location.pathname.split('/')[2]
+const userSearchAPI = "api/user_management/search/"; // dynamic method -> add search_query
 const editProfileAPI = "api/user_management/edit_profile"; // static method
 const addFriendAPI = "/api/user_management/add_friend/"; // dynamic method -> add user_id
 const friendshipStatusAPI = "/api/user_management/friends/"; // dynamic method -> add user_id

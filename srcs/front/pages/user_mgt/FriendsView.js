@@ -43,6 +43,41 @@ export class FriendsView extends IView {
 
 			friendsContainer.appendChild(friendContainer);
 		});
-	}
 
+		// Autocomplete functionality
+		const searchInput = document.getElementById("search-friends");
+		let resultsContainer = document.getElementById("friends_results");
+		resultsContainer.style.display = 'none';
+		resultsContainer.innerHTML = '';
+
+		let inputValue = '';
+		let suggestions = [];
+		searchInput.addEventListener("keyup", async (e) => {
+			e.preventDefault();
+			const test = new RegExp(/\w+/g);
+			inputValue = searchInput.value.trim();
+			if (!test.test(inputValue)) {
+				resultsContainer.innerHTML = '';
+				resultsContainer.style.display = 'none';
+			} else {
+				suggestions = await fetch('/api/user_management/user/search/' + inputValue, {
+					headers: { 'Authorization': `Token ${Login.getCookie('token')}`}
+				}).then(response => response.json());
+				if (suggestions.length === 0) {
+					resultsContainer.innerHTML = '<ul><li>No Results</li></ul>';
+				} else {
+					console.log("Suggestions" + suggestions);
+					let list = '';
+					for (let i = 0; i < suggestions.length; i++) {
+						list += `<a onclick="route('/user/${suggestions[i].username}')"><li>${suggestions[i].username}</li></a>`;
+					}
+					resultsContainer.innerHTML = '<ul>' + list + '</ul>';
+					resultsContainer.style.display = 'block';
+					console.log(resultsContainer);
+				}
+			}
+		});
+	}
 }
+
+
