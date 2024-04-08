@@ -1,9 +1,11 @@
 import numpy as np
+import copy
 import random
 import math
 from time import sleep
+from utils import distance_point_to_line, rotate
 
-from constants import ARENA_WIDTH, ARENA_HEIGHT, BALL_SPEED, BALL_RADIUS, PLAYER_WIDTH, PLAYER_LENGTH, CENTER_X, CENTER_Y
+from constants import ARENA_WIDTH, ARENA_HEIGHT, BALL_SPEED, BALL_RADIUS, PLAYER_WIDTH, PLAYER_LENGTH, CENTER_X, CENTER_Y, M_PILAR_SIZE
 
 class Ball:
 	def __init__(self, debug):
@@ -18,6 +20,7 @@ class Ball:
 
 		self.speed = BALL_SPEED
 		self.start = True
+		self.inside_m_pillar = True
 
 	def render(self):
 		debug_info = {}
@@ -33,7 +36,7 @@ class Ball:
 			'debug': debug_info
 		}
 
-	def update(self, timestamp, players, walls):
+	def update(self, timestamp, players, walls, middle_pilar):
 		if self.position[0] - BALL_RADIUS <= 0 or self.position[0] + BALL_RADIUS >= ARENA_WIDTH or self.position[1] - BALL_RADIUS <= 0 or self.position[1] + BALL_RADIUS >= ARENA_HEIGHT:
 			self.reset()
 
@@ -53,10 +56,14 @@ class Ball:
 			]
 			self.next_positions.append(next_position)
 
-			new_dir = self.handle_walls_collisions(walls, next_position)
+			new_dir = self.handle_walls_collisions(walls, middle_pilar, next_position)
 
 			if new_dir is None:
 				new_dir = self.handle_player_collisions(players, next_position)
+
+			if (new_dir is None) and (self.handle_player_border(players, next_position)):
+				self.reset()
+				return
 
 			if new_dir is not None:
 				is_collision = True
@@ -73,20 +80,58 @@ class Ball:
 	def is_between(a,c,b):
 		return Ball.find_distance(a,c) + Ball.find_distance(c,b) == Ball.find_distance(a,b)
 
-	def handle_walls_collisions(self, walls, next_position):
-		for wall in walls:
+	def handle_wall_redirection(self, wall):
+		A = np.array(wall[0])
+		B = np.array(wall[1])
+		wall_vect = B - A
+		normal_vect =  np.array([-wall_vect[1], wall_vect[0]])
+		normal_vect = normal_vect / np.linalg.norm(normal_vect)
+		dot_product = np.dot(self.direction, normal_vect)
+		return self.direction - 2 * dot_product * normal_vect
+
+	def handle_walls_collisions(self, walls, middle_pilar, next_position):
+		tmp = list(copy.copy(walls))
+		if not self.is_inside_m_pilar(middle_pilar) or self.inside_m_pillar == False:
+			for wall in list(zip(middle_pilar, rotate(middle_pilar, 1))):
+				tmp.append(wall)
+			self.inside_m_pillar = False
+		for wall in tmp:
+			wall = tuple(wall)
 			if self.has_wall_intersection(wall, next_position):
 				if self.debug:
 					self.has_wall_collision = True
 					self.wall_collisionned.append(wall)
-				A = np.array(wall[0])
-				B = np.array(wall[1])
-				wall_vect = B - A
-				normal_vect =  np.array([-wall_vect[1], wall_vect[0]])
-				normal_vect = normal_vect / np.linalg.norm(normal_vect)
-				dot_product = np.dot(self.direction, normal_vect)
-				return self.direction - 2 * dot_product * normal_vect
+				return self.handle_wall_redirection(wall)
 		return None
+
+	def handle_player_collisions(self, players, next_position):
+		for i in players:
+			player = players[i]
+			if self.has_wall_intersection(player.get_sides(), next_position):
+				print("Collision with player")
+				if self.debug:
+					self.has_wall_collision = True
+					self.wall_collisionned.append(player.get_sides())
+				P = np.array(player.get_center())
+				O = np.array(next_position)
+				new_direction = O - P
+				return [new_direction[0], new_direction[1]]
+		return None
+
+	def handle_player_border(self, players, next_position):
+		for i in players:
+			player = players[i]
+			A = np.array(player.border[0])
+			B = np.array(player.border[1])
+			O = np.array(next_position)
+			d = B - A
+			OA = O - A
+			if (np.cross(d, OA) < 0):
+				print("Collision with player border")
+				player.HP -= 1
+				print("Player ", player.player_id, " still has ", player.HP, " points.")
+				return True
+		return False
 
 	def has_wall_intersection(self, line_points, ball_position):
 		A = np.array(line_points[0])
@@ -104,24 +149,13 @@ class Ball:
 			return False
 		t = [(-b + math.sqrt(delta)) / (2 * a), (-b - math.sqrt(delta)) / (2 * a)]
 		d_norm = np.linalg.norm(d)
-		self.collision_infos.append({
-			't': t,
-			'd_norm': d_norm
-		})
 		if (t[0] > 0 and t[0] < 1) or (t[1] > 0 and t[1] < 1):
 			return True
 		return False
 
-	def handle_player_collisions(self, players, next_position):
-		for i in players:
-			player = players[i]
-			if self.has_wall_intersection(player.get_sides(), next_position):
-				print("Collision with player")
-				if self.debug:
-					self.has_wall_collision = True
-					self.wall_collisionned.append(player.get_sides())
-				P = np.array(player.get_center())
-				O = np.array(next_position)
-				new_direction = O - P # <3
-				return [new_direction[0], new_direction[1]]
-		return None
+	def is_inside_m_pilar(self, m_pilar):
+		for i in range(len(m_pilar)):
+			distance = distance_point_to_line(self.position, m_pilar[i], m_pilar[(i+1)%len(m_pilar)])
+			if distance > M_PILAR_SIZE * 2:
+				return False
+		return True

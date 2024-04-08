@@ -119,6 +119,14 @@ def render_game(state):
 				1
 			)
 
+	middle_pilar = state.get('middle_pilar', [])
+	for i in range(0, len(middle_pilar) + 1):
+		pygame.draw.line(screen, RED,
+			(middle_pilar[i%len(middle_pilar)][0], middle_pilar[i%len(middle_pilar)][1]),
+			(middle_pilar[(i+1)%len(middle_pilar)][0], middle_pilar[(i+1)%len(middle_pilar)][1]),
+			1
+		)
+
 	players = state['players']
 	for player in players:
 		pygame.draw.line(screen, GREEN,
@@ -155,6 +163,7 @@ if __name__ == '__main__':
 	engine = GameEngine(1, [
 		{'player_id':0},
 		{'player_id':1},
+		{'player_id':2},
 		], state)
 	engine.start()
 	while not engine.is_ready():
@@ -167,7 +176,7 @@ if __name__ == '__main__':
 	clock = pygame.time.Clock()
 
 	while True:
-		if render_game(state) == 1:
+		if render_game(state) == 1 or state['end']:
 			break
 		clock.tick(FPS)
 	pygame.quit()
