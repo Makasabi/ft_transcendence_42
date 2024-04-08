@@ -1,6 +1,5 @@
-import { createNotificationSocket } from "/front/pages/notif/NotifView.js";
-import { route } from "/front/pages/spa_router.js";
-import { IView } from "/front/pages/IView.js";
+import { route } from "../spa_router.js";
+import { IView } from "../IView.js";
 
 				/*** Cookies ***/
 export function setCookie(name, value, days)
@@ -25,7 +24,7 @@ export function deleteCookie(name)
 
 /*** Render ***/
 export class UnloggedHeaderView extends IView {
-	static async render() {
+	async render() {
 		fetch("/front/pages/login/header.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("header").innerHTML = html);
@@ -40,7 +39,7 @@ export class Forty2View extends IView
 		return route === "/forty2";
 	}
 
-	static async render()
+	async render()
 	{
 		const list_params = new URLSearchParams(window.location.search);
 		if (list_params.get('code'))
@@ -57,7 +56,7 @@ export class GoogleView extends IView
 	{
 		return route === "/google";
 	}
-	static async render()
+	async render()
 	{
 		const list_params = new URLSearchParams(window.location.search);
 		console.log("Google response params: ");
@@ -75,7 +74,7 @@ export class LoginView extends IView
 		return route === "/login";
 	}
 
-	static async render() {
+	async render() {
 		await fetch("/front/pages/login/login.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
@@ -125,7 +124,7 @@ export class SignupView extends IView
 		return route === "/signup";
 	}
 
-	static async render() {
+	async render() {
 		await fetch("/front/pages/login/signup.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
@@ -146,32 +145,21 @@ export class SignupView extends IView
 
 export class UsernameView extends IView
 {
-	set route(new_route)
-	{
-		this.route = new_route;
-	}
-
-	get route()
-	{
-		return this.route;
-	}
-
 	static match_route(route)
 	{
 		const regex = /^\/username\b/;
 		if (route.match(regex))
 		{
-			this.route = route;
 			return true;
 		}
 		return false;
 		//return route.match(regex);//route === "/username";
 	}
 
-	static async render()
+	async render()
 	{
 		const regex = /^\/username\/([^\/]+)$/;
-		const match = this.route.match(regex);
+		const match = window.location.pathname.match(regex);
 		if (!match)
 			return ;
 		await fetch("/front/pages/login/username.html")
@@ -202,10 +190,7 @@ export async function is_logged()
 		headers: { 'Authorization': `Token ${token}` }
 	}).then(response => {
 		if (response.ok)
-		{
-			createNotificationSocket();
 			return true;
-		}
 		else
 			return false;
 	}).catch(error => {
@@ -232,12 +217,11 @@ async function login(username, password)
 				});
 			}
 		})
-		.then(data => {
+		.then(async data => {
 			console.log("token: ", data.token);
 			console.log("user: ", data.user);
 			setCookie("token", data.token, 1);
-			route("/home");
-			// createNotificationSocket(username);
+			await route("/home");
 			return true;
 		})
 		.catch(error => {
@@ -268,7 +252,7 @@ async function signup(username, password, email)
 				});
 			}
 		})
-		.then(data =>
+		.then(async data =>
 		{
 			if (!data)
 				return ;
@@ -276,10 +260,9 @@ async function signup(username, password, email)
 			{
 				console.log("Registration successfull!");
 				console.log("token : ", data.token);
-				console.log("user : ", data.user);
+ 				console.log("user : ", data.user);
 				setCookie("token", data.token, 1);
-				route("/home");
-				// createNotificationSocket(username);
+				await route("/home");
 			}
 		})
 		.catch(error => {
@@ -377,11 +360,10 @@ export async function forty2_callback()
 	try
 	{
 		const reg = await is_registered(email);
-		// createNotificationSocket(username);
 		if (!reg)
-			route("/username/forty2");
+			await route("/username/forty2");
 		else
-			route("/home");
+			await route("/home");
 	}
 	catch(error)
 	{

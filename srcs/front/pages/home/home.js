@@ -1,12 +1,27 @@
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
-import { createRoomForm, joinRoomForm } from "/front/pages/room/room.js";
+import { createRoomForm, joinRoomForm } from "/front/pages/room/roomUtils.js";
+import { NotifView, createNotificationSocket } from "../notif/NotifView.js";
+import * as Login from "/front/pages/login/login.js";
 
 export class LoggedHeaderView extends IView {
-	static async render() {
-		fetch("/front/pages/home/header.html")
+	async render() {
+		let header_promise = fetch("/front/pages/home/header.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("header").innerHTML = html);
+			
+		let user = await fetch("/api/user_management/me", {
+			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+		}).then(response => response.json())
+		await header_promise;
+
+		this.notifSocket = createNotificationSocket(user.username);
+		new NotifView().render();
+	}
+
+	destroy() {
+		if (this.notifSocket)
+			this.notifSocket.close();
 	}
 }
 
@@ -15,7 +30,7 @@ export class HomeView extends IView {
 		return route === "/home";
 	}
 
-	static async render() {
+	async render() {
 		await fetch("/front/pages/home/home.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
@@ -45,7 +60,7 @@ export class HomeView extends IView {
 		joinRoomForm(); // from room.js
 	}
 
-	static destroy() {
+	destroy() {
 	}
 }
 

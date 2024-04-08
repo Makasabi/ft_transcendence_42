@@ -8,7 +8,7 @@ export class GameObject {
 		this.model = model;
 	}
 
-	update(delta_time) {
+	update(state) {
 	}
 
 	get position() {

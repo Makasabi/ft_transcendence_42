@@ -97,13 +97,27 @@ def edit_profile(request):
 
 # function to get a specific user
 @api_view(['GET'])
-def user(request, username):
+def user_username(request, username):
 	"""
 	Return a user from the database
 
 	json response format:
 	"""
 	user = Player.objects.filter(username=username).first()
+	if user is None:
+		return JsonResponse({'error': 'User not found'}, status=404)
+	return JsonResponse(profile_serializer(user))
+
+# function to get a specific user
+@api_view(['GET'])
+def user_id(request, id):
+	"""
+	Return a user from the database
+
+	json response format:
+	"""
+	print("user id is", id)
+	user = Player.objects.filter(id=id).first()
 	if user is None:
 		return JsonResponse({'error': 'User not found'}, status=404)
 	return JsonResponse(profile_serializer(user))

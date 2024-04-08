@@ -13,3 +13,6 @@ class Occupy(models.Model):
 	room_id = models.ForeignKey(Rooms, on_delete=models.CASCADE)
 	player_id = models.IntegerField()
 	is_master = models.BooleanField(default=False)
+
+	def __str__(self):
+		return f"Room {self.room_id} occupied by {self.player_id}"

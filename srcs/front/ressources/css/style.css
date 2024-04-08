@@ -2,7 +2,7 @@
 	--secondary-color: #4d00ff;		/* hex: #4d00ff rgba(77, 0, 255, 1)*/
 	--primary-color: #7b74ff;			/* hex: #7b74ff rgba(123, 116, 255, 1)  */
 	--hover-primary-color: #4d49a7;	/* hex: #4d49a7 rgba(77, 73, 167, 1)  */
-	--transparent-primary: #7b74ff66 ;	/* hex: #7b74ff66 rgba(123, 116, 255, 0.4) */
+	--transparent-primary: #7b74ff66;	/* hex: #7b74ff66 rgba(123, 116, 255, 0.4) */
 
 	--light: #dedede; 					/* hex: #dedede rgb(222, 222, 222)*/
 	--grey: #878787; 					/* hex: #868686 rgb(135, 135, 135)*/
@@ -59,7 +59,7 @@
 }
 
 .centered_box h1 {
-	font-size: 50px;
+	font-size: 50px; 
 	font-weight: 700;
 	text-align: center;
 	color:var(--primary-color);

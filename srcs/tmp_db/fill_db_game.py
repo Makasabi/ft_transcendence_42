@@ -22,7 +22,7 @@ def create_game(users):
 	# Create a new game with the current date and time
 	mode = random.choice(['Normal', 'Tournament'])
 	visibility = random.choice(['public', 'private'])
-	game = Game.objects.create(date=timezone.now(), mode=mode, visibility=visibility)
+	game = Game.objects.create(mode=mode, visibility=visibility)
 	users_list = list(users)
 	random.shuffle(users_list)
 	num_players = random.randint(2, 6)

@@ -31,22 +31,30 @@ form button:hover {
 	transition: ease-in-out 0.1s;
 }
 
-.purple_cta {
+.cta {
 	margin: inherit;
 	padding: 1vh;
 	font-weight: 700;
 	border-radius: 10px;
-	background-color: var(--primary-color);
 	color: white;
 	border: none;
 	width: 70%;
 	cursor: pointer;
 }
 
+.purple_cta {
+	background-color: var(--primary-color);
+}
 .purple_cta:hover {
 	background-color: var(--hover-primary-color);
 	transition: ease-in-out 0.1s;
 }
+
+.grey_cta {
+	background-color: var(--grey);
+	cursor: not-allowed;
+}
+
 
 
 .gsi-material-button {

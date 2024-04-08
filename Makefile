@@ -4,6 +4,12 @@ run:
 	@if [ ! -e "srcs/db.sqlite3" ]; then echo "\033[93mPlease run the migrate command first. Check the README.md for some help ;)\033[0m"; exit 1; fi
 	venv/bin/python3 srcs/manage.py runserver
 
+redis:
+	docker run --rm -p 7999:6379 redis:7
+
+runworker:
+	venv/bin/python3 srcs/manage.py runworker game_consumer
+
 init:
 	-make create_venv
 	-make update_venv
@@ -47,6 +53,8 @@ fill_db:
 	@venv/bin/python3 srcs/tmp_db/fill_db_users.py srcs/tmp_db/db_users.csv
 	@venv/bin/python3 srcs/tmp_db/fill_db_game.py
 	@venv/bin/python3 srcs/tmp_db/fill_table_friends.py
+	@venv/bin/python3 srcs/tmp_db/fill_db_room.py srcs/tmp_db/room_db.csv
+	@venv/bin/python3 srcs/tmp_db/fill_db_occupy.py srcs/tmp_db/occupy_db.csv
 
 clear_db:
 	@venv/bin/python3 srcs/tmp_db/clear_db.py

@@ -16,6 +16,7 @@ from .TokenAuthenticationMiddleware import TokenAuthMiddleware
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.urls import path
 from notification.consumers import NotificationConsumer
+from game.player_consumer import PlayerConsumer
 from game.game_consumer import GameConsumer
 from rooms.consumers import RoomConsumer
 
@@ -28,11 +29,11 @@ application = ProtocolTypeRouter({
 			URLRouter([
 				path('ws/notif/<str:username>', NotificationConsumer.as_asgi()),
 				path('ws/room/<int:room_id>', RoomConsumer.as_asgi()),
-				path('ws/game/<str:code>', GameConsumer.as_asgi()),
+				path('ws/game/<int:game_id>', PlayerConsumer.as_asgi()),
 			])
 		)
 	),
 	"channel": ChannelNameRouter({
-		"game_engine": GameConsumer.as_asgi(),
+		"game_consumer": GameConsumer.as_asgi(),
 	}),
 })

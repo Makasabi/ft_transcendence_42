@@ -21,8 +21,6 @@ def create_notif(request, type, target):
 	"""
 	user1 = request.user
 
-	print(f'{user1} added {target} as friend')
-
 	# get target user infos
 	url = f"http://localhost:8000/api/user_management/user/{target}"
 	token = request.COOKIES.get('token')
@@ -33,19 +31,20 @@ def create_notif(request, type, target):
 	create_send_notification(user1, target.json(), type)
 	return JsonResponse({'message': 'Notification sent'})
 
-# get unread notifs ?
+
 @api_view(['GET'])
-def get_notifs(request):
+def get_notifs(request, type):
 	"""
 	Return all notifications for the user
 	"""
 	user_id = request.user.id
-	# from IsNotified, check all notifications for the user AND is_seen = False
-	notifs = Notification.objects.filter(isnotified__user_id=user_id, isnotified__notif__is_seen=False)
-	print(notifs)
 	notif_json = []
+	if (type == 'unseen'):
+		notifs = Notification.objects.filter(isnotified__user_id=user_id, isnotified__notif__is_seen=False)
+	elif (type == 'all'):
+		notifs = Notification.objects.filter(isnotified__user_id=user_id)
 	for notif in notifs:
-		notif_json.append({'type': notif.type, 'date': notif.date})
+		notif_json.append({'type': notif.type, 'date': notif.date, 'message': notif.message, 'is_seen': notif.is_seen})
 	return JsonResponse(notif_json, safe=False)
 
 
@@ -53,12 +52,13 @@ def create_send_notification(user, target, type):
 	"""
 	Create a new notification for a user
 	"""
-	notif = Notification.objects.create(type=type)
+	message = build_message(user.username, type)
+	notif = Notification.objects.create(type=type, message=message)
 
 	UserNotifies.objects.create(user_id=user.id, notif=notif)
 	IsNotified.objects.create(user_id=target['id'], notif=notif)
 
-	message = build_message(user.username, type)
+	# print(f'Notification created: {message}')
 	channel_layer = get_channel_layer()
 	async_to_sync(channel_layer.group_send)(
 		'notif_group',
@@ -96,3 +96,15 @@ def build_message(user, type):
 	# elif type == 'game_down':
 	# 	message = f'{user} is down'
 	return message
+
+@api_view(['POST'])
+def set_seen(request):
+	"""
+	Set all notifications as seen
+	"""
+	notifs = IsNotified.objects.filter(user_id=request.user.id)
+	# print(notifs)
+	for notif in notifs:
+		notif.notif.is_seen = True
+		notif.notif.save()
+	return JsonResponse({'message': 'Notification seen'})
