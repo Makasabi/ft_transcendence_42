@@ -1,6 +1,6 @@
 import math
 
-from constants import PLAYER_WIDTH, PLAYER_LENGTH, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED
+from .constants import PLAYER_WIDTH, PLAYER_LENGTH, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED
 
 class Player:
 	def __init__(self, player_id, border, debug):

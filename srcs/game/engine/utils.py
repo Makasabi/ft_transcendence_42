@@ -1,4 +1,4 @@
-from constants import CENTER_X, CENTER_Y
+from .constants import CENTER_X, CENTER_Y
 import math
 
 cosPiSur3 = math.cos(math.pi / 3)

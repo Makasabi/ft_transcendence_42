@@ -6,10 +6,10 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from time import sleep, time
 
-from Ball import Ball
-from Player import Player
-from constants import ARENA_HEIGHT, ARENA_WIDTH, FPS, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED, CENTER_X, CENTER_Y
-from utils import get_hexagon_borders, get_arena_pilars, get_players_arrangement, rotate, get_middle_pilar
+from .Ball import Ball
+from .Player import Player
+from .constants import ARENA_HEIGHT, ARENA_WIDTH, FPS, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED, CENTER_X, CENTER_Y
+from .utils import get_hexagon_borders, get_arena_pilars, get_players_arrangement, rotate, get_middle_pilar
 
 class GameEngine(threading.Thread):
 	# INITIALIZATION

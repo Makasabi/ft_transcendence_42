@@ -1,6 +1,12 @@
-from GameEngine import GameEngine
-from time import sleep
 import pygame
+import sys
+import os
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
+from engine.GameEngine import GameEngine
+from time import sleep
 
 """
 state = {
