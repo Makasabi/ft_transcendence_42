@@ -1,5 +1,6 @@
 import { GameContext } from "/front/pages/game/scripts/pong.js";
 import { IView } from "/front/pages/IView.js";
+import { route } from "/front/pages/spa_router.js"
 
 export class GameView extends IView {
 	static match_route(route) {
@@ -24,16 +25,15 @@ export class GameView extends IView {
 		await fetch("/front/pages/game/game.html").then(response => response.text()).then(html => {
 			main.innerHTML = html;
 			main_set = true;
-
 		});
 
-		let stylesheet = document.createElement("link");
-		stylesheet.rel = "stylesheet";
-		stylesheet.href = "/front/pages/game/style.css";
-		stylesheet.onload = () => {
+		this.stylesheet = document.createElement("link");
+		this.stylesheet.rel = "stylesheet";
+		this.stylesheet.href = "/front/pages/game/style.css";
+		this.stylesheet.onload = () => {
 			ready_state++;
 		};
-		document.head.appendChild(stylesheet);
+		document.head.appendChild(this.stylesheet);
 
 		//let script = document.createElement("script");
 		//script.src = "/front/pages/game/scripts/pong.js";
@@ -51,10 +51,12 @@ export class GameView extends IView {
 
 		try {
 			const game_id = document.URL.split("/")[4];
-			let game = new GameContext(game_id);
+			this.game = new GameContext(game_id);
 
-			await game.load();
-			game.run();
+			await this.game.load();
+			await this.game.start();
+			// @TODO take results and redirect to the room
+			route("/home");
 		}
 		catch (e) {
 			console.error("Game error", e);
@@ -62,5 +64,7 @@ export class GameView extends IView {
 	}
 
 	destroy() {
+		this.game.destroy();
+		this.stylesheet.remove();
 	}
 }

@@ -9,12 +9,10 @@ const BALL_SIZE = 0.4;
 export class GameContext {
 	rendering_context;
 	websocket;
-	state = {};
 	game_objects;
 	arena;
 	ball;
 	player;
-	keys = {};
 	last_time = performance.now();
 	end = false;
 
@@ -22,6 +20,17 @@ export class GameContext {
 		this.rendering_context = new RenderingContext();
 		this.game_objects = [];
 
+		this.attribute_websocket(game_id);
+		this.events(this);
+	}
+
+	destroy() {
+		console.log("GameContext.destroy");
+		this.websocket.close();
+		this.end = true;
+	}
+
+	attribute_websocket(game_id) {
 		this.websocket = new WebSocket(
 			'ws://'
 			+ window.location.host
@@ -43,15 +52,14 @@ export class GameContext {
 			this.end = true;
 		};
 
+		let game = this;
 		this.websocket.onmessage = function(e) {
 			const data = JSON.parse(e.data);
 			const type = data.type;
 			if (type === "update") {
-				console.log("Game update", data);
-				this.state = data;
+				game.state = data;
 			}
 		};
-		this.events(this);
 	}
 
 	events(game) {
@@ -77,60 +85,46 @@ export class GameContext {
 			rotate_view(game);
 		});
 
+		const socket = this.websocket;
 		document.addEventListener("keydown", function(event) {
 			//console.log(event.key);
 			if (event.key == "ArrowLeft" || event.key == "q" || event.key == "a" || event.key == "Q" || event.key == "A") {
 				//console.log("DOWN left");
-				game.keys.left = true;
+				socket.send("left_pressed");
 			}
 			else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
 				//console.log("DOWN right");
-				game.keys.right = true;
+				socket.send("right_pressed");
 			}
 			else if (event.key == "Shift") {
 				//console.log("DOWN turbo");
-				game.keys.turbo = true;
+				socket.send("sprint_pressed");
 			}
 		});
 
 		document.addEventListener("keyup", function(event) {
 			if (event.key == "ArrowLeft" || event.key == "q" || event.key == "a" || event.key == "Q" || event.key == "A") {
 				//console.log("UP left");
-				game.keys.left = false;
+				socket.send("left_released");
 			}
 			else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
 				//console.log("UP right");
-				game.keys.right = false;
+				socket.send("right_released");
 			}
 			else if (event.key == "Shift") {
 				//console.log("UP turbo");
-				game.keys.turbo = false;
+				socket.send("sprint_released");
 			}
 		});
 	}
 
 	async load() {
 		let model_file;
-		let model;
 		let object;
-
-		//model_file = await fetch("/front/pages/game/models/square.json");
-		//model = await model_file.json();
-
-		//object = new GameObject(model);
-		//object.scale = [5, 5, 5];
-		//this.game_objects.push(object);
-
-
-		//model_file = await fetch("/front/pages/game/models/ground.json");
-		//model = await model_file.json();
-
-		//object = new GameObject(model);
-		//object.scale = [5, 5, 5];
-		//this.game_objects.push(object);
+		this.models = {};
 
 		model_file = await fetch("/front/pages/game/models/arena.json");
-		model = await model_file.json();
+		this.models.arena = await model_file.json();
 
 		this.arena = new GameObject(model);
 		this.arena.scale = [15, 15, 15];
@@ -176,7 +170,7 @@ export class GameContext {
 		model_file = await fetch("/front/pages/game/models/paddle.json");
 		model = await model_file.json();
 
-		object = new Player(model, this.keys);
+		object = new Player(model);
 		object.rotation = [0, Math.PI, 0];
 		object.position = [0, 0, 13];
 		object.scale = [1, 0.5, 1];
@@ -193,24 +187,31 @@ export class GameContext {
 	}
 
 	game_loop() {
-		let now = performance.now();
-		let delta_time = (now - this.last_time) / 1000;
-		this.last_time = now;
+		//let now = performance.now();
+		//let delta_time = (now - this.last_time) / 1000;
+		//this.last_time = now;
 
-		this.game_objects.forEach(object => object.update(delta_time));
+		if (this.state === undefined)
+			return false;
+		//console.log("GameContext.state", this.state);
+		this.game_objects.forEach(object => object.update(this.state));
+		return true;
 	}
 
 	run() {
-		//console.log("GameContext.state", this.state);
-		this.game_loop();
+		if (this.game_loop())
+		{
+			this.rendering_context.clear();
+			this.rendering_context.draw_object(this.arena);
+			this.game_objects.forEach(object => this.rendering_context.draw_object(object));
+			this.rendering_context.draw_origins();
+		}
+		else
+			console.log("GameContext.state is undefined");
 
-		this.rendering_context.clear();
-		this.rendering_context.draw_object(this.arena);
-		this.game_objects.forEach(object => this.rendering_context.draw_object(object));
-		this.rendering_context.draw_origins();
-
-		if (!this.end)
-			requestAnimationFrame(this.run.bind(this));
+		if (this.end)
+			return;
+		requestAnimationFrame(this.run.bind(this));
 
 		//function wait(ms){
 		//	var start = new Date().getTime();
@@ -221,6 +222,12 @@ export class GameContext {
 		//}
 		// random wait to simulate a slower game
 		//wait(Math.random() * 100);
+	}
+
+	async start() {
+		this.run();
+		while (!this.end)
+			await new Promise(resolve => setTimeout(resolve, 300));
 	}
 }
 

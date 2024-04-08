@@ -31,19 +31,16 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 	async def game_update(self, event):
 		state = event["state"]
 		state["type"] = "update"
-		print(f"PlayerConsumer.game_update: {self.game_id}", state)
 		await self.send(json.dumps(state))
 
 	async def receive(self, text_data=None, bytes_data=None):
-		print("PlayerConsumer.receive")
-		text_data_json = json.loads(text_data)
 		await self.channel_layer.send(
 			self.group_send,
 			{
 				"type": "input",
 				"game_id": self.game_id,
 				"player_id": self.user.id,
-				"input": text_data_json,
+				"input": text_data,
 			},
 		)
 

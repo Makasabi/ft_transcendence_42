@@ -11,12 +11,9 @@ export class Player extends GameObject {
 		this.keys = keys;
 	}
 
-	update(delta_time) {
-		if (this.keys.left && !this.keys.right && this.position[0] > -MOVING_RANGE) {
-			this.position[0] -= PLAYER_SPEED * delta_time * (this.keys.turbo ? 2 : 1);
-		}
-		if (this.keys.right && !this.keys.left && this.position[0] < MOVING_RANGE) {
-			this.position[0] += PLAYER_SPEED * delta_time * (this.keys.turbo ? 2 : 1);
-		}
+	update(state) {
+		const player = state.player;
+
+		//console.log("Player.update", player);
 	}
 }
