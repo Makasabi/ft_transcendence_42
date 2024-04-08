@@ -29,10 +29,10 @@ export class GameContext {
 			+ game_id,
 		);
 
-		if (this.websocket.error) {
-			console.error("Error creating game socket");
-			return;
-		}
+		this.websocket.onerror = function(e) {
+			console.log('Game socket error:', e);
+			this.end = true;
+		};
 
 		this.websocket.onopen = function() {
 			console.log('Game socket open');

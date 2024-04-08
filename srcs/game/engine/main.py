@@ -158,10 +158,7 @@ def render_game(state):
 if __name__ == '__main__':
 	state = {}
 
-	engine = GameEngine(1, [
-		{'player_id':0},
-		{'player_id':1},
-		], state)
+	engine = GameEngine(1, [0, 1], state)
 	engine.start()
 	while not engine.is_ready():
 		sleep(1/30)

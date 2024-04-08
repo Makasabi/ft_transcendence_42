@@ -7,6 +7,8 @@ from rooms.models import Rooms, Occupy
 import random
 import string
 
+# TODO: Implement serialiser for rooms
+
 # Create your views here.
 @api_view(['POST'])
 def create_room(request):
@@ -111,3 +113,24 @@ def roomInfo(request, roomCode):
 		room_data['visibility'] = Rooms.objects.get(code=code).visibility
 
 	return JsonResponse(room_data)
+
+@api_view(['GET'])
+def roomPlayers(request, room_id):
+	"""
+	Get players in a room
+
+	Args:
+	- request: Request object
+	- room_id: Room id
+
+	Returns:
+	- players: List of players in the room
+	"""
+	players = []
+
+	if Occupy.objects.filter(room_id=room_id).exists():
+		occupants = Occupy.objects.filter(room_id=room_id)
+		for occupant in occupants:
+			players.append(occupant.player_id)
+
+	return JsonResponse({'players_ids': players})

@@ -6,9 +6,12 @@ from user_management.models import Player
 
 class Game(models.Model):
 	game_id = models.AutoField(primary_key=True)
-	mode = models.CharField(max_length=50)
-	visibility = models.CharField(max_length=50)
-	date = models.DateField(default=timezone.now)
+	room_id = models.IntegerField(default=-1)
+	mode = models.CharField(max_length=50, default='Normal')
+	visibility = models.CharField(max_length=50, default='Public')
+	date_begin = models.DateField(default=timezone.now)
+	date_end = models.DateField(null=True)
+	end_status = models.CharField(max_length=50, null=True)
 
 class Play(models.Model):
 	score = models.IntegerField(default=0)

@@ -51,7 +51,8 @@ class Ball:
 				self.position[0] + new_dir[0] * self.speed * timestamp * speed_factor,
 				self.position[1] + new_dir[1] * self.speed * timestamp * speed_factor
 			]
-			self.next_positions.append(next_position)
+			if self.debug:
+				self.next_positions.append(next_position)
 
 			new_dir = self.handle_walls_collisions(walls, next_position)
 
@@ -104,10 +105,11 @@ class Ball:
 			return False
 		t = [(-b + math.sqrt(delta)) / (2 * a), (-b - math.sqrt(delta)) / (2 * a)]
 		d_norm = np.linalg.norm(d)
-		self.collision_infos.append({
-			't': t,
-			'd_norm': d_norm
-		})
+		if self.debug:
+			self.collision_infos.append({
+				't': t,
+				'd_norm': d_norm
+			})
 		if (t[0] > 0 and t[0] < 1) or (t[1] > 0 and t[1] < 1):
 			return True
 		return False
@@ -116,7 +118,6 @@ class Ball:
 		for i in players:
 			player = players[i]
 			if self.has_wall_intersection(player.get_sides(), next_position):
-				print("Collision with player")
 				if self.debug:
 					self.has_wall_collision = True
 					self.wall_collisionned.append(player.get_sides())

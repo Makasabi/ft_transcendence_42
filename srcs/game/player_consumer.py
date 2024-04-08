@@ -3,18 +3,23 @@ import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 from game.models import Game
+from channels.db import database_sync_to_async
 
 class PlayerConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
-		print("PlayerConsumer.connect")
 		self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
-		if Game.objects.filter(id=self.game_id).count() == 0:
-			await self.close()
+		def check_game_id(game_id):
+			return Game.objects.filter(game_id=game_id).count()
+		if await database_sync_to_async(check_game_id)(self.game_id) == 0:
+			print("PlayerConsumer.connect: Game not found")
+			return
+		print(f"PlayerConsumer.connect: {self.game_id}")
 		self.group_name = f"game_{self.game_id}"
 		self.group_send = f"game_consumer"
 		self.user = self.scope["user"]
 		if self.user.is_anonymous:
-			await self.close()
+			print("PlayerConsumer.connect: Anonymous user")
+			return
 		# @TODO: Verify the player is in the game
 
 		# Join room group
@@ -44,6 +49,8 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
 	async def disconnect(self, close_code):
 		# Leave room group
+		if not hasattr(self, "group_name"):
+			return
 		await self.channel_layer.group_discard(
 			self.group_name, self.channel_name
 		)

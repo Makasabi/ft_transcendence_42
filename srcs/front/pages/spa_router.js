@@ -4,32 +4,48 @@ import { UserView } from "./user_mgt/UserView.js";
 import * as login from "./login/login.js";
 import { GameView } from "./game/GameView.js";
 import { UnloggedHeaderView, LoginView, SignupView, Forty2View } from "./login/login.js";
-import { FullRoomView, UnknownRoomView, createRoomView, } from "./room/room.js";
 import { RoomView } from "./room/RoomView.js";
+import { FullRoomView } from "./room/FullRoomView.js";
+import { UnknownRoomView } from "./room/UnknownRoomView.js";
+import { CreateRoomView } from "./room/CreateRoomView.js";
+
+/*** Views ***/
+var view = null;
+
+const loggedViews = [
+	HomeView,
+	MeView,
+	GameView,
+	CreateRoomView,
+	RoomView,
+	UnknownRoomView,
+	FullRoomView,
+	UserView,
+];
+
+const unloggedViews = [
+	LoginView,
+	SignupView,
+	Forty2View,
+	login.GoogleView,
+	login.UsernameView,
+];
 
 	/*** Utilities ***/
-export function route(path, event=null)
+export async function route(path, event=null)
 {
 	if (event)
 		event.preventDefault();
 	window.history.pushState({}, "", path);
-	handleLocation();
+	await handleLocation();
 }
 
-function handleUnloggedLocation()
+async function handleLocationViews(views, defaultRoute)
 {
-	const views = [
-		LoginView,
-		SignupView,
-		Forty2View,
-		login.GoogleView,
-		login.UsernameView,
-	];
-
 	const match = views.filter(view => view.match_route(window.location.pathname));
 	if (match.length === 0) {
 		console.warn("No route matches the path:", window.location.pathname);
-		route("/login");
+		route(defaultRoute);
 		return;
 	}
 	if (match.length > 1)
@@ -37,63 +53,42 @@ function handleUnloggedLocation()
 		console.warn("Multiple routes match the same path:", window.location.pathname);
 		return;
 	}
-	match[0].render();
+	console.log("this is the current view:", view);
+	if (view)
+		view.destroy();
+	view = new match[0]();
+	await view.render();
 }
 
-async function handleLoggedLocation()
-{
-	const views = [
-		HomeView,
-		MeView,
-		GameView,
-		createRoomView,
-		RoomView,
-		UnknownRoomView,
-		FullRoomView,
-		UserView,
-	];
-
-	const match = views.filter(view => view.match_route(window.location.pathname));
-	if (match.length === 0) {
-		console.warn("No route matches the path:", window.location.pathname);
-		route("/home");
-		return;
-	}
-	if (match.length > 1)
-	{
-		console.warn("Multiple routes match the same path:", window.location.pathname);
-		return;
-	}
-	match[0].render();
-}
-
-function handleLocation()
+async function handleLocation()
 {
 	var was_logged;
 
-	login.is_logged().then(is_logged => {
+	await login.is_logged().then(async (is_logged) => {
 		console.log("is_logged", is_logged);
 		if (was_logged !== is_logged)
-			update_header(is_logged);
+			await update_header(is_logged);
 		if (is_logged)
 		{
-			handleLoggedLocation();
+			await handleLocationViews(loggedViews, "/home");
 			was_logged = true;
 		}
 		else
 		{
-			handleUnloggedLocation();
+			await handleLocationViews(unloggedViews, "/login");
 			was_logged = false;
 		}
 	});
 }
 
-function update_header(is_logged)
+async function update_header(is_logged)
 {
-	if (is_logged)
-		LoggedHeaderView.render();
-	else
-		UnloggedHeaderView.render();
+	var headerView = null;
+
+	if (headerView)
+		headerView.destroy();
+	headerView = new (is_logged ? LoggedHeaderView : UnloggedHeaderView)();
+	await headerView.render();
 }
 
 /*** Events ***/
@@ -109,29 +104,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	let tag = this.querySelector("header");
 	let parent = tag.parentNode;
 	parent.insertBefore(document.getElementsByClassName("particles-js-canvas-el")[0], tag);
-});
-
-document.querySelector("main").addEventListener("click", async (e) => {
-	switch (e.target.id)
-	{
-		case "submit-signup":
-			login.signup_event(e);
-			break;
-		case "forty2-auth-btn":
-			login.forty2_signup_event(e);
-			break;
-		case "google-auth-btn":
-			e.preventDefault();
-			login.google_signup_event(e);
-			break;
-		case "submit-username":
-			login.username_event(e);
-			break;
-		case "not-registered":
-			e.preventDefault();
-			route(e.target.href);
-			break;
-	}
 });
 
 document.route = route;

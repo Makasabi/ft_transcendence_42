@@ -20,6 +20,7 @@ class GameEngine(threading.Thread):
 		else:
 			self.debug = True
 		self.is_stop = False
+		self.game_id = game_id
 		self.state = state
 
 		arena_borders = get_hexagon_borders(ARENA_WIDTH // 2)
@@ -33,7 +34,7 @@ class GameEngine(threading.Thread):
 			if side == -1:
 				self.walls.append(arena_borders[i])
 			else:
-				self.players[players[side]['player_id']] = Player(players[side]['player_id'], arena_borders[i], self.debug)
+				self.players[players[side]] = Player(players[side], arena_borders[i], self.debug)
 
 		self.collisions_walls = list(self.walls)
 		for pilar in self.pilars:
@@ -140,7 +141,7 @@ class GameEngine(threading.Thread):
 			"game_consumer",
 			{
 				"type": "game.update",
-				"game_id": state.game_id,
-				"state": state_json
+				"game_id": self.game_id,
+				"state": state_json,
 			}
 		)

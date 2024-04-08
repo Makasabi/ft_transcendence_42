@@ -1,7 +1,7 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
-import { checkRoomCode } from "/front/pages/room/room.js";
+import { checkRoomCode, addPlayer, removePlayer, updatePlayer } from "/front/pages/room/roomUtils.js";
 
 /**
  * RoomView class
@@ -23,19 +23,15 @@ export class RoomView extends IView {
 	 * if roomcode is valid, it renders the room page
 	 * TODO: else it redirects to unknown room code view -> explaining that the room code is either invalid or the room has been closed since.
 	 */
-	static async render() {
+	async render() {
+
 		let code = document.URL.split("/")[4];
-		checkRoomCode(code)
-			.then(roomCheck => {
-				if (roomCheck.status === false) {
-					route("/unknown");
-				}
-				console.log("Room status: ", roomCheck.status);
-			})
-			.catch(error => {
-				console.error('Error checking room availability:', error);
-				route("/unknown");
-			});
+		let roomExists = await checkRoomCode(code);
+		if (roomExists === false) {
+			route("/unknown");
+			return;
+		}
+
 		let roomInfo = await fetch(`/api/rooms/info/${code}`, {
 			headers: {
 				'Authorization': `Token ${Login.getCookie('token')}`,}}).then(response => response.json());
@@ -45,7 +41,7 @@ export class RoomView extends IView {
 		html = html.replace("{{roomCode}}", roomInfo.code);
 		document.querySelector("main").innerHTML = html;
 
-		const roomSocket = createRoomSocket(roomInfo.room_id);
+		this.roomSocket = createRoomSocket(roomInfo.room_id);
 
 		await document.getElementById("start").addEventListener("click", () => {
 			console.log("Starting game");
@@ -58,16 +54,28 @@ export class RoomView extends IView {
 				body: JSON.stringify({
 					"room_id": roomInfo.room_id,
 				}),
-			}).then(response => {
+			}).then(async response => {
 				if (response.status === 200) {
-					roomSocket.send(JSON.stringify({
-						"type": "start"
-					}));
+					const data = await response.json();
+					const to_send = JSON.stringify({
+						"type": "start",
+						"message": "Game starting",
+						"game_id": data.game_id,
+					})
+					console.log("Sending message to start game:", to_send);
+					this.roomSocket.send(to_send);
 				} else {
 					console.error("Error starting game");
 				}
 			})
 		});
+	}
+
+	destroy() {
+		console.log("Destroying room view");
+		if (this.roomSocket) {
+			this.roomSocket.close();
+		}
 	}
 }
 
@@ -83,34 +91,62 @@ export function createRoomSocket(roomid) {
 		+ '/ws/room/'
 		+ roomid,
 	);
-	if (roomSocket.error) {
-		console.log('Error creating socket');
-		return;
-	}
+
+	roomSocket.onerror = function (e) {
+		console.log('Rooms - Socket error:', e);
+		route("/home");
+	};
 
 	// on socket open
 	roomSocket.onopen = function (e) {
-		console.log('Socket successfully connected.');
+		console.log('Rooms - Socket successfully connected.');
 	};
 
 	// on socket close
 	roomSocket.onclose = function (e) {
-		console.log('Socket closed unexpectedly');
-		route("/fullroom");
+		console.log('Rooms - Socket closing:', e.code, e.reason);
+		const code = e.code;
+		const reason = e.reason;
+		switch (code) {
+			case 1000:
+				console.log('Rooms - Socket closed normally');
+				break;
+			case 3001:
+				console.log('Room - is already full');
+				route("/fullroom");
+				break;
+			case 3002:
+				console.log('Rooms - Unauthentified user');
+				route("/home");
+				break;
+			default:
+				console.log(reason);
+		}
 	};
 
 	// on receiving message on group
 	roomSocket.onmessage = function (e) {
 		const data = JSON.parse(e.data);
 		const type = data.type;
-		const message = data.message;
-		// check if message is for the user
-		if (data.room === roomid) {
-			console.log('Message is for room:', roomid);
-		}
-		if (type === "start") {
-			console.log("Game starting");
-			route(`/game/${roomid}`);
+		switch (type) {
+			case 'new_player':
+				console.log('New player joined:', data.player_id);
+				addPlayer(data);
+				break;
+			case 'remove_player':
+				console.log('Player left:', data.player_id);
+				removePlayer(data);
+				break;
+			case 'update_player':
+				console.log('Player updated:', data.player_id);
+				updatePlayer(data);
+				break;
+			case 'start':
+				console.log('Game starting');
+				route(`/game/${data.game_id}`);
+				break;
+			default:
+				console.log('Unknown message type:', type);
 		}
 	};
 

@@ -15,12 +15,15 @@ django.setup()
 
 from user_management.models import Player
 from game.models import Game, Play
+from rooms.models import Rooms, Occupy
 
 # Now you can use Django models safely
 def clear_database():
     Player.objects.all().delete()
     Game.objects.all().delete()
     Play.objects.all().delete()
+    Rooms.objects.all().delete()
+    Occupy.objects.all().delete()
     print("All user and game records have been deleted successfully")
 
 if __name__ == "__main__":

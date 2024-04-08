@@ -5,7 +5,7 @@ from channels.generic.websocket import SyncConsumer
 from asgiref.sync import async_to_sync
 from game.models import Game
 
-from .engine import GameEngine
+from .engine.GameEngine import GameEngine
 
 class GameConsumer(SyncConsumer):
 	def __init__(self, *args, **kwargs):
@@ -16,22 +16,22 @@ class GameConsumer(SyncConsumer):
 		self.engines = {}
 
 	def game_start(self, event):
-		game = Game.objects.create()
-		game.save()
-		game_id = game.id
-		engine = GameEngine(game_id, []) # @TODO add players
+		game_id = event["game_id"]
+		player_ids = event["players"]
+		print(f"GameConsumer.game_start: {game_id}", player_ids)
+		engine = GameEngine(game_id, player_ids)
 		engine.start()
-		self.engines[game.game_id] = engine
+		self.engines[game_id] = engine
 
 	def game_update(self, event):
 		state = event["state"]
 		game_id = event["game_id"]
-		print(f"GameConsumer.game_update: {game_id}", state)
+		#print(f"GameConsumer.game_update: {game_id}", state)
 		async_to_sync(self.channel_layer.group_send)(f"game_{game_id}", {
 			"type": "game.update",
 			"state": state
 		})
-	
+
 	def input(self, event):
 		game_id = event["game_id"]
 		engine = self.engines[game_id]
