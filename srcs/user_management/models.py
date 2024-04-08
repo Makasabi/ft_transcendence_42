@@ -15,9 +15,7 @@ class Player(AbstractUser):
 	global_score = models.IntegerField(default=0)
 
 class BeFriends(models.Model):
-	# user1 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='user1')
-	# user2 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='user2')
-	# id instead of username
+
 	user1 = models.IntegerField()
 	user2 = models.IntegerField()
 	created_at = models.DateTimeField(auto_now_add=True)

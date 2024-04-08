@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from user_management.models import Player, BeFriends
 from game.models import Play
 from rest_framework.decorators import api_view
+from django.conf import settings
+import os
 
 def profile_serializer(user):
 	"""
@@ -94,6 +96,31 @@ def edit_profile(request):
 		user.set_password(request.data["password"])
 	user.save()
 	return JsonResponse(profile_serializer(user))
+
+
+@api_view(['POST'])
+def upload_avatar(request):
+	"""
+	Upload a new avatar for the user
+
+	Args:
+	- request: Request containing the new avatar file
+
+	Returns:
+	- JsonResponse: Response containing the new user data
+	"""
+	if request.method == 'POST' and request.FILES.get('avatar_file'):
+		avatar_file = request.FILES['avatar_file']
+		file_path = os.path.join(settings.BASE_DIR, 'front', 'ressources', 'upload', avatar_file.name)
+		with open(file_path, 'wb+') as destination:
+			for chunk in avatar_file.chunks():
+				destination.write(chunk)
+		request.user.avatar_file = "/front/ressources/upload/" + avatar_file.name
+		print("avatar file is", request.user.avatar_file)
+		request.user.save()
+		return JsonResponse({'file_path': request.user.avatar_file})
+	else:
+		return JsonResponse({'error': 'No avatar file provided'}, status=400)
 
 # function to get a specific user
 @api_view(['GET'])

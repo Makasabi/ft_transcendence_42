@@ -33,14 +33,11 @@
 }
 
 .friend-avatar:hover {
-	/*filter: invert(48%) sepia(17%) saturate(2843%) hue-rotate(208deg) brightness(100%) contrast(102%) opacity(50%);
-	*/
 	filter: opacity(50%);
 	transition-duration: .2s;
 	transition-timing-function: ease-in-out;
 	cursor: pointer;
 }
-
 
 @media (min-width: 48em) {
 	.friends {
