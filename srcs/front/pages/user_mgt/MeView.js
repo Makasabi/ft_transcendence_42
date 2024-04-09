@@ -1,6 +1,6 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
-import { getProfileInfos, getHistoryStats } from "/front/pages/user_mgt/user_mgt.js";
+import { getProfileInfos, getHistoryStats, displayGameBox } from "/front/pages/user_mgt/user_mgt.js";
 
 export class MeView extends IView {
 	static match_route(route) {
@@ -17,9 +17,10 @@ export class MeView extends IView {
 		html = getProfileInfos(html, user);
 		// history-stats
 		html = getHistoryStats(html, user);
-
+		
 		document.querySelector("main").innerHTML = html;
 		editProfileButton();
+		displayGameBox(user);
 		avatarUpload(); 
 	}
 }
@@ -105,9 +106,6 @@ function avatarUpload() {
 				body: formData
 			});
 			const data = await response.json();
-			console.log(data);
-			// Handle response as needed
-			console.log("Avatar upload successful!");
 			if (data.file_path) {
 				const avatarImg = document.querySelector(".avatar_img");
 				avatarImg.src = data.file_path;

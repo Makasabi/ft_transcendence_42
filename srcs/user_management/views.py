@@ -38,6 +38,7 @@ def profile_serializer(user):
 		rank = f"{higher_scores + 1}/{nb_players}"
 
 		user_data["game_history"].append({
+			"game_id": game_score.game.game_id,
 			"rank": rank,
 			"mode" : game_score.game.mode,
 			"visibility" : game_score.game.visibility,
