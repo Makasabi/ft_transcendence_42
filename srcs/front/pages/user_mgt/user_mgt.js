@@ -2,7 +2,9 @@ import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 
 export function getProfileInfos(html, user) {
-	html = html.replace("{{avatar}}", user.avatar_file);
+	let avatarUrl = user.avatar_file ? user.avatar_file : "/static/images/default_avatar.png";
+	console.log("Avatar: ", avatarUrl);
+	html = html.replace("{{avatar}}", avatarUrl);
 	html = html.replace("{{username}}", user.username);
 	html = html.replace("{{email}}", user.email);
 	html = html.replace("{{rank}}", user.global_rank);

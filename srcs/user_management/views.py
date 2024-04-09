@@ -3,6 +3,9 @@ from django.http import JsonResponse
 from user_management.models import Player, BeFriends
 from game.models import Play
 from rest_framework.decorators import api_view
+from django.conf import settings
+import os
+
 
 def profile_serializer(user):
 	"""
@@ -45,15 +48,6 @@ def profile_serializer(user):
 	user_data["global_rank"] = f"{higher_scores + 1}/{Player.objects.count()}"
 	return user_data
 
-def get_user_list(users):
-	"""
-	Return a list of users from the database
-	"""
-	user_list = {
-		"id" : users.id,
-	}
-
-
 
 @api_view(['GET'])
 def me(request):
@@ -77,9 +71,6 @@ def me(request):
 	"""
 	return JsonResponse(profile_serializer(request.user))
 
-@api_view(['GET'])
-def test(request):
-	pass
 
 @api_view(['POST'])
 def edit_profile(request):
@@ -96,8 +87,6 @@ def edit_profile(request):
 	user = request.user
 	if "username" in request.data:
 		user.username = request.data["username"]
-	if "email" in request.data:
-		user.email = request.data["email"]
 	if "avatar_file" in request.data:
 		user.avatar_file = request.data["avatar_file"]
 	if "password" in request.data:
@@ -105,11 +94,36 @@ def edit_profile(request):
 	user.save()
 	return JsonResponse(profile_serializer(user))
 
-# function to get a specific user
+
+@api_view(['POST'])
+def upload_avatar(request):
+	"""
+	Upload a new avatar for the user
+
+	Args:
+	- request: Request containing the new avatar file
+
+	Returns:
+	- JsonResponse: Response containing the new user data
+	"""
+	if request.method == 'POST' and request.FILES.get('avatar_file'):
+		avatar_file = request.FILES['avatar_file']
+		file_path = os.path.join(settings.BASE_DIR, 'front', 'ressources', 'upload', avatar_file.name)
+		with open(file_path, 'wb+') as destination:
+			for chunk in avatar_file.chunks():
+				destination.write(chunk)
+		request.user.avatar_file = "/front/ressources/upload/" + avatar_file.name
+		print("avatar file is", request.user.avatar_file)
+		request.user.save()
+		return JsonResponse({'file_path': request.user.avatar_file})
+	else:
+		return JsonResponse({'error': 'No avatar file provided'}, status=400)
+
+
 @api_view(['GET'])
 def user_username(request, username):
 	"""
-	Return a user from the database
+	Get user by username
 
 	json response format:
 	"""
@@ -118,11 +132,11 @@ def user_username(request, username):
 		return JsonResponse({'error': 'User not found'}, status=404)
 	return JsonResponse(profile_serializer(user))
 
-# function to get a specific user
+
 @api_view(['GET'])
 def user_id(request, id):
 	"""
-	Return a user from the database
+	Get user by id
 
 	json response format:
 	"""
@@ -150,7 +164,7 @@ def user_search(request, username):
 	return JsonResponse(users_json, safe=False)
 
 @api_view(['POST'])
-def add_friend(request, username):
+def add_friend(request, user_id):
 	"""
 	Add a friend to the user's friend list
 
@@ -160,15 +174,14 @@ def add_friend(request, username):
 	Returns:
 	- JsonResponse: Response containing the new user data
 	"""
-	user1 = request.user.username
-	user2 = username
-	# add connection in BeFriends table
-	BeFriends.objects.create(user1=Player.objects.get(username=user1), user2=Player.objects.get(username=user2))
-	BeFriends.objects.create(user1=Player.objects.get(username=user2), user2=Player.objects.get(username=user1))
+	user1 = request.user.id
+	user2 = user_id
+	BeFriends.objects.create(user1=user1, user2=user2)
 	return JsonResponse(profile_serializer(request.user))
 
+
 @api_view(['DELETE'])
-def remove_friend(request, username):
+def remove_friend(request, user_id):
 	"""
 	Remove a friend from the user's friend list
 
@@ -176,15 +189,16 @@ def remove_friend(request, username):
 	- request: Request containing the friend's username
 
 	"""
-	user1 = request.user.username
-	user2 = username
-	# remove connection in BeFriends table
-	BeFriends.objects.filter(user1__username=user1, user2__username=user2).delete()
-	BeFriends.objects.filter(user1__username=user2, user2__username=user1).delete()
+	user1 = request.user.id
+	user2 = user_id
+
+	BeFriends.objects.filter(user1=user1, user2=user2).delete()
+	BeFriends.objects.filter(user1=user2, user2=user1).delete()
 	return JsonResponse(profile_serializer(request.user))
 
+
 @api_view(['GET'])
-def is_friend(request, username):
+def is_friend(request, user_id):
 	"""
 	Check if two users are friends
 	
@@ -194,14 +208,18 @@ def is_friend(request, username):
 	Returns:
 	- bool: True if the two users are friends, False otherwise
 	"""
-	user1 = request.user.username
-	user2 = username
-	if BeFriends.objects.filter(user1__username=user1, user2__username=user2).exists() \
-		or BeFriends.objects.filter(user1__username=user2, user2__username=user1).exists():
+	user1 = request.user.id
+	user2 = user_id
+	if BeFriends.objects.filter(user1=user1, user2=user2).exists() \
+		and BeFriends.objects.filter(user1=user2, user2=user1).exists():
 		return JsonResponse({'friends': True})
+	elif BeFriends.objects.filter(user1=user1, user2=user2).exists():
+		return JsonResponse({'friends': "Request Pending"})
+	elif BeFriends.objects.filter(user1=user2, user2=user1).exists():
+		return JsonResponse({'friends': "Invite Pending"})
 	return JsonResponse({'friends': False})
 
-# gett all friends of a user
+
 @api_view(['GET'])
 def get_friends(request):
 	"""
@@ -210,17 +228,11 @@ def get_friends(request):
 	Returns:
 	- JsonResponse: Response containing the list of friends
 	"""
-	user = request.user
-
-	# friends = BeFriends.objects.filter(user1=user)
-	# friends = [profile_serializer(friend.user2) for friend in friends]
-	# print(friends)
- 
 	friends_json = []
-	for friend in BeFriends.objects.filter(user1=user):
-		# append only username and avatar_file
+	for friend in BeFriends.objects.filter(user1=request.user.id):
+		data = Player.objects.get(id=friend.user2)
 		friends_json.append({
-			"username": friend.user2.username,
-			"avatar_file": friend.user2.avatar_file
+			"username": data.username,
+			"avatar_file": data.avatar_file
 		})
 	return JsonResponse(friends_json, safe=False)

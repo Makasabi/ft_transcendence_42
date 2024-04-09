@@ -67,19 +67,22 @@ function renderAcceptIcon(notification, actionIcons) {
 		const acceptIcon = document.createElement('span');
 		acceptIcon.textContent = 'V';
 		acceptIcon.classList.add('action-icon');
-		acceptIcon.addEventListener('click', () => {
+		acceptIcon.addEventListener('click', (event) => {
 			// Handle friend request acceptance
-			console.log('Friend request accepted');
-			// fetch(`/api/user_management/add_friend/${notification.user}`, {
-			//     method: 'POST',
-			//     headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-			// }).then(response => {
-			//     if (response.ok) {
-			//         console.log('Friend request accepted');
-			//     } else {
-			//         console.error('Failed to accept friend request');
-			//     }
-			// });
+			console.log('notification.sender_id', notification.sender_id);
+
+			fetch(`/api/user_management/add_friend/` + notification.sender_id, {
+				method: 'POST',
+				headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+			})
+			const notificationElement = event.target.closest('.notification');
+			fetch("/api/notif/delete_notif/" + notificationElement.id, {
+				method: 'DELETE',
+				headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+			})
+			if (notificationElement) {
+				notificationElement.style.display = 'none';
+			}
 		});
 		actionIcons.appendChild(acceptIcon);
 	}
@@ -97,7 +100,6 @@ function renderDeclineIcon(notificationElement) {
 			method: 'DELETE',
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		})
-		
 		if (notificationElement) {
 			notificationElement.style.display = 'none';
 		}
@@ -130,7 +132,7 @@ function displayNotifBox(notifs) {
 			const notificationsContainer = document.createElement('div');
 			notificationsContainer.classList.add('notifications-container');
 			foregroundBox.appendChild(notificationsContainer);
-
+			
 			notifs.forEach(notification => {
 				const notificationElement = document.createElement('div');
 				notificationElement.classList.add('notification');
@@ -139,7 +141,7 @@ function displayNotifBox(notifs) {
 				notificationsContainer.appendChild(notificationElement);
 				renderNotifIcons(notification, notificationElement);
 			});
-
+			
 			const closeForegroundBox = function(event) {
 				if (!foregroundBox.contains(event.target)) {
 					foregroundBox.remove();
@@ -184,12 +186,3 @@ async function handleNotificationDot() {
 		console.error('Error:', error);
 	});
 }
-
-
-
-// @TODO
-// on accept, add friend to DB and delete notification from DB
-
-// USER_MGT : unilateral friendship (we love consent in this house)
-// USER_MGT : replace Add Friend with Accept request if other user sent request
-// USER_MGT : friends page
