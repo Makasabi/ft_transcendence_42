@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
 	print(f"Total users: {users.count()}")
 	# Create fake games with random users and scores
-	num_games = 5  # Adjust the number of fake games as needed
+	num_games = 50  # Adjust the number of fake games as needed
 	print(f"Creating {num_games} fake games...")
 	for _ in range(num_games):
 		game = create_game(users)
