@@ -16,7 +16,7 @@ export function route(path, event=null)
 	handleLocation();
 }
 
-function handleUnloggedLocation()
+async function handleUnloggedLocation()
 {
 	const views = [
 		LoginView,
@@ -45,12 +45,12 @@ async function handleLoggedLocation()
 	const views = [
 		HomeView,
 		MeView,
-		// GameView,
 		createRoomView,
 		RoomView,
 		UnknownRoomView,
 		FullRoomView,
 		UserView,
+		GameView,
 	];
 
 	const match = views.filter(view => view.match_route(window.location.pathname));

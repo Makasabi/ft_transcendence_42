@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from notification.models import Notification, UserNotifies, IsNotified
 from notification.consumers import NotificationConsumer
 import requests
- 
+
 # Create your views here.
 def index(request):
 	return render(request, 'index.html')
