@@ -27,7 +27,7 @@
 	inline-size: 20vw;
 }
 
-input[type="password" i] {
+input[type="profile-password" i] {
 	-webkit-text-security: disc !important;
 	padding-block: 1px;
 	padding-inline: 2px;
