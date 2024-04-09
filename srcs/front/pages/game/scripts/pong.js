@@ -4,21 +4,19 @@ import {Ball} from "./ball.js";
 import {Player} from "./player.js";
 // import { mat4 } from '/front/gl-matrix/esm/index.js';
 
-const BALL_SIZE = 0.4;
-
 export class GameContext {
 	rendering_context;
 	websocket;
-	game_objects;
 	arena;
 	ball;
 	player;
 	last_time = performance.now();
 	end = false;
+	ready = false;
 
 	constructor(game_id) {
 		this.rendering_context = new RenderingContext();
-		this.game_objects = [];
+		this.static_objects = [];
 
 		this.attribute_websocket(game_id);
 		this.events(this);
@@ -31,6 +29,7 @@ export class GameContext {
 	}
 
 	attribute_websocket(game_id) {
+		let game = this;
 		this.websocket = new WebSocket(
 			'ws://'
 			+ window.location.host
@@ -40,24 +39,28 @@ export class GameContext {
 
 		this.websocket.onerror = function(e) {
 			console.log('Game socket error:', e);
-			this.end = true;
+			game.end = true;
 		};
 
 		this.websocket.onopen = function() {
 			console.log('Game socket open');
+			game.ready = true;
 		};
 
 		this.websocket.onclose = function() {
 			console.log('Game socket closed unexpectedly');
-			this.end = true;
+			game.end = true;
 		};
 
-		let game = this;
 		this.websocket.onmessage = function(e) {
 			const data = JSON.parse(e.data);
 			const type = data.type;
 			if (type === "update") {
 				game.state = data;
+			}
+			else if (type === "error") {
+				console.error("Game error", data);
+				game.end = true;
 			}
 		};
 	}
@@ -120,94 +123,102 @@ export class GameContext {
 
 	async load() {
 		let model_file;
-		let object;
 		this.models = {};
 
 		model_file = await fetch("/front/pages/game/models/arena.json");
 		this.models.arena = await model_file.json();
 
-		this.arena = new GameObject(model);
-		this.arena.scale = [15, 15, 15];
-
 		model_file = await fetch("/front/pages/game/models/pilar.json");
-		model = await model_file.json();
-
-		object = new GameObject(model);
-		object.scale = [1.8, 0.4, 1.8];
-		object.rotation = [0, Math.PI / 2, 0];
-		this.game_objects.push(object);
-
-		object = new GameObject(model);
-		object.scale = [0.7, 1.2, 0.7];
-		object.position = [7.5, 0, 12.9904];
-		this.game_objects.push(object);
-
-		object = new GameObject(model);
-		object.scale = [0.7, 1.2, 0.7];
-		object.position = [-7.5, 0, 12.9904];
-		this.game_objects.push(object);
-
-		object = new GameObject(model);
-		object.scale = [0.7, 1.2, 0.7];
-		object.position = [7.5, 0, -12.9904];
-		this.game_objects.push(object);
-
-		object = new GameObject(model);
-		object.scale = [0.7, 1.2, 0.7];
-		object.position = [-7.5, 0, -12.9904];
-		this.game_objects.push(object);
-
-		object = new GameObject(model);
-		object.scale = [0.7, 1.2, 0.7];
-		object.position = [15, 0, 0];
-		this.game_objects.push(object);
-
-		object = new GameObject(model);
-		object.scale = [0.7, 1.2, 0.7];
-		object.position = [-15, 0, 0];
-		this.game_objects.push(object);
+		this.models.pilar = await model_file.json();
 
 		model_file = await fetch("/front/pages/game/models/paddle.json");
-		model = await model_file.json();
-
-		object = new Player(model);
-		object.rotation = [0, Math.PI, 0];
-		object.position = [0, 0, 13];
-		object.scale = [1, 0.5, 1];
-		this.player = object;
-		this.game_objects.push(object);
+		this.models.paddle = await model_file.json();
 
 		model_file = await fetch("/front/pages/game/models/puck.json");
-		model = await model_file.json();
+		this.models.puck = await model_file.json();
 
-		object = new Ball(model);
-		object.scale = [BALL_SIZE, BALL_SIZE, BALL_SIZE];
-		this.ball = object;
-		this.game_objects.push(object);
+		model_file = await fetch("/front/pages/game/models/cube.json");
+		this.models.cube = await model_file.json();
+	}
+
+	create_static_objects() {
+		let object;
+
+		console.log(this.state);
+		{
+			object = new GameObject(this.models.arena);
+			object.position = [this.state.center_x, 0, this.state.center_y];
+			object.scale = [this.state.width / 2, 1, this.state.height / 2];
+			this.static_objects.push(object);
+		}
+		//{
+		//	object = new GameObject(this.models.pilar);
+		//	object.scale = [1.8, 0.4, 1.8];
+		//	object.rotation = [0, Math.PI / 2, 0];
+		//	this.static_objects.push(object);
+		//}
+		//{
+		//	object = new GameObject(this.models.pilar);
+		//	object.scale = [0.7, 1.2, 0.7];
+		//	object.position = [7.5, 0, 12.9904];
+		//	this.static_objects.push(object);
+		//}
+		const cosPiSur3 = Math.cos(Math.PI / 3)
+		const sinPiSur3 = Math.sin(Math.PI / 3)
+
+		const hexagon_vertices = [
+			[1, 0],
+			[cosPiSur3, sinPiSur3],
+			[-cosPiSur3, sinPiSur3],
+			[-1, 0],
+			[-cosPiSur3, -sinPiSur3],
+			[cosPiSur3, -sinPiSur3],
+		]
+
+		let pilar_size = this.state.pilars[0][0][0] - this.state.pilars[0][3][0];
+		for (let hexagone_center of hexagon_vertices) {
+			object = new GameObject(this.models.pilar);
+			object.scale = [pilar_size / 2, this.state.width / 30, pilar_size / 2];
+			object.position = [hexagone_center[0] * this.state.width / 2, 0, hexagone_center[1] * this.state.height / 2];
+			this.static_objects.push(object);
+		}
+		for (let wall of this.state.walls) {
+			this.addWall(wall);
+		}
 	}
 
 	game_loop() {
-		//let now = performance.now();
-		//let delta_time = (now - this.last_time) / 1000;
-		//this.last_time = now;
+		let dynamic_objects = [];
+		//for (let ball of this.state.balls) {
+		//	let object = new Ball(this.models.puck);
+		//	object.position = [ball.x, ball.y, ball.z];
+		//	object.scale = ball.radius;
+		//}
+		// @TODO handle multiple balls
+		if (this.state.ball) {
+			let object = new Ball(this.models.puck);
+			object.position = [this.state.ball.posx, 0, this.state.ball.posy];
+			object.scale = [this.state.ball.radius, this.state.width / 30., this.state.ball.radius];
+			dynamic_objects.push(object);
+		}
 
-		if (this.state === undefined)
-			return false;
-		//console.log("GameContext.state", this.state);
-		this.game_objects.forEach(object => object.update(this.state));
-		return true;
+		for (let player of this.state.players) {
+			let object = new Player(this.models.paddle);
+			object.position = [player.posx, 0, player.posy];
+			object.scale = [player.length / 2, this.state.width / 30, this.state.width / 30];
+			object.rotation = [0, Math.atan2(player.right[1] - player.left[1], player.right[0] - player.left[0]), 0];
+			dynamic_objects.push(object);
+		}
+		console.log(dynamic_objects);
+		return dynamic_objects;
 	}
 
 	run() {
-		if (this.game_loop())
-		{
-			this.rendering_context.clear();
-			this.rendering_context.draw_object(this.arena);
-			this.game_objects.forEach(object => this.rendering_context.draw_object(object));
-			this.rendering_context.draw_origins();
-		}
-		else
-			console.log("GameContext.state is undefined");
+		let dynamic_objects = this.game_loop()
+		this.rendering_context.clear();
+		this.static_objects.forEach(object => this.rendering_context.draw_object(object));
+		dynamic_objects.forEach(object => this.rendering_context.draw_object(object));
+		// this.rendering_context.draw_origins();
 
 		if (this.end)
 			return;
@@ -225,9 +236,52 @@ export class GameContext {
 	}
 
 	async start() {
+		await this.load();
+
+		console.log("Models loaded");
+		while (!this.ready) {
+			console.log("wait for websocket");
+			if (this.end)
+				return;
+			await new Promise(resolve => setTimeout(resolve, 300));
+		}
+
+		this.websocket.send("ready");
+
+		console.log("GameContext.start", this.state);
+		while (this.state === undefined) {
+			console.log("wait for state2", this.end);
+			if (this.end)
+				return;
+			await new Promise(resolve => setTimeout(resolve, 300));
+		}
+
+		console.log("GameContext.start", this.state);
+		this.rendering_context.scale = 1 / this.state.width
+		while (this.state.status !== "ongoing") {
+			console.log("wait for ongoing");
+			if (this.end)
+				return;
+			await new Promise(resolve => setTimeout(resolve, 300));
+		}
+
+		this.create_static_objects();
+
 		this.run();
 		while (!this.end)
 			await new Promise(resolve => setTimeout(resolve, 300));
+	}
+
+	addWall(wall) {
+		let object = new GameObject(this.models.cube);
+		object.position = [(wall[0][0] + wall[1][0]) / 2, 0, (wall[0][1] + wall[1][1]) / 2];
+		object.scale = [Math.sqrt(wall[1][0] ** 2 + wall[1][1] ** 2) / 2, this.state.width / 20, this.state.width / 200];
+		const vector = [wall[1][0] - wall[0][0], wall[1][1] - wall[0][1]];
+		let rota;
+		rota = -Math.atan2(vector[1], vector[0]);
+		object.rotation = [0, rota, 0];
+		console.log(object.rotation[1]);
+		this.static_objects.push(object);
 	}
 }
 

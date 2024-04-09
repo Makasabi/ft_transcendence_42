@@ -7,8 +7,8 @@ from .constants import ARENA_WIDTH, ARENA_HEIGHT, BALL_SPEED, BALL_RADIUS, PLAYE
 
 class Ball:
 	def __init__(self, debug):
-		self.reset()
 		self.debug = debug
+		self.reset()
 
 	def reset(self):
 		self.position = [CENTER_X, CENTER_Y]
@@ -18,6 +18,12 @@ class Ball:
 
 		self.speed = BALL_SPEED
 		self.start = True
+
+		if self.debug:
+			self.has_wall_collision = False
+			self.next_positions = []
+			self.wall_collisionned = []
+			self.collision_infos = []
 
 	def render(self):
 		debug_info = {}
@@ -34,7 +40,10 @@ class Ball:
 		}
 
 	def update(self, timestamp, players, walls):
-		if self.position[0] - BALL_RADIUS <= 0 or self.position[0] + BALL_RADIUS >= ARENA_WIDTH or self.position[1] - BALL_RADIUS <= 0 or self.position[1] + BALL_RADIUS >= ARENA_HEIGHT:
+		if self.position[0] - BALL_RADIUS <= CENTER_X - ARENA_WIDTH \
+			or self.position[0] + BALL_RADIUS >= CENTER_X + ARENA_WIDTH \
+			or self.position[1] - BALL_RADIUS <= CENTER_Y - ARENA_HEIGHT \
+			or self.position[1] + BALL_RADIUS >= CENTER_Y + ARENA_HEIGHT:
 			self.reset()
 
 		if self.debug:

@@ -4,11 +4,8 @@ const PLAYER_SPEED = 7;
 const MOVING_RANGE = 5.8;
 
 export class Player extends GameObject {
-	keys;
-
-	constructor(model, keys) {
+	constructor(model) {
 		super(model);
-		this.keys = keys;
 	}
 
 	update(state) {

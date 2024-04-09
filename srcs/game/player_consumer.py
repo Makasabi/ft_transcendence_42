@@ -13,7 +13,6 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 		if await database_sync_to_async(check_game_id)(self.game_id) == 0:
 			print("PlayerConsumer.connect: Game not found")
 			return
-		print(f"PlayerConsumer.connect: {self.game_id}")
 		self.group_name = f"game_{self.game_id}"
 		self.group_send = f"game_consumer"
 		self.user = self.scope["user"]
@@ -43,6 +42,12 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 				"input": text_data,
 			},
 		)
+
+	async def game_error(self, event):
+		error = event["error"]
+		await self.send(json.dumps({"type": "error", "error": error}))
+
+		self.close(4000)
 
 	async def disconnect(self, close_code):
 		# Leave room group

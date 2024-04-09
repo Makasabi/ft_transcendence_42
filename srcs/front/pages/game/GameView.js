@@ -53,8 +53,9 @@ export class GameView extends IView {
 			const game_id = document.URL.split("/")[4];
 			this.game = new GameContext(game_id);
 
-			await this.game.load();
+			console.log("Start game");
 			await this.game.start();
+			console.log("End of game");
 			// @TODO take results and redirect to the room
 			route("/home");
 		}

@@ -160,6 +160,8 @@ if __name__ == '__main__':
 
 	engine = GameEngine(1, [0, 1], state)
 	engine.start()
+	engine.input('ready', 0)
+	engine.input('ready', 1)
 	while not engine.is_ready():
 		sleep(1/30)
 

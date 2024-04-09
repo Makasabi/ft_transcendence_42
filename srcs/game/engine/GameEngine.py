@@ -44,17 +44,19 @@ class GameEngine(threading.Thread):
 		self.ball = Ball(self.debug)
 
 		self.ready = False
+		self.status = 'waiting_for_players'
 		self.time = time()
 
 	def stop(self) -> None:
 		self.is_stop = True
 
-	def is_ready(self) -> bool:
-		return self.ready
-
 	# GAME LOOP
-	def run(self) -> None:
-		if not self.debug:
+	def debug_run(self) -> None:
+		with open('log.log', 'w') as f:
+			self.ready = True
+			self.debug_broadcast_state(f)
+			while not self.is_ready():
+				sleep(0.1)
 			while not self.is_stop:
 				current_time = time()
 				elapsed_time = current_time - self.time
@@ -63,39 +65,35 @@ class GameEngine(threading.Thread):
 				self.time = current_time
 
 				self.game_loop(elapsed_time)
-				self.broadcast_state(self.render())
-				self.ready = True
-		else:
-			with open('log.log', 'w') as f:
-				while not self.is_stop:
-					current_time = time()
-					elapsed_time = current_time - self.time
-					if elapsed_time < 1 / FPS:
-						sleep(1 / FPS - elapsed_time)
-					self.time = current_time
+				self.debug_broadcast_state(f)
+				self.status = 'ongoing'
 
-					self.game_loop(elapsed_time)
-					for key, value in self.render().items():
-						self.state[key] = value
-					f.write(str(self.state) + '\n')
-					self.ready = True
+	def normal_run(self) -> None:
+		self.ready = True
+		self.broadcast_state(self.render())
+		while not self.is_ready():
+			sleep(0.3)
+		while not self.is_stop:
+			current_time = time()
+			elapsed_time = current_time - self.time
+			if elapsed_time < 1 / FPS:
+				sleep(1 / FPS - elapsed_time)
+			self.time = current_time
+
+			self.game_loop(elapsed_time)
+			self.broadcast_state(self.render())
+			self.status = 'ongoing'
+
+	def run(self) -> None:
+		if self.debug:
+			self.debug_run()
+			return
+		self.normal_run()
 
 	def game_loop(self, timestamp) -> None:
 		for player in self.players.values():
 			player.update(timestamp)
 		self.ball.update(1 / 60, self.players, self.collisions_walls)
-
-	# RENDER
-	def render(self) -> dict:
-		return {
-			'players': [player.render() for player in self.players.values()],
-			'ball': self.ball.render(),
-			'walls': self.walls,
-			'pilars': self.pilars,
-			'width': ARENA_WIDTH,
-			'height': ARENA_HEIGHT,
-			'collisions_walls': self.collisions_walls,
-		}
 
 	# INPUTS
 	def input(self, input_type, player_id = None) -> None:
@@ -106,6 +104,7 @@ class GameEngine(threading.Thread):
 			"right_released": self.right_released,
 			"sprint_pressed": self.sprint_pressed,
 			"sprint_released": self.sprint_released,
+			"ready": self.player_ready
 		}
 		func = switcher.get(input_type, lambda: "Invalid input")
 		if (player_id is not None):
@@ -133,6 +132,18 @@ class GameEngine(threading.Thread):
 	def sprint_released(self, player_id) -> None:
 		self.players[player_id].inputs['sprint'] = False
 
+	def player_ready(self, player_id) -> None:
+		self.players[player_id].ready = True
+
+	def is_ready(self) -> bool:
+		for player in self.players.values():
+			if not player.ready:
+				return False
+		return self.ready
+
+	def is_ongoin(self) -> bool:
+		return self.status == 'ongoing'
+
 	# BROADCAST STATE
 	def broadcast_state(self, state: dict) -> None:
 		state_json = state
@@ -145,3 +156,23 @@ class GameEngine(threading.Thread):
 				"state": state_json,
 			}
 		)
+
+	def debug_broadcast_state(self, file) -> None:
+		for key, value in self.render().items():
+			self.state[key] = value
+		file.write(str(self.state) + '\n')
+
+	# RENDER
+	def render(self) -> dict:
+		return {
+			'status': 'ongoing',
+			'players': [player.render() for player in self.players.values()],
+			'ball': self.ball.render(),
+			'walls': self.walls,
+			'pilars': self.pilars,
+			'width': ARENA_WIDTH,
+			'height': ARENA_HEIGHT,
+			'center_x': CENTER_X,
+			'center_y': CENTER_Y,
+			'collisions_walls': self.collisions_walls,
+		}

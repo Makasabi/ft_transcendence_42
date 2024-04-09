@@ -18,8 +18,16 @@ class GameConsumer(AsyncConsumer):
 		game_id = event["game_id"]
 		player_ids = event["players"]
 		#print(f"GameConsumer.game_start: {game_id}", player_ids)
-		engine = GameEngine(game_id, player_ids)
-		engine.start()
+		try:
+			engine = GameEngine(game_id, player_ids)
+			engine.start()
+		except Exception as e:
+			print(f"GameConsumer.game_start: {e}")
+			await self.channel_layer.group_send(f"game_{game_id}", {
+				"type": "game.error",
+				"error": str(e)
+			})
+			return
 		self.engines[game_id] = engine
 
 	async def game_update(self, event):
@@ -33,5 +41,12 @@ class GameConsumer(AsyncConsumer):
 
 	async def input(self, event):
 		game_id = event["game_id"]
-		engine = self.engines[game_id]
+		engine = self.engines.get(game_id, None)
+		if engine is None:
+			print(f"GameConsumer.input: Engine not found for game {game_id}")
+			await self.channel_layer.group_send(f"game_{game_id}", {
+				"type": "game.error",
+				"error": "Engine not found"
+			})
+			return
 		engine.input(event["input"], event["player_id"])

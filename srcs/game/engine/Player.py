@@ -16,6 +16,7 @@ class Player:
 		self.player_id = player_id
 		self.border = border
 		self.debug = debug
+		self.ready = False
 
 		self.border_relative_x = 0
 		border_dist = math.sqrt((border[0][0] - border[1][0]) ** 2 + (border[0][1] - border[1][1]) ** 2)

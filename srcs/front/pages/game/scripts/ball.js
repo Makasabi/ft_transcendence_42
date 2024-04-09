@@ -3,10 +3,6 @@ import {GameObject} from "./game_object.js";
 const BALL_SPEED = 5;
 
 export class Ball extends GameObject {
-	vx;
-	vy = 0;
-	vz;
-
 	constructor(model) {
 		super(model);
 	}
