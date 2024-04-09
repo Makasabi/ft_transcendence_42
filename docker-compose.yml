@@ -1,0 +1,45 @@
+version: '3.9'
+
+networks:
+  ft_transcendence:
+    driver: bridge
+
+volumes:
+  user_postgres_data:
+
+services:
+  nginx:
+    container_name: nginx_container
+    env_file: .env
+    build: ./web
+    networks:
+      - ft_transcendence
+    ports:
+      - '8080:80'
+
+  user_management:
+    container_name: user_management_container
+    build: ./user_management
+    env_file: .env
+    command: gunicorn wsgi:application --bind 0.0.0.0:8001
+    restart: always
+      #depends on:
+      #  - db_user_management
+    networks:
+      - ft_transcendence
+    expose: 
+      - 8001
+
+  db_user_management:
+    container_name: db_user_management_container
+    image: postgres:15
+    volumes:
+      - user_postgres_data:/var/lib/postgresql/data/
+    env_file: .env
+        #user: "1000:1000"
+
+       #  redis:
+       #    container_name: redis_server
+       #    restart: always
+       #    ports:
+       #     - '6379:6379'
