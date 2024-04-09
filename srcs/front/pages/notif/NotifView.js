@@ -66,11 +66,27 @@ function acceptFriend(notification) {
 		method: 'POST',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	})
+	finish();
 }
 
 function acceptGameInvitation(notification) {
 	console.log('notification: ', notification);
+	finish();
+	document.querySelector('.foreground-box').remove();
+
 	route(`/room/${notification.room_code}`);
+}
+
+function finish(){
+	const notificationElement = event.target.closest('.notification');
+	fetch("/api/notif/delete_notif/" + notificationElement.id, {
+		method: 'DELETE',
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	})
+	if (notificationElement) {
+		notificationElement.style.display = 'none';
+	}
+
 }
 
 function renderAcceptIcon(notification, actionIcons) {
@@ -85,18 +101,6 @@ function renderAcceptIcon(notification, actionIcons) {
 				acceptFriend(notification);
 			else
 				acceptGameInvitation(notification);
-			// fetch(`/api/user_management/add_friend/` + notification.sender_id, {
-			// 	method: 'POST',
-			// 	headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-			// })
-			const notificationElement = event.target.closest('.notification');
-			fetch("/api/notif/delete_notif/" + notificationElement.id, {
-				method: 'DELETE',
-				headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-			})
-			if (notificationElement) {
-				notificationElement.style.display = 'none';
-			}
 		});
 		actionIcons.appendChild(acceptIcon);
 	}
@@ -132,9 +136,9 @@ function renderNotifIcons(notification, notificationElement) {
 	notificationElement.appendChild(actionIcons);
 }
 
-function displayNotifBox(notifs) {
+async function displayNotifBox(notifs) {
 	const notificationsLink = document.getElementById('notif-box');
-		notificationsLink.addEventListener("click", (event) => {
+		notificationsLink.addEventListener("click", async (event) => {
 			setNotifSeen();
 			event.stopPropagation();
 

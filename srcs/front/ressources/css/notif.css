@@ -10,13 +10,13 @@
 
 .foreground-box {
 	position: fixed;
-	top: 25%;
-	left: 25%;
-	/* transform: translate(-50%, -50%); */
-	width: 80vw;
-	height: 60vh; 
-	max-width: 40vw; /* Adjust to match the max-width of .history_stats */
-	padding: 5vh; /* Adjust padding to match .history_stats */
+	top: 8%;
+	right: 5%;
+	width: 20vw;
+	min-width: 150px;
+	height: 50vh; 
+	max-width: 40vw;
+	padding: 5vh;
 	border-radius: 10px;
 	text-align: left;
 	justify-content: left;
@@ -24,9 +24,9 @@
 	border: var(--border-light) 1px solid;
 	backdrop-filter: blur(4px);
 	background-color: var(--transparent-darker);
-	color: white; /* Text color */
-	z-index: 999; /* Ensure the box appears on top of other content */
-	max-height: 80vh; /* Adjust maximum height as needed */
+	color: var(--light);
+	z-index: 999;
+	max-height: 80vh; 
 	overflow-y: auto;
 }
 
@@ -36,6 +36,24 @@
 	position: relative;
 	z-index: 2000;
 	
+}
+
+.notifications-container::-webkit-scrollbar-track
+{
+	border-radius: 10px;
+	background-color: var(--border-light);
+}
+
+.notifications-container::-webkit-scrollbar
+{
+	width: 12px;
+	background-color: var(--transparent-dark);
+}
+
+.notifications-container::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	background-color: var(--transparent-primary);
 }
 
 .notification {
