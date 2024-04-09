@@ -5,9 +5,11 @@ from game.models import Play
 from rest_framework.decorators import api_view
 from django.conf import settings
 import os
+import requests
 
 
-def profile_serializer(user):
+
+def profile_serializer(request, user):
 	"""
 	Retrieve user's data
 
@@ -26,25 +28,15 @@ def profile_serializer(user):
 		"game_history": []
 	}
 
-	game_history = Play.objects.filter(users=user)
+	# @TODO : change localhost for scalable solution
+	user_id = user.id
+	url = f"http://localhost:8000/api/game/get_history/{user_id}"
+	token = f"Token {request.auth}"
+	headers = {'Authorization': token}
+	game_history = requests.get(url, headers=headers)
 
-	for game_score in game_history:
-		# Get all scores for the current game
-		scores_in_game = Play.objects.filter(game=game_score.game)
-		nb_players = scores_in_game.count()
-
-		# score__gt = greater than current score
-		higher_scores = scores_in_game.filter(score__gt=game_score.score).count()
-		rank = f"{higher_scores + 1}/{nb_players}"
-
-		user_data["game_history"].append({
-			"game_id": game_score.game.game_id,
-			"rank": rank,
-			"mode" : game_score.game.mode,
-			"visibility" : game_score.game.visibility,
-			"date_played": game_score.game.date
-		})
-
+	for game in game_history.json():
+		user_data["game_history"].append(game)
 	higher_scores = Player.objects.filter(global_score__gt=user.global_score).count()
 	user_data["global_rank"] = f"{higher_scores + 1}/{Player.objects.count()}"
 	return user_data
@@ -70,7 +62,7 @@ def me(request):
 		]
 	}
 	"""
-	return JsonResponse(profile_serializer(request.user))
+	return JsonResponse(profile_serializer(request, request.user))
 
 
 @api_view(['POST'])
@@ -93,7 +85,7 @@ def edit_profile(request):
 	if "password" in request.data:
 		user.set_password(request.data["password"])
 	user.save()
-	return JsonResponse(profile_serializer(user))
+	return JsonResponse(profile_serializer(request, user))
 
 
 @api_view(['POST'])
@@ -131,7 +123,7 @@ def user_username(request, username):
 	user = Player.objects.filter(username=username).first()
 	if user is None:
 		return JsonResponse({'error': 'User not found'}, status=404)
-	return JsonResponse(profile_serializer(user))
+	return JsonResponse(profile_serializer(request, user))
 
 
 @api_view(['GET'])
@@ -141,11 +133,11 @@ def user_id(request, id):
 
 	json response format:
 	"""
-	print("user id is", id)
 	user = Player.objects.filter(id=id).first()
 	if user is None:
 		return JsonResponse({'error': 'User not found'}, status=404)
-	return JsonResponse(profile_serializer(user))
+	data = profile_serializer(request, user)
+	return JsonResponse(data, safe=False)
 
 # function to return an array of users that match the username
 @api_view(['GET'])

@@ -3,7 +3,6 @@ import { IView } from "/front/pages/IView.js";
 
 export function getProfileInfos(html, user) {
 	let avatarUrl = user.avatar_file ? user.avatar_file : "/static/images/default_avatar.png";
-	console.log("Avatar: ", avatarUrl);
 	html = html.replace("{{avatar}}", avatarUrl);
 	html = html.replace("{{username}}", user.username);
 	html = html.replace("{{email}}", user.email);
@@ -90,7 +89,6 @@ export function displayGameBox(user) {
 		let players = await fetch("/api/game/get_players/" + user.game_history[gameIndex].game_id, {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		}).then(response => response.json());
-		// console.log("players: ", players);
 
 		displayGamePlayers (players, playersList);
 

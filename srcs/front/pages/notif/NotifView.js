@@ -9,7 +9,7 @@ export class NotifView extends IView {
 	}
 
 	async render() {
-		console.log("NotifView.render");
+		// console.log("NotifView.render");
 		// HomeView.render();
 		handleNotificationDot();
 		displayNotifications();

@@ -6,12 +6,11 @@ import { route } from "/front/pages/spa_router.js";
 export class UserView extends IView {
 	static match_route(route) {
 		let regex = new RegExp("^/user/username/[\\w]+$");
-		console.log("UserView.match_route: ",route);
 		return regex.test(route);
 	}
 
 	async render() {
-		console.log("UserView.render");
+		// console.log("UserView.render");
 		let call = "/api/user_management/user/username/" + window.location.pathname.split('/')[3];
 
 		//  retrieve current requester
@@ -20,7 +19,6 @@ export class UserView extends IView {
 		}).then(response => response.json());
 		
 		let html = await fetch("/front/pages/user_mgt/user.html").then(response => response.text());
-		console.log("UserView.render: ", call);
 		let user = await fetch(call, {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		}).then(response => response.json());
@@ -100,7 +98,6 @@ async function addFriendButton(username)
 			button.textContent = "Request Pending";
 		else if (response.friends === "Invite Pending")
 			button.textContent = "Accept Friend Request";
-		console.log("response.friends: ", response.friends);
 	});
 
 	// Event listener to button to add or remove friend
