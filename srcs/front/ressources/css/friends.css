@@ -11,7 +11,6 @@
 }
 
 .friends h1 {
-	font-size: 40px; 
 	font-weight: 700;
 	text-align: left;
 	color:var(--primary-color);
@@ -31,7 +30,6 @@
 	backdrop-filter: blur(4px);
 	background-color: var(--transparent-dark);
 	width: 50%;
-	font-size: medium;
 	color: var(--ligth);
 }
 
@@ -41,13 +39,12 @@
 	filter: invert(53%) sepia(1%) saturate(0%) hue-rotate(184deg) brightness(100%) contrast(85%);
 }
 
-input {
+.search_bar input {
 	border: none;
 	padding: 1vh;
 	width: 85%;
 	background-color: transparent;
 	color: var(--light);
-	font-size: medium;
 }
 
 input.placeholder {
@@ -79,7 +76,6 @@ input.placeholder {
   #friends_results ul li {
 	padding: 1vh 1vw;
 	color: var(--light);
-	font-size: medium;
 	cursor: pointer;
   }
   #friends_results ul li:hover {

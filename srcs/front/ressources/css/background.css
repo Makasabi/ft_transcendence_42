@@ -1,8 +1,5 @@
 /* ---- reset ---- */
-body{
-	margin:0;
-	font:normal 75% Arial, Helvetica, sans-serif;
-}
+
 
 canvas.particles-js-canvas-el {
 	display: block;
@@ -30,7 +27,6 @@ canvas.particles-js-canvas-el {
 	left: 0;
 	width: 80px;
 	color: #13E8E9;
-	/* font-size: .8em;  */
 	text-align: left;
 	text-indent: 4px;
 	line-height: 14px;
@@ -39,9 +35,6 @@ canvas.particles-js-canvas-el {
 	font-weight: bold;
 }
 
-.js-count-particles{
-	/* font-size: 1.1em;  */
-}
 
 #stats, .count-particles{
 	/* -webkit-user-select: none;  */

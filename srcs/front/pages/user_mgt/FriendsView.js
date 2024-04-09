@@ -68,6 +68,9 @@ export class FriendsView extends IView {
 				} else {
 					console.log("Suggestions" + suggestions);
 					let list = '';
+					if (suggestions.length > 5) {
+						suggestions = suggestions.slice(0, 5);
+					}
 					for (let i = 0; i < suggestions.length; i++) {
 						list += `<a onclick="route('/user/${suggestions[i].username}')"><li>${suggestions[i].username}</li></a>`;
 					}

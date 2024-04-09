@@ -19,6 +19,28 @@
 	z-index: 1;
 }
 
+h1 {
+	font-size: 3em;
+	font-weight: 700;
+}
+
+h2 {
+	font-size: 1.2em;
+	font-weight: 700;
+}
+
+h3 {
+	font-size: 1em;
+}
+
+h4 {
+	font-size: 0.94em;
+}
+
+p, label, button, a{
+	font-size: 0.9em;
+}
+
 ::selection {
 	background-color: var(--light) !important;
 	color: var(--primary-color) !important;
@@ -30,7 +52,6 @@
 	min-height: 100vh;
 	justify-content: space-between;
 }
-
 
 .home_menu {
 	margin: 15vh auto;
@@ -60,15 +81,12 @@
 }
 
 .centered_box h1 {
-	font-size: 50px; 
-	font-weight: 700;
 	text-align: center;
 	color:var(--primary-color);
 }
 
 .centered_box h2{
 	line-height: 1.1;
-	font-size: 1.1em;
 	margin: 1vh;
 	line-height: 150%;
 }
@@ -78,17 +96,6 @@
 	margin: 0 0 1vh 0;
 	line-height: 150%;
 }
-
-
-
-/* form {
-	align-self: center;
-	display: flex;
-	flex-direction: column;
-	text-align: left;
-	margin: 1vh;
-	min-width:100%;
-} */
 
 form {
     align-self: center;
@@ -101,11 +108,7 @@ form {
 }
 
 form label {
-	color: var(--light);
-	font-size: small;
-	/* margin-top: 1vh; */
 	margin-left: 0;
-	padding-top: 1vh;
 }
 
 form input {
@@ -120,23 +123,6 @@ form input::selection{
 	border: none;
 	color: var(--primary-color);
 }
-
-/* form button {
-	margin: 1vh 0;
-	padding: 1vh;
-	border-radius: 10px;
-	background-color: var(--primary-color);
-	font-weight: 700;
-	color: var(--light);
-	border: none;
-} */
-
-/* #google-auth-btn {
-	color: black;
-	background-color: white;
-	white-space: nowrap;
-	cursor: pointer;
-} */
 
 #forty2-auth-btn {
 	color: white;
