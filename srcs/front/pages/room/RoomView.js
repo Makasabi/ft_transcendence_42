@@ -62,6 +62,28 @@ export class RoomView extends IView {
 			friendContainer.textContent = friend.username;
 			inviteFriends.appendChild(friendContainer);
 		});
+
+		// inviteToRoom();
+		let inviteButton = document.getElementById("invite_button");
+		inviteButton.addEventListener("click", () => {
+			// retrive value selected in the dropdown
+			const guest = inviteFriends.value;
+			// send invite to the room
+			fetch("/api/notif/create_notif/game_invitation/" + guest, {
+				method: 'POST',
+				headers: { 
+					'Content-Type': 'application/json',
+					'Authorization': `Token ${Login.getCookie('token')}`
+				}, 
+				body: JSON.stringify({
+					"room_code": roomInfo.code,
+					"room_mode": roomInfo.roomMode,
+				}),
+			});
+			console.log("Invitation sent to", guest);
+		});
+
+
 		
 		this.roomSocket = createRoomSocket(roomInfo.room_id);
 

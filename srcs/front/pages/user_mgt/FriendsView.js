@@ -72,7 +72,7 @@ export class FriendsView extends IView {
 						suggestions = suggestions.slice(0, 5);
 					}
 					for (let i = 0; i < suggestions.length; i++) {
-						list += `<a onclick="route('/user/${suggestions[i].username}')"><li>${suggestions[i].username}</li></a>`;
+						list += `<a onclick="route('/user/username/${suggestions[i].username}')"><li>${suggestions[i].username}</li></a>`;
 					}
 					resultsContainer.innerHTML = '<ul>' + list + '</ul>';
 					resultsContainer.style.display = 'block';

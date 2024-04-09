@@ -1,6 +1,6 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
-import { HomeView } from "/front/pages/home/home.js";
+import { route } from "/front/pages/spa_router.js";
 
 export class NotifView extends IView {
 	static match_route(route) {
@@ -61,20 +61,34 @@ export function createNotificationSocket(username) {
 	return notifySocket;
 }
 
+function acceptFriend(notification) {
+	fetch(`/api/user_management/add_friend/` + notification.sender_id, {
+		method: 'POST',
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	})
+}
+
+function acceptGameInvitation(notification) {
+	console.log('notification: ', notification);
+	route(`/room/${notification.room_code}`);
+}
 
 function renderAcceptIcon(notification, actionIcons) {
-	if (notification.type === 'friend_request') {
+	if (notification.type === 'friend_request' || notification.type === 'game_invitation') {
 		const acceptIcon = document.createElement('span');
 		acceptIcon.textContent = 'V';
 		acceptIcon.classList.add('action-icon');
 		acceptIcon.addEventListener('click', (event) => {
 			// Handle friend request acceptance
 			console.log('notification.sender_id', notification.sender_id);
-
-			fetch(`/api/user_management/add_friend/` + notification.sender_id, {
-				method: 'POST',
-				headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-			})
+			if (notification.type === 'friend_request')
+				acceptFriend(notification);
+			else
+				acceptGameInvitation(notification);
+			// fetch(`/api/user_management/add_friend/` + notification.sender_id, {
+			// 	method: 'POST',
+			// 	headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+			// })
 			const notificationElement = event.target.closest('.notification');
 			fetch("/api/notif/delete_notif/" + notificationElement.id, {
 				method: 'DELETE',

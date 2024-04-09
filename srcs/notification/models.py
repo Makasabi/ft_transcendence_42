@@ -11,6 +11,7 @@ class Notification(models.Model):
 	is_seen = models.BooleanField(default=False)
 	message = models.CharField(max_length=1000, default="")
 
+
 	def __str__(self):
 		return self.type
 
@@ -24,7 +25,7 @@ class IsNotified(models.Model):
 	notif = models.ForeignKey(Notification, on_delete=models.CASCADE)
 
 class RoomNotifies(models.Model):
-	room_id = models.IntegerField(default=0)
+	room_code = models.CharField(max_length=6, default='')
 	notif = models.ForeignKey(Notification, on_delete=models.CASCADE)
 
 
