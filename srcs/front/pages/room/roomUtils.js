@@ -132,6 +132,9 @@ export async function inviteFriend(code, mode) {
 	inviteButton.addEventListener("click", async (e) => {
 		// retrive value selected in the dropdown
 		const guest = inviteFriends.value; 
+		if (guest === "" || guest === null || guest === "Friends") {
+			return;
+		}
 		console.log("Inviting friends: ", guest, "to Room: ", code, " mode: ", mode)
 		// send invite to the room
 		fetch("/api/notif/create_notif/game_invitation/" + guest, {
