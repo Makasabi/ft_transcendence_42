@@ -19,12 +19,12 @@ def add_random_friendships():
 	all_players = Player.objects.all()
 
 	for player in all_players:
-		num_friends = random.randint(1, 10)  # Choose a random number of friends for the player
+		num_friends = random.randint(8, 20)  # Choose a random number of friends for the player
 
 		friends_to_add = random.sample(list(all_players.exclude(id=player.id)), min(num_friends, len(all_players)-1))
 
 		for friend in friends_to_add:
-			if not BeFriends.objects.filter(user1=player.id, user2=friend.id).exists() and not BeFriends.objects.filter(user1=friend.id, user2=player.id).exists():
+			if not BeFriends.objects.filter(user1=player.id, user2=friend.id).exists():
 				BeFriends.objects.create(user1=player.id, user2=friend.id)
 				print(f'User "{player.username}" is now friends with "{friend.username}"')
 
