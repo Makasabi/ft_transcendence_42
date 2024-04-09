@@ -196,6 +196,7 @@ form button:hover {
 
 .JRM_cta,
 .CRM_cta {
+	margin: inherit;
 	padding: 10px 20px;
 	border-radius: 10px;
 	font-weight: 700;
@@ -273,4 +274,24 @@ form button:hover {
 
 .friendSB {
 	width: 50%;
+}
+
+select, .room_code{ 
+	padding: 1vh;
+	width: 100%;
+	margin: 1vh 0;
+	border-radius: 10px;
+	border: var(--border-light) 1px solid;
+	backdrop-filter: blur(4px);
+	background-color: var(--transparent-dark);
+	color: var(--ligth);
+}
+
+.room_code:hover {
+	background-color: var(--hover-primary-color);
+	transition: ease-in-out 0.1s;
+}
+
+option { 
+	background-color: var(--transparent-dark);
 }

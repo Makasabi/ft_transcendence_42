@@ -12,7 +12,7 @@ import { checkRoomCode } from "/front/pages/room/roomUtils.js";
  */
 export class CreateRoomView extends IView {
 	static match_route(route) {
-		if (route === "/create/normal" || route === "/create/tournament") {
+		if (route === "/create/Normal" || route === "/create/Tournament") {
 			return true;
 		} else {
 			return false;
@@ -35,7 +35,7 @@ export class CreateRoomView extends IView {
 			},
 			body: JSON.stringify({
 				'username' : user.username,
-				'visibility' : 'private',
+				'visibility' : 'Private',
 				'roomMode' : roomMode,})
 		}).then(responsedb => responsedb.json());
 		console.log("roomdb:", roomdb);

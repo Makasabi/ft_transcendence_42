@@ -37,9 +37,31 @@ export class RoomView extends IView {
 				'Authorization': `Token ${Login.getCookie('token')}`,}}).then(response => response.json());
 		let html = await fetch("/front/pages/room/room.html").then(response => response.text());
 
+		html = html.replace("{{roomVisibility}}", roomInfo.visibility);
 		html = html.replace("{{roomMode}}" , roomInfo.roomMode);
 		html = html.replace("{{roomCode}}", roomInfo.code);
 		document.querySelector("main").innerHTML = html;
+
+		const friends = await fetch("/api/user_management/get_friends", {
+			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+		}).then(response => response.json());
+
+		let inviteFriends = document.getElementById("invite_friends");
+
+		const defaultOption = document.createElement("option");
+		defaultOption.value = "";
+		defaultOption.disabled = true;
+		defaultOption.selected = true;
+		defaultOption.hidden = true;
+		defaultOption.textContent = "Friends";
+		inviteFriends.appendChild(defaultOption);
+
+		friends.forEach(friend => {
+			const friendContainer = document.createElement("option");
+			friendContainer.value = friend.username;
+			friendContainer.textContent = friend.username;
+			inviteFriends.appendChild(friendContainer);
+		});
 		
 		this.roomSocket = createRoomSocket(roomInfo.room_id);
 

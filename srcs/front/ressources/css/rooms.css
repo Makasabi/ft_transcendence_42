@@ -43,7 +43,34 @@
 	font-weight: 700;
 	text-align: center;
 	color:var(--primary-color);
-}	
+}
+
+.sub_box h2 {
+	font-weight: 700;
+	text-align: center;
+	color:var(--light);
+}
+
+.invite {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: 25vw;
+	width: 100%;
+	align-content: center;
+	flex-wrap: wrap;
+}
+
+.invite #friends, .invite #code {
+	align-content: center;
+}
+
+#select-invite {
+	display : flex;
+	flex-direction: row;
+	margin: 1vh 0;
+}
 
 .playersInTheRoom {
 	display: flex;

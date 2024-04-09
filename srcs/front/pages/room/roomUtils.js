@@ -63,6 +63,8 @@ export async function updatePlayer(data) {
 	+ `<p> ${player.username}</p>`
 	+ `</div>`;
 	playerList.replaceChild(newMaster, oldMaster);
+	applyPlayerBorder(data.player_id);
+
 }
 
 
@@ -137,14 +139,14 @@ export async function checkRoomCode(code) {
 export function createRoomForm()
 {
 	let createRoom = document.querySelectorAll(".createRoomMode input");
-	let selectedMode = "/create/normal";
+	let selectedMode = "/create/Normal";
 	for (let index = 0; index < createRoom.length; index++) {
 		createRoom[index].addEventListener("change", (event) => {
 			event.preventDefault();
 			if (event.target.value === "1") {
-				selectedMode = "/create/normal";
+				selectedMode = "/create/Normal";
 			} else if (event.target.value === "2") {
-				selectedMode = "/create/tournament";
+				selectedMode = "/create/Tournament";
 			}
 		});
 	}
