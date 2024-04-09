@@ -20,32 +20,6 @@
 	background-color: transparent;
 }
 
-.search_bar {
-	display: flex;
-	flex-direction: row;
-	justify-content: left;
-	align-items: center;
-	border-radius: 10px;
-	border: var(--border-light) 1px solid;
-	backdrop-filter: blur(4px);
-	background-color: var(--transparent-dark);
-	width: 50%;
-	color: var(--ligth);
-}
-
-.search_bar img {
-	margin: 0 1vw;
-	width: 2vh;
-	filter: invert(53%) sepia(1%) saturate(0%) hue-rotate(184deg) brightness(100%) contrast(85%);
-}
-
-.search_bar input {
-	border: none;
-	padding: 1vh;
-	width: 85%;
-	background-color: transparent;
-	color: var(--light);
-}
 
 input.placeholder {
 	color: var(--dark);
