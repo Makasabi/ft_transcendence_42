@@ -1,9 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from user_management.models import Player
-from game.models import Play
 from rest_framework.decorators import api_view
-from rooms.models import Rooms, Occupy
+from rooms.models import Rooms
 import random
 import string
 

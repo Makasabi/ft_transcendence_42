@@ -11,6 +11,6 @@ class Game(models.Model):
 	date = models.DateField(default=timezone.now)
 
 class Play(models.Model):
-	score = models.IntegerField(default=0)
-	users = models.ManyToManyField(Player)
 	game = models.ForeignKey(Game, on_delete=models.CASCADE)  # Add the game field
+	user_id = models.IntegerField(default=0)
+	score = models.IntegerField(default=0)
