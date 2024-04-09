@@ -1,8 +1,8 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
-import { checkRoomCode, addPlayer, removePlayer, updatePlayer } from "/front/pages/room/roomUtils.js";
-
+import { checkRoomCode, addFriendList, inviteFriend } from "/front/pages/room/roomUtils.js";
+import { addPlayer, removePlayer, updatePlayer, } from "/front/pages/room/roomWebsockets.js";
 /**
  * RoomView class
  *
@@ -19,9 +19,7 @@ export class RoomView extends IView {
 
 	/**
 	 * Renders the room page after checking if the roomCode is valid or not
-	 *
 	 * if roomcode is valid, it renders the room page
-	 * TODO: else it redirects to unknown room code view -> explaining that the room code is either invalid or the room has been closed since.
 	 */
 	async render() {
 
@@ -41,50 +39,10 @@ export class RoomView extends IView {
 		html = html.replace("{{roomMode}}" , roomInfo.roomMode);
 		html = html.replace("{{roomCode}}", roomInfo.code);
 		document.querySelector("main").innerHTML = html;
-
-		const friends = await fetch("/api/user_management/get_friends", {
-			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-		}).then(response => response.json());
-
-		let inviteFriends = document.getElementById("invite_friends");
-
-		const defaultOption = document.createElement("option");
-		defaultOption.value = "";
-		defaultOption.disabled = true;
-		defaultOption.selected = true;
-		defaultOption.hidden = true;
-		defaultOption.textContent = "Friends";
-		inviteFriends.appendChild(defaultOption);
-
-		friends.forEach(friend => {
-			const friendContainer = document.createElement("option");
-			friendContainer.value = friend.username;
-			friendContainer.textContent = friend.username;
-			inviteFriends.appendChild(friendContainer);
-		});
-
-		// inviteToRoom();
-		let inviteButton = document.getElementById("invite_button");
-		inviteButton.addEventListener("click", () => {
-			// retrive value selected in the dropdown
-			const guest = inviteFriends.value;
-			// send invite to the room
-			fetch("/api/notif/create_notif/game_invitation/" + guest, {
-				method: 'POST',
-				headers: { 
-					'Content-Type': 'application/json',
-					'Authorization': `Token ${Login.getCookie('token')}`
-				}, 
-				body: JSON.stringify({
-					"room_code": roomInfo.code,
-					"room_mode": roomInfo.roomMode,
-				}),
-			});
-			console.log("Invitation sent to", guest);
-		});
-
-
 		
+		addFriendList();
+		inviteFriend(roomInfo.code, roomInfo.roomMode);
+
 		this.roomSocket = createRoomSocket(roomInfo.room_id);
 
 		await document.getElementById("start").addEventListener("click", () => {
