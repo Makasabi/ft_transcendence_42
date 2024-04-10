@@ -31,12 +31,8 @@ def create_room(request):
 		"visibility": request.data['visibility'],
 		"code": ""
 	}
-	username = request.data['username']
+	# username = request.data['username']
 
-	# geneate random rommCode of 6 string.ascii_uppercase + string.digits
-	# checks if roomCode already exists
-	# if not, create room
-	# else, generate another roomCode
 	code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 	while Rooms.objects.filter(code=code).exists():
 		code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
@@ -111,28 +107,7 @@ def roomInfo(request, roomCode):
 
 	return JsonResponse(room_data)
 
-# @api_view(['GET'])
-# def occupancy(request, roomId):
-# 	"""
-# 	Get room occupancy
-	
-# 	Args:
-# 	- request: Request object
-	
-# 	Returns:
-# 	- occupancy_data: Dictionary containing room occupancy data :
-# 		room_id
-# 		occupancy
-# 	"""
-# 	occupancy_data = {
-# 		"room_id": roomId,
-# 		"occupancy": 0
-# 	}
-# 	print(request.data)
-# 	print(roomId)
 
-
-# 	return JsonResponse(occupancy_data)
 
 @api_view(['POST'])
 def create_tournament(request, roomId):

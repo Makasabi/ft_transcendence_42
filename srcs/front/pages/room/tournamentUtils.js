@@ -8,7 +8,7 @@ import { IView } from "/front/pages/IView.js";
  * @param {*} room_id 
  * @param {*} roomCode 
  */
-async function createTournament(roomSocket, room_id, roomCode) {
+export async function createTournament(roomSocket, room_id, roomCode) {
 	let tournament = await fetch (`/api/rooms/create_tournament/${room_id}`, {
 		method: "POST",
 		headers: {
