@@ -170,6 +170,7 @@ if __name__ == '__main__':
 	engine.start()
 	engine.input('ready', 0)
 	engine.input('ready', 1)
+	engine.input('ready', 2)
 	while not engine.is_ready():
 		sleep(1/30)
 
