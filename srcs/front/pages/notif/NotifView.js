@@ -70,10 +70,7 @@ function acceptFriend(notification) {
 }
 
 function acceptGameInvitation(notification) {
-	console.log('notification: ', notification);
 	finish();
-	document.querySelector('.foreground-box').remove();
-
 	route(`/room/${notification.room_code}`);
 }
 
@@ -89,14 +86,16 @@ function finish(){
 
 }
 
-function renderAcceptIcon(notification, actionIcons) {
+function renderAcceptIcon(notification, actionIcons, notifsLength) {
 	if (notification.type === 'friend_request' || notification.type === 'game_invitation') {
 		const acceptIcon = document.createElement('span');
 		acceptIcon.textContent = 'V';
 		acceptIcon.classList.add('action-icon');
 		acceptIcon.addEventListener('click', (event) => {
-			// Handle friend request acceptance
-			console.log('notification.sender_id', notification.sender_id);
+			if (notifsLength === 1) {
+				const foregroundBox = document.querySelector('.foreground-box');
+				foregroundBox.remove();
+			}
 			if (notification.type === 'friend_request')
 				acceptFriend(notification);
 			else
@@ -106,7 +105,7 @@ function renderAcceptIcon(notification, actionIcons) {
 	}
 }
 
-function renderDeclineIcon(notificationElement) {
+function renderDeclineIcon(notifsLength) {
 	const declineIcon = document.createElement('span');
 	declineIcon.textContent = 'X';
 	declineIcon.classList.add('action-icon');
@@ -121,32 +120,42 @@ function renderDeclineIcon(notificationElement) {
 		if (notificationElement) {
 			notificationElement.style.display = 'none';
 		}
+		if (notifsLength === 1) {
+			const foregroundBox = document.querySelector('.foreground-box');
+			foregroundBox.remove();
+		}
 	});
 	return declineIcon;
 }
 
-function renderNotifIcons(notification, notificationElement) {
+function renderNotifIcons(notification, notificationElement, notifsLength) {
 	const actionIcons = document.createElement('div');
 	actionIcons.classList.add('action-icons');
 
-	renderAcceptIcon(notification, actionIcons);
-	const declineIcon = renderDeclineIcon(notificationElement);
+	renderAcceptIcon(notification, actionIcons, notifsLength);
+	const declineIcon = renderDeclineIcon(notifsLength);
 	actionIcons.appendChild(declineIcon);
 
 	notificationElement.appendChild(actionIcons);
 }
 
-async function displayNotifBox(notifs) {
+async function displayNotifBox() {
 	const notificationsLink = document.getElementById('notif-box');
 		notificationsLink.addEventListener("click", async (event) => {
+			let notifs = await fetch('/api/notif/get_notifs/all', {
+				headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+			}).then(response => response.json())
 			setNotifSeen();
+			if (notifs.length === 0)
+				return;
 			event.stopPropagation();
 
 			// Create and display the foreground box
 			const foregroundBox = document.createElement('div');
 			foregroundBox.classList.add('foreground-box');
-			document.body.appendChild(foregroundBox);
-	
+			
+			console.log('Notifications box');
+			
 			const notificationsContainer = document.createElement('div');
 			notificationsContainer.classList.add('notifications-container');
 			foregroundBox.appendChild(notificationsContainer);
@@ -157,9 +166,12 @@ async function displayNotifBox(notifs) {
 				notificationElement.textContent = notification.message;
 				notificationElement.id = notification.notif_id;
 				notificationsContainer.appendChild(notificationElement);
-				renderNotifIcons(notification, notificationElement);
+				renderNotifIcons(notification, notificationElement, notifs.length);
 			});
+			console.log('Notifications loaded');
 			
+			document.body.appendChild(foregroundBox);
+
 			const closeForegroundBox = function(event) {
 				if (!foregroundBox.contains(event.target)) {
 					foregroundBox.remove();
@@ -179,11 +191,7 @@ function setNotifSeen() {
 }
 
 async function displayNotifications () {
-	let notifs = await fetch('/api/notif/get_notifs/all', {
-		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-	}).then(response => response.json())
-	// console.log('Notifications fetched', notifs)
-	displayNotifBox(notifs);
+	displayNotifBox();
 }
 
 // display new notification red dot
