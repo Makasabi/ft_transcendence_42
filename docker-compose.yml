@@ -16,26 +16,36 @@ services:
       - ft_transcendence
     ports:
       - '8080:80'
+    depends_on:
+      - db_user_management
 
   user_management:
     container_name: user_management_container
     build: ./user_management
     env_file: .env
-    command: gunicorn wsgi:application --bind 0.0.0.0:8001
+      #command: gunicorn wsgi:application --bind 0.0.0.0:8001
     restart: always
-      #depends on:
-      #  - db_user_management
+    depends_on:
+      - db_user_management
     networks:
       - ft_transcendence
     expose: 
-      - 8001
+      - "8001"
 
   db_user_management:
     container_name: db_user_management_container
     image: postgres:15
     volumes:
       - user_postgres_data:/var/lib/postgresql/data/
-    env_file: .env
+    environment:
+      - POSTGRES_USER=hello_django
+      - POSTGRES_PASSWORD=hello_django
+      - POSTGRES_DB=hello_django_dev
+    expose: 
+      - "5432"
+    networks:
+      - ft_transcendence
+
         #user: "1000:1000"
 
        #  redis:

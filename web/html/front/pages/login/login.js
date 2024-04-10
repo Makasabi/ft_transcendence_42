@@ -14,7 +14,6 @@ export function getCookie(name)
 {
 	const cookies = document.cookie.split(';');
 	const cookie = cookies.find(cookie => cookie.trim().startsWith(name + '='));
-	//console.log("token : ", cookie ? cookie.split('=')[1] : null);
 	return cookie ? cookie.split('=')[1] : null;
 }
 
@@ -24,55 +23,6 @@ export function deleteCookie(name)
 }
 
 				/*** Views ***/
-export class GameTestView extends IView
-{	
-	static match_route(route)
-	{
-		return route === "/game_test";
-	}
-
-	static async render()
-	{
-		await fetch("/front/pages/login/game_test.html")
-			.then(response => response.text())
-			.then(html => document.querySelector("main").innerHTML = html);
-		try
-		{
-			let socket = new WebSocket("ws://localhost:8000/ws/game_test/");
-
-			const form = document.getElementById('janken-form');
-			form.addEventListener('submit', e => {
-				e.preventDefault();
-				console.log("EVENT");
-				socket.send(JSON.stringify(form.choice.value));
-			});
-
-			socket.onerror = error => {
-				console.log("Ws error : ", error);
-			};
-
-			socket.onopen = e => {
-				console.log("Open : " , e);
-			};
-
-			socket.onclose = e => {
-				console.log('Socket closed');
-			};
-
-			socket.onmessage = event => {
-	  			const result = JSON.parse(event.data);
-				if (result["message"])
-					console.log(result["message"]);
-				document.getElementById('janken-result').textContent = result;
-			}
-		}
-		catch (error)
-		{
-			console.log(error);
-		}
-	}
-}
-
 export class UnloggedHeaderView extends IView
 {
 	static async render() {
@@ -165,6 +115,12 @@ export class LoginView extends IView
 
 		const forty2_button = document.getElementById("forty2-auth-btn");
 		forty2_button.addEventListener("click", forty2_signup_event);
+
+		const not_registered = document.getElementById("not-registered");
+		not_registered.addEventListener("click", e => {
+			e.preventDefault();
+			route("/signup");
+		})
 	}
 }
 
@@ -259,7 +215,10 @@ export async function is_logged()
 			return true;
 		}
 		else
+		{
+			console.log('response : ', response.test());
 			return false;
+		}
 	}).catch(error => {
 		return false;
 	});
@@ -499,7 +458,7 @@ export async function forty2_signup_event(e)
 {
 	const uid = "u-s4t2ud-778802c450d2090b49c6c92d251ff3d1fbb51b03a9284f8f43f5df0af1dae8fa";
 	const state = generateRandomString(15);
-	const authURL = `https://api.intra.42.fr/oauth/authorize?client_id=${uid}&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fforty2&response_type=code&state=${state}`
+	const authURL = `https://api.intra.42.fr/oauth/authorize?client_id=${uid}&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fforty2&response_type=code&state=${state}`
 	setCookie('42state', state, 1);
 	window.location.href=authURL;
 }

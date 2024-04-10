@@ -18,9 +18,13 @@ BASE_DIR = os.path.dirname((os.path.abspath(__file__)))
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
-DEBUG = False
+if os.environ.get('DEBUG') == '1':
+    DEBUG = True
+else:
+    DEBUG = False
 
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(' ')
 
 # Application definition
 
@@ -119,8 +123,10 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATICFILES_DIRS = [
-	os.path.join(BASE_DIR, "node_modules"),
-]
+#STATICFILES_DIRS = [
+#	os.path.join(BASE_DIR, "node_modules"),
+#]
+#
+#STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

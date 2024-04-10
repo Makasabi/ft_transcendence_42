@@ -63,7 +63,7 @@ def forty2_auth(request):
 		'client_id': 'u-s4t2ud-778802c450d2090b49c6c92d251ff3d1fbb51b03a9284f8f43f5df0af1dae8fa',
 		'client_secret': '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',
 		'code': request.data['code'],
-		'redirect_uri': 'http://localhost:8000/forty2',
+		'redirect_uri': 'http://localhost:8080/forty2',
 	}
 	print(data)
 	response = requests.post("https://api.intra.42.fr/oauth/token", data=data)
