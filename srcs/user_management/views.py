@@ -169,6 +169,8 @@ def add_friend(request, user_id):
 	"""
 	user1 = request.user.id
 	user2 = user_id
+	if user1 == user2:
+		return JsonResponse({'error': 'Cannot add yourself as a friend'}, status=400)
 	BeFriends.objects.create(user1=user1, user2=user2)
 	return JsonResponse(profile_serializer(request.user))
 
