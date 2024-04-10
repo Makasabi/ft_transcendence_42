@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rooms.models import Rooms, Tournament, Occupy
 import random
+import requests
 import string
 
 @api_view(['POST'])
@@ -135,13 +136,11 @@ def create_tournament(request, roomId):
 		contestants = Occupy.objects.filter(room_id=roomId)
 		occupancy = len(contestants)
 
-	# TODO: compute total_rounds based on occupancy HERE
 	total_rounds = (occupancy + 6) // 7
-	print("Total rounds ", total_rounds)
-	repartition = compute_repartition(occupancy, total_rounds)
 
-	# distribute players randomly in the games
-	distribute_contestants(contestants, repartition)
+	repartition = compute_repartition(occupancy)
+	repartition = distribute_contestants(request, contestants, repartition)
+	print("Repartition ", repartition)
 
 	Tournament.objects.create(room_id=room_ID, total_rounds=total_rounds, current_round=1)
 
@@ -175,7 +174,7 @@ def roomPlayers(request, room_id):
 
 	return JsonResponse({'players_ids': players})
 
-def compute_repartition(occupancy, total_rounds):
+def compute_repartition(occupancy):
 	"""
 	Compute the repartition of the players in the tournament
 
@@ -185,18 +184,23 @@ def compute_repartition(occupancy, total_rounds):
 	Returns:
 	- repartition: List of players in each round
 	"""
+	res = occupancy % 6
+	if (res != 0):
+		nb_pools = occupancy // 6 + 1
+	else:
+		nb_pools = occupancy // 6
+
 	repartition = []
-	extra = occupancy % total_rounds
-	for i in range(total_rounds):
-		places = occupancy // total_rounds
+	extra = occupancy % nb_pools
+	for i in range(nb_pools):
+		places = occupancy // nb_pools
 		if extra > 0:
 			places += 1
 			extra -= 1
 		repartition.append({"places": places, "players": []})
-	print("For {} players, the repartition is: {}".format(occupancy, repartition))
 	return repartition
 
-def distribute_contestants(contestants, repartition):
+def distribute_contestants(request, contestants, repartition):
 	"""
 	Distribute randomly the players in the games
 
@@ -204,23 +208,29 @@ def distribute_contestants(contestants, repartition):
 	- contestants: List of all players in the room
 	- repartition: List of games and number of places in each game
 	"""
-	print("Distributing players in the games")
-
-	# Convert QuerySet to list
 	contestants_list = list(contestants)
-
-	# Shuffle the contestants list randomly
 	random.shuffle(contestants_list)
 
-	# Distribute contestants into games according to the specified repartition
 	distributed_contestants = {}
-	for i, round_data in enumerate(repartition, 1):
-		places = round_data.get("places", 0)
+
+	for i, pool_data in enumerate(repartition, 1):
+		places = pool_data.get("places", 0)
 		players = contestants_list[:places]
-		contestants_list = contestants_list[places:]
-		distributed_contestants[f"round_{i}"] = players
 		for player in players:
-			print(f"Round {i} : Player {player.player_id}")
+			url = f"http://localhost:8000/api/user_management/user/id/{player.player_id}"
+			token = f"Token {request.auth}"
+			headers = {'Authorization': token}
+			data = requests.get(url, headers=headers)
+			pool_data["players"].append(data.json())
+		contestants_list = contestants_list[places:]
+		distributed_contestants[f"pool_{i}"] = pool_data
+
+	# Uncomment to print the repartition
+	# for pool in distributed_contestants:
+	# 	print(f"Pool nb {pool}")
+	# 	for player in distributed_contestants[pool]["players"]:
+	# 		print(player)
+	# 	print("\n")
 	return distributed_contestants
 
 
