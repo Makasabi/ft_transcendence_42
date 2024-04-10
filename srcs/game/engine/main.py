@@ -75,13 +75,15 @@ YELLOW = (255, 255, 0)
 FPS = 30
 
 def render_game(state):
-	ball_data = state['ball']
-	ball_rect = pygame.Rect(
-		ball_data['posx'] - ball_data['radius'],
-		ball_data['posy'] - ball_data['radius'],
-		ball_data['radius'] * 2,
-		ball_data['radius'] * 2
-	)
+	balls_data = state['balls']
+	balls_rect = list()
+	for ball_data in balls_data:
+		balls_rect.append(pygame.Rect(
+			ball_data['posx'] - ball_data['radius'],
+			ball_data['posy'] - ball_data['radius'],
+			ball_data['radius'] * 2,
+			ball_data['radius'] * 2
+		))
 
 	#Draw on screen
 	screen.fill(BLACK)
@@ -159,7 +161,9 @@ def render_game(state):
 			2
 		))
 
-	pygame.draw.ellipse(screen, WHITE, ball_rect)
+	for ball_rect in balls_rect:
+		pygame.draw.ellipse(screen, WHITE, ball_rect)
+
 	pygame.display.update()
 	return 0
 

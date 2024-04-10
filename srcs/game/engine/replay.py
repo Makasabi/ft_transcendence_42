@@ -54,6 +54,14 @@ def render_game(state, inputs):
 			3
 		)
 
+	middle_pilar = state.get('middle_pilar', [])
+	for i in range(0, len(middle_pilar) + 1):
+		pygame.draw.line(screen, RED,
+			(middle_pilar[i%len(middle_pilar)][0], middle_pilar[i%len(middle_pilar)][1]),
+			(middle_pilar[(i+1)%len(middle_pilar)][0], middle_pilar[(i+1)%len(middle_pilar)][1]),
+			1
+		)
+
 	for pilar in state.get('pilars', []):
 		for i in range(0, len(pilar) + 1):
 			pygame.draw.line(screen, RED,
@@ -83,37 +91,49 @@ def render_game(state, inputs):
 			1
 		)
 
-	ball_data = state['ball']
-	ball_rect = pygame.Rect(
-		ball_data['posx'] - ball_data['radius'],
-		ball_data['posy'] - ball_data['radius'],
-		ball_data['radius'] * 2,
-		ball_data['radius'] * 2
-	)
+	balls_data = state['balls']
+	balls_rect = list()
+	for ball_data in balls_data:
+		balls_rect.append(pygame.Rect(
+			ball_data['posx'] - ball_data['radius'],
+			ball_data['posy'] - ball_data['radius'],
+			ball_data['radius'] * 2,
+			ball_data['radius'] * 2
+		))
+#	ball_data = state['ball']
+#	ball_rect = pygame.Rect(
+#		ball_data['posx'] - ball_data['radius'],
+#		ball_data['posy'] - ball_data['radius'],
+#		ball_data['radius'] * 2,
+#		ball_data['radius'] * 2
+#	)
 
-	for wall in ball_data['debug'].get('wall_collisionned', []):
-		pygame.draw.line(screen, COOL_BLUE,
-			(int(wall[0][0]), int(wall[0][1])),
-			(int(wall[1][0]), int(wall[1][1])),
-			1
-		)
+	for ball_data in balls_data:
+		for wall in ball_data['debug'].get('wall_collisionned', []):
+			pygame.draw.line(screen, COOL_BLUE,
+				(int(wall[0][0]), int(wall[0][1])),
+				(int(wall[1][0]), int(wall[1][1])),
+				1
+			)
 
-	if ball_data['debug'].get('has_wall_collision', False):
-		color = CYAN
-		for next_position in ball_data['debug'].get('next_positions', []):
-			color = (0, color[1] - 10, color[2] - 10)
-			if color[1] < 0 or color[2] < 0:
-				color = CYAN
-			pygame.draw.ellipse(screen, color, pygame.Rect(
-				next_position[0] - ball_data['radius'],
-				next_position[1] - ball_data['radius'],
-				ball_data['radius'] * 2,
-				ball_data['radius'] * 2
-			))
+	for ball_data in balls_data:
+		if ball_data['debug'].get('has_wall_collision', False):
+			color = CYAN
+			for next_position in ball_data['debug'].get('next_positions', []):
+				color = (0, color[1] - 10, color[2] - 10)
+				if color[1] < 0 or color[2] < 0:
+					color = CYAN
+				pygame.draw.ellipse(screen, color, pygame.Rect(
+					next_position[0] - ball_data['radius'],
+					next_position[1] - ball_data['radius'],
+					ball_data['radius'] * 2,
+					ball_data['radius'] * 2
+				))
 
 
-	ball_color = MAGENTA if ball_data['debug'].get('has_wall_collision', False) else WHITE
-	pygame.draw.ellipse(screen, ball_color, ball_rect)
+	ball_color = MAGENTA if balls_data[0]['debug'].get('has_wall_collision', False) else WHITE
+	for ball_rect in balls_rect:
+		pygame.draw.ellipse(screen, WHITE, ball_rect)
 	pygame.display.update()
 
 
