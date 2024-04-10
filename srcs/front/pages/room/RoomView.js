@@ -45,28 +45,35 @@ export class RoomView extends IView {
 
 		this.roomSocket = createRoomSocket(roomInfo.room_id);
 
-		await document.getElementById("start").addEventListener("click", () => {
-			console.log("Starting game");
-			fetch(`/api/game/start/${roomInfo.room_id}`, {
-				method: "POST",
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Token ${Login.getCookie('token')}`,
-				},
-				body: JSON.stringify({
-					"room_id": roomInfo.room_id,
-				}),
-			}).then(response => {
-				if (response.status === 200) {
-					this.roomSocket.send(JSON.stringify({
-						"message": "Game starting",
-						"room": roomInfo.room_id,
-					}));
-				} else {
-					console.error("Error starting game");
-				}
-			})
-		});
+		if (roomInfo.roomMode === "Tournament") {
+			await document.getElementById("start").addEventListener("click", async () => {
+				createTournament(this.roomSocket ,roomInfo.room_id, roomInfo.code);
+			});
+		}
+		else {
+			await document.getElementById("start").addEventListener("click", () => {
+				console.log("Starting game");
+				fetch(`/api/game/start/${roomInfo.room_id}`, {
+					method: "POST",
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': `Token ${Login.getCookie('token')}`,
+					},
+					body: JSON.stringify({
+						"room_id": roomInfo.room_id,
+					}),
+				}).then(response => {
+					if (response.status === 200) {
+						this.roomSocket.send(JSON.stringify({
+							"message": "Game starting",
+							"room": roomInfo.room_id,
+						}));
+					} else {
+						console.error("Error starting game");
+					}
+				})
+			});
+		}
 	}
 
 	destroy() {
@@ -78,9 +85,32 @@ export class RoomView extends IView {
 }
 
 /**
+ * send a POST request to back to create the tournament record in DB
+ * once created, send a websocket message to all players in the room to start the tournament
+ * @param {*} roomSocket 
+ * @param {*} room_id 
+ * @param {*} roomCode 
+ */
+async function createTournament(roomSocket, room_id, roomCode) {
+	let tournament = await fetch (`/api/rooms/create_tournament/${room_id}`, {
+		method: "POST",
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': `Token ${Login.getCookie('token')}`},
+		body: JSON.stringify({
+			"room_id": room_id,
+			"room_code": roomCode,
+		}),
+	}).then(response => response.json())
+
+	console.log("Tournament created: ", tournament);
+}
+
+/**
  * function to create a new socket when a user enters a room
  * (upon creation or joining (with code in URL, via home form, or via invite notification))
  */
+
 export function createRoomSocket(roomid) {
 	console.log('Creating socket for room:', roomid);
 	const roomSocket = new WebSocket(
@@ -123,6 +153,7 @@ export function createRoomSocket(roomid) {
 
 	// on receiving message on group
 	roomSocket.onmessage = function (e) {
+		console.log('Rooms - Message received:', e.data);
 		const data = JSON.parse(e.data);
 		const type = data.type;
 		switch (type) {
@@ -141,6 +172,10 @@ export function createRoomSocket(roomid) {
 			case 'game_start':
 				console.log('Game starting');
 				route(`/game/${roomid}`);
+				break;
+			case 'tournament_start':
+				console.log('Tournament starting');
+				route(`/tournament/${roomid}`);
 				break;
 			default:
 				console.log('Unknown message type:', type);

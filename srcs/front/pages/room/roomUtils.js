@@ -86,9 +86,7 @@ export async function applyPlayerBorder(player_id) {
 	}).then(response => response.json());
 
 	if (player_id === me.id) {
-		console.log(`player${player_id} and me.id ${me.id} are the same`);
 		let playerImgDiv = document.getElementById(`imgPlayer${player_id}`);
-		console.log(playerImgDiv);
 		playerImgDiv.style.border = "var(--primary-color) 4px solid";
 	}
 
@@ -135,7 +133,6 @@ export async function inviteFriend(code, mode) {
 		if (guest === "" || guest === null || guest === "Friends") {
 			return;
 		}
-		console.log("Inviting friends: ", guest, "to Room: ", code, " mode: ", mode)
 		// send invite to the room
 		fetch("/api/notif/create_notif/game_invitation/" + guest, {
 			method: 'POST',
@@ -153,6 +150,8 @@ export async function inviteFriend(code, mode) {
 
 /*
 TODO: When last player leaves room --> define what to do with room record.
+TODO: add Leave Room button
+TODO: Limit number of players in tournament at MIN 8 & MAX 36
 */
 
 

@@ -20,9 +20,7 @@ export class CreateRoomView extends IView {
 	}
 
 	async render() {
-		console.log(document.URL)
 		let roomMode = document.URL.split("/")[4];
-		console.log("roomMode: ", roomMode);
 		let user = await fetch("/api/user_management/me", {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		}).then(response => response.json());
@@ -38,7 +36,6 @@ export class CreateRoomView extends IView {
 				'visibility' : 'Private',
 				'roomMode' : roomMode,})
 		}).then(responsedb => responsedb.json());
-		console.log("roomdb:", roomdb);
 	
 		let newUrl = "/room/" + roomdb.code;
 		let state = { 'code': roomdb.code };
