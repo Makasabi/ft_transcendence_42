@@ -57,7 +57,7 @@ export class GameView extends IView {
 			await this.game.start();
 			console.log("End of game");
 			// @TODO take results and redirect to the room
-			route("/home");
+			route("/");
 		}
 		catch (e) {
 			console.error("Game error", e);

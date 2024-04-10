@@ -25,6 +25,7 @@ class GameEngine(threading.Thread):
 		self.game_id = game_id
 		self.state = state
 		self.ready_to_send = True
+		self.death_order = []
 
 		arena_borders = get_hexagon_borders(ARENA_WIDTH // 2)
 
@@ -105,8 +106,18 @@ class GameEngine(threading.Thread):
 	def run(self) -> None:
 		if self.debug:
 			self.debug_run()
-			return
-		self.normal_run()
+		else:
+			self.normal_run()
+		channel_layer = get_channel_layer()
+		async_to_sync(channel_layer.send)(
+			"game_consumer",
+			{
+				"type": "game.end",
+				"game_id": self.game_id,
+				"player_ranking": self.death_order,
+			}
+		)
+
 
 	def game_loop(self, timestamp) -> None:
 		for player in self.players.values():
@@ -115,11 +126,13 @@ class GameEngine(threading.Thread):
 			ball.update(1 / 60, self.players, self.collisions_walls, self.middle_pilar, self.balls)
 		for player in self.players.values():
 			if player.HP <= 0:
-				self.players.pop(player.player_id)
+				self.death_order.append(player.player_id)
+				del self.players[player.player_id]
 				self.walls.append(player.border)
 				self.collisions_walls.append(player.border)
 				return False
-		if len(self.players) <= 1:
+		if len(self.players) == 1:
+			self.death_order.append(list(self.players.keys())[0])
 			return True
 		return False
 

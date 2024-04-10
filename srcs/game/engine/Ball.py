@@ -99,7 +99,7 @@ class Ball:
 				continue
 			A = np.array(next_position)
 			B = np.array(ball.position)
-			AB = B - A;
+			AB = B - A
 			distance = np.linalg.norm(AB)
 			if distance <= BALL_RADIUS * 2:
 				return [AB[0], AB[1]]
