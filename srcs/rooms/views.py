@@ -142,7 +142,7 @@ def create_tournament(request, roomId):
 	tournament_data['room_id'] = roomId
 	tournament_data['room_code'] = room_CODE
 	tournament_data['total_rounds'] = total_rounds
-	tournament_data['current_round'] = 1
+	tournament_data['current_round'] = 3
 	tournament_data['occupancy'] = occupancy
 
 	return JsonResponse(tournament_data)
@@ -167,3 +167,7 @@ def roomPlayers(request, room_id):
 			players.append(occupant.player_id)
 
 	return JsonResponse({'players_ids': players})
+
+@api_view(['GET'])
+def tournamentInfo(request, code)
+	pass

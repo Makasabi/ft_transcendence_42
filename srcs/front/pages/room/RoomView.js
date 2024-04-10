@@ -160,7 +160,7 @@ export function createRoomSocket(roomid) {
 				break;
 			case 'tournament_start':
 				console.log('Tournament starting');
-				route(`/tournament/${roomid}`);
+				route(`/tournament/${data.tournament_id}`);
 				break;
 			default:
 				console.log('Unknown message type:', type);

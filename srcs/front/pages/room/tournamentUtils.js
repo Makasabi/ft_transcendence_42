@@ -18,7 +18,20 @@ export async function createTournament(roomSocket, room_id, roomCode) {
 			"room_id": room_id,
 			"room_code": roomCode,
 		}),
-	}).then(response => response.json())
-
-	console.log("Tournament created: ", tournament);
+	}).then(async response => {
+		if (response.status === 200) {
+			const data = await response.json();
+			console.log("Tournament created:", data);
+			const to_send = JSON.stringify({
+				"type": "tournament_start",
+				"message": "Tournament starting",
+				"room_id": room_id,
+				"room_code": roomCode,
+			})
+			console.log("Sending message to start tournament:", to_send);
+			roomSocket.send(to_send);
+		} else {
+			console.error("Error creating tournament");
+		}
+	})
 }
