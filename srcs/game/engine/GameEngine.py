@@ -8,7 +8,7 @@ from time import sleep, time
 
 from .Ball import Ball
 from .Player import Player
-from .constants import ARENA_HEIGHT, ARENA_WIDTH, FPS, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED, CENTER_X, CENTER_Y
+from .constants import ARENA_HEIGHT, ARENA_WIDTH, FPS, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED, CENTER_X, CENTER_Y, M_PILAR_SIZE
 from .utils import get_hexagon_borders, get_arena_pilars, get_players_arrangement, rotate, get_middle_pilar
 
 class GameEngine(threading.Thread):
@@ -27,7 +27,7 @@ class GameEngine(threading.Thread):
 		arena_borders = get_hexagon_borders(ARENA_WIDTH // 2)
 
 		self.pilars = get_arena_pilars(ARENA_WIDTH // 2)
-		#self.pilars.append(get_middle_pilar(80))
+		self.middle_pilar = get_middle_pilar(M_PILAR_SIZE)
 
 		self.walls = []
 		self.players = {}
@@ -66,7 +66,7 @@ class GameEngine(threading.Thread):
 					sleep(1 / FPS - elapsed_time)
 				self.time = current_time
 
-				self.game_loop(elapsed_time)
+				self.is_stop = self.game_loop(elapsed_time)
 				self.debug_broadcast_state(f)
 				self.status = 'ongoing'
 
@@ -82,7 +82,7 @@ class GameEngine(threading.Thread):
 				sleep(1 / FPS - elapsed_time)
 			self.time = current_time
 
-			self.game_loop(elapsed_time)
+			self.is_stop = self.game_loop(elapsed_time)
 			self.broadcast_state(self.render())
 			self.status = 'ongoing'
 
@@ -95,7 +95,16 @@ class GameEngine(threading.Thread):
 	def game_loop(self, timestamp) -> None:
 		for player in self.players.values():
 			player.update(timestamp)
-		self.ball.update(1 / 60, self.players, self.collisions_walls)
+		self.ball.update(1 / 60, self.players, self.collisions_walls, self.middle_pilar)
+		for player in self.players.values():
+			if player.HP <= 0:
+				self.players.pop(player.player_id)
+				self.walls.append(player.border)
+				self.collisions_walls.append(player.border)
+				return False
+		if len(self.players) <= 1:
+			return True
+		return False
 
 	# INPUTS
 	def input(self, input_type, player_id = None) -> None:
@@ -115,24 +124,30 @@ class GameEngine(threading.Thread):
 			func()
 
 	def left_pressed(self, player_id) -> None:
-		self.players[player_id].inputs['left'] = True
-		self.players[player_id].inputs['right'] = False
+		if player_id in self.players:
+			self.players[player_id].inputs['left'] = True
+			self.players[player_id].inputs['right'] = False
 
 	def left_released(self, player_id) -> None:
-		self.players[player_id].inputs['left'] = False
+		if player_id in self.players:
+			self.players[player_id].inputs['left'] = False
 
 	def right_pressed(self, player_id) -> None:
-		self.players[player_id].inputs['right'] = True
-		self.players[player_id].inputs['left'] = False
+		if player_id in self.players:
+			self.players[player_id].inputs['right'] = True
+			self.players[player_id].inputs['left'] = False
 
 	def right_released(self, player_id) -> None:
-		self.players[player_id].inputs['right'] = False
+		if player_id in self.players:
+			self.players[player_id].inputs['right'] = False
 
 	def sprint_pressed(self, player_id) -> None:
-		self.players[player_id].inputs['sprint'] = True
+		if player_id in self.players:
+			self.players[player_id].inputs['sprint'] = True
 
 	def sprint_released(self, player_id) -> None:
-		self.players[player_id].inputs['sprint'] = False
+		if player_id in self.players:
+			self.players[player_id].inputs['sprint'] = False
 
 	def player_ready(self, player_id) -> None:
 		self.players[player_id].ready = True
@@ -175,10 +190,12 @@ class GameEngine(threading.Thread):
 			'ball': self.ball.render(),
 			'walls': self.walls,
 			'pilars': self.pilars,
+			'middle_pilar': self.middle_pilar,
 			'width': ARENA_WIDTH,
 			'height': ARENA_HEIGHT,
 			'center_x': CENTER_X,
 			'center_y': CENTER_Y,
 			'collisions_walls': self.collisions_walls,
 			'player_arrangement': self.player_arrangement,
+			'end' : self.is_stop
 		}
