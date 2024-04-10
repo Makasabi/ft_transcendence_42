@@ -27,7 +27,7 @@ class Player:
 
 		self.normal = self.get_normal()
 
-		self.HP = 1
+		self.HP = 3
 		self.inputs = {
 			'left': False,
 			'right': False,

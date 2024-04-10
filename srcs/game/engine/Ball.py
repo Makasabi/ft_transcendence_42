@@ -3,9 +3,9 @@ import copy
 import random
 import math
 from time import sleep
-from utils import distance_point_to_line, rotate
 
 from .constants import ARENA_WIDTH, ARENA_HEIGHT, BALL_SPEED, BALL_RADIUS, PLAYER_WIDTH, PLAYER_LENGTH, CENTER_X, CENTER_Y, M_PILAR_SIZE
+from .utils import distance_point_to_line, rotate
 
 class Ball:
 	def __init__(self, debug):
@@ -118,7 +118,6 @@ class Ball:
 		for i in players:
 			player = players[i]
 			if self.has_wall_intersection(player.get_sides(), next_position):
-				print("Collision with player")
 				if self.debug:
 					self.has_wall_collision = True
 					self.wall_collisionned.append(player.get_sides())

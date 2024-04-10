@@ -176,12 +176,22 @@ export class GameContext {
 		]
 
 		let pilar_size = this.state.pilars[0][0][0] - this.state.pilars[0][3][0];
+		let pilar_height = pilar_size/ 1.5;
 		for (let hexagone_center of hexagon_vertices) {
 			object = new GameObject(this.models.pilar);
-			object.scale = [pilar_size / 2, this.state.width / 30, pilar_size / 2];
+			object.scale = [pilar_size / 2, pilar_height, pilar_size / 2];
 			object.position = [hexagone_center[0] * this.state.width / 2, 0, hexagone_center[1] * this.state.height / 2];
 			this.static_objects.push(object);
 		}
+
+		pilar_size = this.state.middle_pilar[0][0] - this.state.middle_pilar[3][0];
+		{
+			object = new GameObject(this.models.pilar);
+			object.scale = [pilar_size / 2, pilar_height, pilar_size / 2];
+			object.position = [0, 0, 0];
+			this.static_objects.push(object);
+		}
+
 		for (let wall of this.state.walls) {
 			this.addWall(wall);
 		}
@@ -198,14 +208,14 @@ export class GameContext {
 		if (this.state.ball) {
 			let object = new Ball(this.models.puck);
 			object.position = [this.state.ball.posx, 0, this.state.ball.posy];
-			object.scale = [this.state.ball.radius, this.state.width / 30., this.state.ball.radius];
+			object.scale = [this.state.ball.radius, this.state.ball.radius, this.state.ball.radius];
 			dynamic_objects.push(object);
 		}
 
 		for (let player of this.state.players) {
 			let object = new Player(this.models.paddle);
 			object.position = [player.posx, 0, player.posy];
-			object.scale = [player.length / 2, this.state.width / 30, this.state.width / 30];
+			object.scale = [player.length / 2, player.length / 5, this.state.width / 30];
 			object.rotation = [0, -Math.atan2(player.right[1] - player.left[1], player.right[0] - player.left[0]), 0];
 			dynamic_objects.push(object);
 		}

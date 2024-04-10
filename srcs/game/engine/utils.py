@@ -15,11 +15,11 @@ hexagon_vertices = [
 ]
 
 def distance_point_to_line(point, line_start, line_end):
-    x1, y1 = line_start
-    x2, y2 = line_end
-    x0, y0 = point
+	x1, y1 = line_start
+	x2, y2 = line_end
+	x0, y0 = point
 
-    return np.abs((x2-x1)*(y1-y0) - (x1-x0)*(y2-y1)) / np.sqrt((x2-x1)**2 + (y2-y1)**2)
+	return np.abs((x2-x1)*(y1-y0) - (x1-x0)*(y2-y1)) / np.sqrt((x2-x1)**2 + (y2-y1)**2)
 
 def get_hexagon_borders(radius) -> None:
 	arena_vertices = [(radius * x + CENTER_X, radius * y + CENTER_Y) for x, y in hexagon_vertices]
