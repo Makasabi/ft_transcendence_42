@@ -22,6 +22,7 @@ class GameEngine(threading.Thread):
 		self.is_stop = False
 		self.game_id = game_id
 		self.state = state
+		self.ready_to_send = True
 
 		arena_borders = get_hexagon_borders(ARENA_WIDTH // 2)
 
@@ -30,7 +31,8 @@ class GameEngine(threading.Thread):
 
 		self.walls = []
 		self.players = {}
-		for i, side in enumerate(get_players_arrangement(len(players))):
+		self.player_arrangement = get_players_arrangement(len(players))
+		for i, side in enumerate(self.player_arrangement):
 			if side == -1:
 				self.walls.append(arena_borders[i])
 			else:
@@ -146,8 +148,11 @@ class GameEngine(threading.Thread):
 
 	# BROADCAST STATE
 	def broadcast_state(self, state: dict) -> None:
+		if not self.ready_to_send:
+			return
 		state_json = state
 		channel_layer = get_channel_layer()
+		self.ready_to_send = False
 		async_to_sync(channel_layer.send)(
 			"game_consumer",
 			{
@@ -175,4 +180,5 @@ class GameEngine(threading.Thread):
 			'center_x': CENTER_X,
 			'center_y': CENTER_Y,
 			'collisions_walls': self.collisions_walls,
+			'player_arrangement': self.player_arrangement,
 		}

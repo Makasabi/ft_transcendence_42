@@ -116,4 +116,6 @@ class Player:
 			'width': PLAYER_WIDTH,
 			'length': PLAYER_LENGTH,
 			'normal' : self.normal,
+			'HP': self.HP,
+			'player_id': self.player_id,
 		}

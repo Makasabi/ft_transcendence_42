@@ -38,6 +38,7 @@ class GameConsumer(AsyncConsumer):
 			"type": "game.update",
 			"state": state
 		})
+		self.engines[game_id].ready_to_send = True
 
 	async def input(self, event):
 		game_id = event["game_id"]

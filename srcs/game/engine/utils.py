@@ -69,7 +69,7 @@ def get_players_arrangement(player_count):
 	if player_count == 5:
 		return (-1, 0, 1, 2, 3, 4)
 	if player_count == 6:
-		return (5, 0, 1, 2, 3, 4)
+		return (0, 1, 2, 3, 4, 5)
 	raise ValueError("Player count must be less than 7")
 
 def rotate(l, n):

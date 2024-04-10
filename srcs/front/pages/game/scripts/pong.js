@@ -206,10 +206,10 @@ export class GameContext {
 			let object = new Player(this.models.paddle);
 			object.position = [player.posx, 0, player.posy];
 			object.scale = [player.length / 2, this.state.width / 30, this.state.width / 30];
-			object.rotation = [0, Math.atan2(player.right[1] - player.left[1], player.right[0] - player.left[0]), 0];
+			object.rotation = [0, -Math.atan2(player.right[1] - player.left[1], player.right[0] - player.left[0]), 0];
 			dynamic_objects.push(object);
 		}
-		console.log(dynamic_objects);
+		//console.log(dynamic_objects);
 		return dynamic_objects;
 	}
 
@@ -258,6 +258,8 @@ export class GameContext {
 
 		console.log("GameContext.start", this.state);
 		this.rendering_context.scale = 1 / this.state.width
+		this.rotate_view_to_me();
+
 		while (this.state.status !== "ongoing") {
 			console.log("wait for ongoing");
 			if (this.end)
@@ -282,6 +284,27 @@ export class GameContext {
 		object.rotation = [0, rota, 0];
 		console.log(object.rotation[1]);
 		this.static_objects.push(object);
+	}
+
+	rotate_view_to_me() {
+		const players_rotation = [
+			5 * Math.PI / 3,
+			0,
+			Math.PI / 3,
+			2 * Math.PI / 3,
+			Math.PI,
+			4 * Math.PI / 3
+		]
+		console.log('this.state.player_id :>> ', this.state.player_id);
+		const me_index = this.state.players.findIndex(player => player.player_id === this.state.player_id);
+		console.log('me_index :>> ', me_index);
+		if (me_index === -1)
+			return;
+		const me_arrangement = this.state.player_arrangement.findIndex(id => id === me_index);
+		console.log('me_arrangement :>> ', me_arrangement);
+		const rotation = players_rotation[me_arrangement];
+		console.log('rotation :>> ', rotation);
+		this.rendering_context.rotate_view([0, rotation, 0]);
 	}
 }
 
