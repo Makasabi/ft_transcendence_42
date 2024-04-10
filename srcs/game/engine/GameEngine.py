@@ -8,7 +8,7 @@ from time import sleep, time
 
 from .Ball import Ball
 from .Player import Player
-from .constants import ARENA_HEIGHT, ARENA_WIDTH, FPS, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED, CENTER_X, CENTER_Y, M_PILAR_SIZE
+from .constants import ARENA_HEIGHT, ARENA_WIDTH, FPS, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED, CENTER_X, CENTER_Y, M_PILAR_SIZE, BALL_SPAWN_TIME, MAX_BALLS
 from .utils import get_hexagon_borders, get_arena_pilars, get_players_arrangement, rotate, get_middle_pilar
 
 class GameEngine(threading.Thread):
@@ -70,7 +70,7 @@ class GameEngine(threading.Thread):
 					sleep(1 / FPS - elapsed_time)
 				self.time = current_time
 
-				if (time() - self.ball_time >= 4) and (len(self.balls) < 4):
+				if (time() - self.ball_time >= BALL_SPAWN_TIME) and (len(self.balls) < MAX_BALLS):
 					print('New Ball')
 					self.balls.append(Ball(self.debug))
 					self.ball_time = time()
@@ -91,7 +91,7 @@ class GameEngine(threading.Thread):
 				sleep(1 / FPS - elapsed_time)
 			self.time = current_time
 
-			if (time() - self.ball_time >= 4) and (len(self.balls) < 4):
+			if (time() - self.ball_time >= BALL_SPAWN_TIME) and (len(self.balls) < MAX_BALLS):
 				self.balls.append(Ball(self.debug))
 				self.ball_time = time()
 

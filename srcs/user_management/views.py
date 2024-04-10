@@ -175,7 +175,7 @@ def add_friend(request, user_id):
 	if user1 == user2:
 		return JsonResponse({'error': 'Cannot add yourself as a friend'}, status=400)
 	BeFriends.objects.create(user1=user1, user2=user2)
-	return JsonResponse(profile_serializer(request.user))
+	return JsonResponse(profile_serializer(request, request.user))
 
 
 @api_view(['DELETE'])
@@ -199,7 +199,7 @@ def remove_friend(request, user_id):
 def is_friend(request, user_id):
 	"""
 	Check if two users are friends
-	
+
 	Args:
 	- request: Request containing the friend's username
 

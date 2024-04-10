@@ -199,16 +199,11 @@ export class GameContext {
 
 	game_loop() {
 		let dynamic_objects = [];
-		//for (let ball of this.state.balls) {
-		//	let object = new Ball(this.models.puck);
-		//	object.position = [ball.x, ball.y, ball.z];
-		//	object.scale = ball.radius;
-		//}
-		// @TODO handle multiple balls
-		if (this.state.ball) {
+		console.log(this.state.balls);
+		for (let ball of this.state.balls) {
 			let object = new Ball(this.models.puck);
-			object.position = [this.state.ball.posx, 0, this.state.ball.posy];
-			object.scale = [this.state.ball.radius, this.state.ball.radius, this.state.ball.radius];
+			object.position = [ball.posx, 0, ball.posy];
+			object.scale = [ball.radius, ball.radius, ball.radius];
 			dynamic_objects.push(object);
 		}
 

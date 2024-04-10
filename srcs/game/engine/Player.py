@@ -91,7 +91,7 @@ class Player:
 		speed = PLAYER_RUNNING_SPEED if self.inputs['sprint'] else PLAYER_BASIC_SPEED
 		if ((self.inputs['left']) or (self.inputs['right'])):
 			if (self.speed_factor < 2):
-				self.speed_factor += 0.15
+				self.speed_factor += 0.25
 		else:
 			self.speed_factor = 0
 		if self.inputs['left']:
