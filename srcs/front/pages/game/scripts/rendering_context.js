@@ -1,4 +1,4 @@
-// import { mat4 } from '/front/gl-matrix/esm/index.js';
+ import { mat4 } from '/front/gl-matrix/esm/index.js';
 //const { mat4 } = require('gl-matrix');
 
 const vertexShaderSource = `#version 300 es
@@ -42,19 +42,22 @@ export class RenderingContext {
 	base_view_matrix;
 	view_matrix;
 	projection_matrix;
+	scale = 1.0;
 
 	constructor() {
 		this.gl = this.#create_gl_context();
 
 		this.base_view_matrix = mat4.create();
-		mat4.lookAt(this.base_view_matrix, [0, 1.1, 2.8], [0, -0.1, 0], [0, 1, 0]); // eye, center, up
+		mat4.lookAt(this.base_view_matrix, [0, 0.8, 1.5], [0, 0, 0], [0, 1, 0]); // eye, center, up
+		//mat4.lookAt(this.base_view_matrix, [0, 1.1, 2.8], [0, -0.1, 0], [0, 1, 0]); // eye, center, up
 		//mat4.lookAt(this.base_view_matrix, [0, 1.5, 1.7], [0, 0.7, 0.7], [0, 1, 0]); // eye, center, up
 
 		this.view_matrix = mat4.create();
 		mat4.copy(this.view_matrix, this.base_view_matrix);
 
 		this.projection_matrix = mat4.create();
-		mat4.perspective(this.projection_matrix, Math.PI / 5.8, this.gl.canvas.width / this.gl.canvas.height, 0.1, 50);
+		mat4.perspective(this.projection_matrix, Math.PI / 10, this.gl.canvas.width / this.gl.canvas.height, 0.1, 20); // fov, aspect, near, far
+		//mat4.perspective(this.projection_matrix, Math.PI / 5.8, this.gl.canvas.width / this.gl.canvas.height, 0.1, 50);
 		//mat4.ortho(this.projection_matrix, -1.7, 1.7, -1, 1, 0.1, 50);
 	}
 
@@ -124,7 +127,7 @@ export class RenderingContext {
 
 		let model = mat4.create();
 
-		mat4.scale(model, model, [0.1, 0.1, 0.1]);
+		mat4.scale(model, model, [this.scale, this.scale, this.scale]);
 
 		this.gl.uniformMatrix4fv(this.gl.getUniformLocation(this.gl.getParameter(this.gl.CURRENT_PROGRAM), "uModel"), false, model);
 		this.gl.uniformMatrix4fv(this.gl.getUniformLocation(this.gl.getParameter(this.gl.CURRENT_PROGRAM), "uView"), false, this.view_matrix);
@@ -168,13 +171,13 @@ export class RenderingContext {
 
 	draw_object(object) {
 		let model = mat4.create();
-		mat4.scale(model, model, [0.1, 0.1, 0.1]);
+		mat4.scale(model, model, [this.scale, this.scale, this.scale]);
 
 		mat4.translate(model, model, object.position);
-		mat4.scale(model, model, object.scale);
 		mat4.rotateZ(model, model, object.rotation[2]);
 		mat4.rotateY(model, model, object.rotation[1]);
 		mat4.rotateX(model, model, object.rotation[0]);
+		mat4.scale(model, model, object.scale);
 
 		this.gl.uniformMatrix4fv(this.gl.getUniformLocation(this.gl.getParameter(this.gl.CURRENT_PROGRAM), "uModel"), false, model);
 		this.gl.uniformMatrix4fv(this.gl.getUniformLocation(this.gl.getParameter(this.gl.CURRENT_PROGRAM), "uView"), false, this.view_matrix);

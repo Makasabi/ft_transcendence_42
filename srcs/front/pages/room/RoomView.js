@@ -41,7 +41,7 @@ export class RoomView extends IView {
 		html = html.replace("{{roomMode}}" , roomInfo.roomMode);
 		html = html.replace("{{roomCode}}", roomInfo.code);
 		document.querySelector("main").innerHTML = html;
-		
+
 		addFriendList();
 		inviteFriend(roomInfo.code, roomInfo.roomMode);
 
@@ -64,12 +64,16 @@ export class RoomView extends IView {
 					body: JSON.stringify({
 						"room_id": roomInfo.room_id,
 					}),
-				}).then(response => {
+				}).then(async response => {
 					if (response.status === 200) {
-						this.roomSocket.send(JSON.stringify({
+						const data = await response.json();
+						const to_send = JSON.stringify({
+							"type": "start",
 							"message": "Game starting",
-							"room": roomInfo.room_id,
-						}));
+							"game_id": data.game_id,
+						})
+						console.log("Sending message to start game:", to_send);
+						this.roomSocket.send(to_send);
 					} else {
 						console.error("Error starting game");
 					}
@@ -99,10 +103,11 @@ export function createRoomSocket(roomid) {
 		+ '/ws/room/'
 		+ roomid,
 	);
-	if (roomSocket.error) {
-		console.log('Rooms - Error creating socket');
-		return;
-	}
+
+	roomSocket.onerror = function (e) {
+		console.log('Rooms - Socket error:', e);
+		route("/home");
+	};
 
 	// on socket open
 	roomSocket.onopen = function (e) {
@@ -149,9 +154,9 @@ export function createRoomSocket(roomid) {
 				console.log('Player updated:', data.player_id);
 				updatePlayer(data);
 				break;
-			case 'game_start':
+			case 'start':
 				console.log('Game starting');
-				route(`/game/${roomid}`);
+				route(`/game/${data.game_id}`);
 				break;
 			case 'tournament_start':
 				console.log('Tournament starting');

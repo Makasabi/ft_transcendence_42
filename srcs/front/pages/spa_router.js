@@ -17,9 +17,9 @@ var view = null;
 const loggedViews = [
 	HomeView,
 	MeView,
+	GameView,
 	FriendsView,
 	UserView,
-	// GameView,
 	CreateRoomView,
 	RoomView,
 	UnknownRoomView,
@@ -33,7 +33,7 @@ const unloggedViews = [
 	login.GoogleView,
 	login.UsernameView,
 ];
-	
+
 	/*** Utilities ***/
 export async function route(path, event=null)
 {
@@ -87,7 +87,7 @@ async function handleLocation()
 async function update_header(is_logged)
 {
 	var headerView = null;
-	
+
 	if (headerView)
 		headerView.destroy();
 	headerView = new (is_logged ? LoggedHeaderView : UnloggedHeaderView)();
@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	};
 
 	footer().then(html => {
-		document.querySelector("footer").innerHTML = html;
+		//document.querySelector("footer").innerHTML = html;
 	});
 	handleLocation();
 	let tag = this.querySelector("header");

@@ -187,7 +187,7 @@ export async function is_logged()
 	if (!token)
 		return false;
 	// @TODO test with a bad token
-	return fetch('api/auth/', {
+	const ret = fetch('api/auth/', {
 		method: 'GET',
 		headers: { 'Authorization': `Token ${token}` }
 	}).then(response => {
@@ -195,9 +195,10 @@ export async function is_logged()
 			return true;
 		else
 			return false;
-	}).catch(error => {
+	}).catch(error => { // @TODO this catch does not catch 401 error
 		return false;
 	});
+	return ret;
 }
 
 async function login(username, password)
@@ -458,7 +459,7 @@ export async function signup_event(e)
 	const username = form.elements.signup_username.value;
 	const password = form.elements.signup_password.value;
 	const email = form.elements.signup_email.value;
-	signup(username, password, email); 
+	signup(username, password, email);
 }
 
 export async function username_event(e)

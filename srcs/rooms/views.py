@@ -105,13 +105,11 @@ def roomInfo(request, roomCode):
 
 	return JsonResponse(room_data)
 
-
-
 @api_view(['POST'])
 def create_tournament(request, roomId):
 	"""
 	Create a new tournament
-	
+
 	Args:
 	- request: Request object
 	- roomId: Room ID
@@ -137,7 +135,7 @@ def create_tournament(request, roomId):
 
 	# TODO: compute total_rounds based on occupancy HERE
 	total_rounds = 1
-	# 
+	#
 
 	Tournament.objects.create(room_id=room_ID, total_rounds=total_rounds, current_round=1)
 
@@ -148,3 +146,24 @@ def create_tournament(request, roomId):
 	tournament_data['occupancy'] = occupancy
 
 	return JsonResponse(tournament_data)
+
+@api_view(['GET'])
+def roomPlayers(request, room_id):
+	"""
+	Get players in a room
+
+	Args:
+	- request: Request object
+	- room_id: Room id
+
+	Returns:
+	- players: List of players in the room
+	"""
+	players = []
+
+	if Occupy.objects.filter(room_id=room_id).exists():
+		occupants = Occupy.objects.filter(room_id=room_id)
+		for occupant in occupants:
+			players.append(occupant.player_id)
+
+	return JsonResponse({'players_ids': players})

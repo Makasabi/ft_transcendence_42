@@ -1,40 +1,53 @@
 # game/consumers.py
 import json
 
-from channels.generic.websocket import SyncConsumer
+from channels.generic.websocket import AsyncConsumer
+from game.models import Game
 
-from .engine import GameEngine
+from .engine.GameEngine import GameEngine
 
-class GameConsumer(SyncConsumer):
+class GameConsumer(AsyncConsumer):
 	def __init__(self, *args, **kwargs):
 		"""
 		Created on demand when the first player joins.
 		"""
 		super().__init__(*args, **kwargs)
-		print("GameConsumer.__init__")
-		self.engine = GameEngine()
-		self.engine.start()
+		self.engines = {}
 
-	def game_start(self, event):
+	async def game_start(self, event):
+		game_id = event["game_id"]
+		player_ids = event["players"]
+		#print(f"GameConsumer.game_start: {game_id}", player_ids)
 		try:
-			self.engine.start_game(event["room_id"])
-		except ValueError as e:
-			print(e)
+			engine = GameEngine(game_id, player_ids)
+			engine.start()
+		except Exception as e:
+			print(f"GameConsumer.game_start: {e}")
+			await self.channel_layer.group_send(f"game_{game_id}", {
+				"type": "game.error",
+				"error": str(e)
+			})
+			return
+		self.engines[game_id] = engine
 
-	def game_update(self, event):
+	async def game_update(self, event):
 		state = event["state"]
-		room_id = event["room_id"]
-		print(f"GameConsumer.game_update: {room_id}", state)
-		self.channel_layer.group_send(f"game_{room_id}", {
+		game_id = event["game_id"]
+		#print(f"GameConsumer.game_update: {game_id}", state)
+		await self.channel_layer.group_send(f"game_{game_id}", {
 			"type": "game.update",
 			"state": state
 		})
+		self.engines[game_id].ready_to_send = True
 
-
-
-	#def player_new(self, event):
-	#	self.engine.join_queue(event["player"])
-
-	#def player_direction(self, event):
-	#	direction = event.get("direction", "UP")
-	#	self.engine.set_player_direction(event["player"], direction)
+	async def input(self, event):
+		game_id = event["game_id"]
+		engine = self.engines.get(game_id, None)
+		if engine is None:
+			print(f"GameConsumer.input: Engine not found for game {game_id}")
+			await self.channel_layer.group_send(f"game_{game_id}", {
+				"type": "game.error",
+				"error": "Engine not found"
+			})
+			return
+		engine.input(event["input"], event["player_id"])

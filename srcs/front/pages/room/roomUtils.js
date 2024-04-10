@@ -1,6 +1,10 @@
 import * as Login from "/front/pages/login/login.js";
 import { route } from "/front/pages/spa_router.js";
 
+/*
+TODO: When last player leaves room --> define what to do with room record.
+*/
+
 /**
  * Collects response from the radio buttons and creates a room accordingly
  * @returns {void} routes to the selected room creation mode
@@ -41,7 +45,7 @@ export async function checkRoomCode(code) {
 	if (response.status === false) {
 		return false;
 	}
-	return true;	
+	return true;
 }
 
 /**
@@ -73,7 +77,7 @@ export function joinRoomForm()
 
 /**
  * Adds a border to the player avatar if it is the current user
- * @param {*} player_id 
+ * @param {*} player_id
  */
 export async function applyPlayerBorder(player_id) {
 
@@ -120,8 +124,8 @@ export async function addFriendList() {
 
 /**
  * Sends a notification to the selected friend
- * @param {*} code 
- * @param {*} mode 
+ * @param {*} code
+ * @param {*} mode
  */
 
 export async function inviteFriend(code, mode) {
@@ -129,17 +133,17 @@ export async function inviteFriend(code, mode) {
 	let inviteButton = document.getElementById("invite_button");
 	inviteButton.addEventListener("click", async (e) => {
 		// retrive value selected in the dropdown
-		const guest = inviteFriends.value; 
+		const guest = inviteFriends.value;
 		if (guest === "" || guest === null || guest === "Friends") {
 			return;
 		}
 		// send invite to the room
 		fetch("/api/notif/create_notif/game_invitation/" + guest, {
 			method: 'POST',
-			headers: { 
+			headers: {
 				'Content-Type': 'application/json',
 				'Authorization': `Token ${Login.getCookie('token')}`
-			}, 
+			},
 			body: JSON.stringify({
 				"room_code": code,
 				"room_mode": mode,
