@@ -14,6 +14,6 @@ class Game(models.Model):
 	end_status = models.CharField(max_length=50, null=True)
 
 class Play(models.Model):
-	score = models.IntegerField(default=0)
-	users = models.ManyToManyField(Player)
 	game = models.ForeignKey(Game, on_delete=models.CASCADE)  # Add the game field
+	user_id = models.IntegerField(default=0)
+	score = models.IntegerField(default=0)

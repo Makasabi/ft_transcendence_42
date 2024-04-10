@@ -31,20 +31,46 @@
 	justify-content: space-between;
 	gap: 2vh;
 	margin: 1vh auto;
+	padding: 3em;
 	border-radius: 10px;
 	border: var(--border-light) 1px solid;
-	padding: 3em;
 	backdrop-filter: blur(4px);
 	background-color: var(--transparent-dark);
 	width: 100%;
 }
 
 .sub_box h1 {
-	font-size: 50px; 
 	font-weight: 700;
 	text-align: center;
 	color:var(--primary-color);
-}	
+}
+
+.sub_box h2 {
+	font-weight: 700;
+	text-align: center;
+	color:var(--light);
+}
+
+.invite {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: 2vh 25vw;
+	width: 100%;
+	align-content: center;
+	flex-wrap: wrap;
+}
+
+.invite #friends, .invite #code {
+	align-content: center;
+}
+
+#select-invite {
+	display : flex;
+	flex-direction: row;
+	margin: 1vh 0;
+}
 
 .playersInTheRoom {
 	display: flex;

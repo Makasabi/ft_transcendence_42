@@ -4,7 +4,6 @@
 	justify-content: space-between;
 	margin: 0 15vw;
 	gap: 5vh;
-	font-size: 1.1em;
 }
 
 .profile_info {
@@ -27,10 +26,49 @@
 	inline-size: 20vw;
 }
 
-.avatar_img {
-	width: 6vw;
+input[type="profile-password" i] {
+	-webkit-text-security: disc !important;
+	padding-block: 1px;
+	padding-inline: 2px;
+	width: 8vw;
+	display: none;
+}
+
+.small_avatar_img {
+	width:5vh;
+	height:5vh;
 	border-radius: 100px;
 }
+
+.player-item {
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px; /* Add some margin between items */
+}
+
+.player-item span,
+.player-item img {
+	margin-right: 10px; /* Add a small margin between elements */
+}
+
+.avatar_img {
+	width:10vh;
+	height:10vh;
+	border-radius: 100px;
+}
+
+.user_avatar {
+	width:10vh;
+	height:10vh;
+	border-radius: 100px;
+}
+
+/* .avatar_img:hover {
+	filter: opacity(50%);
+	transition-duration: .2s;
+	transition-timing-function: ease-in-out;
+	cursor: pointer;
+} */
 
 .center_profile {
 	width: 20vw;
@@ -96,12 +134,12 @@
 	height: 80%;
 	overflow-y: scroll;
 	overflow-wrap: anywhere;
-	/* word-break: break-all; */
 }
 
 .history_table::-webkit-scrollbar {
 	display: none;
-  }
+}
+
 
   table {
 	table-layout: fixed;
@@ -151,4 +189,75 @@
 .stats_table {
 	padding: 0.5vh;
 
+}
+
+.avatar-container {
+	position: relative;
+}
+
+.overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: var(--transparent-dark);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: var(--light);
+	font-size: 1em;
+	/* font-style: italic; */
+	text-decoration: underline;
+	border-radius: 100px;
+	cursor: pointer;
+	pointer-events: none; /* Ensures the overlay doesn't interfere with clicks on the avatar */
+	opacity: 0;
+	transition: opacity 0.2s ease-in-out;
+}
+
+.avatar-container.edit-mode .overlay {
+	opacity: 1; /* Show overlay when in edit mode */
+}
+
+.game-box {
+	position: absolute;
+	top: 25%;
+	left: 60%;
+	width: 30vw;
+	height: 30vh;
+	max-width: 40vw;
+	padding: 3vh;
+	border-radius: 10px;
+	text-align: left;
+	overflow-y: auto;
+	border: var(--border-light) 1px solid;
+	backdrop-filter: blur(5px);
+	background-color: var(--transparent-darker);
+	color: var(--light);
+	z-index: 999;
+	max-height: 80vh;
+}
+
+
+.game-box::-webkit-scrollbar-track
+{
+	border-radius: 10px;
+	background-color: var(--border-light);
+}
+
+.game-box::-webkit-scrollbar
+{
+	width: 12px;
+	background-color: var(--transparent-dark);
+}
+
+.game-box::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	background-color: var(--transparent-primary);
+}
+
+.box-title {
+	padding: 1vh;
 }

@@ -31,7 +31,6 @@ export class UnloggedHeaderView extends IView {
 	}
 }
 
-				/*** Views ***/
 export class Forty2View extends IView
 {
 	static match_route(route)
@@ -161,7 +160,10 @@ export class UsernameView extends IView
 		const regex = /^\/username\/([^\/]+)$/;
 		const match = window.location.pathname.match(regex);
 		if (!match)
+		{
+			route("/login");
 			return ;
+		}
 		await fetch("/front/pages/login/username.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
@@ -185,7 +187,7 @@ export async function is_logged()
 	if (!token)
 		return false;
 	// @TODO test with a bad token
-	return fetch('api/auth/', {
+	const ret = fetch('api/auth/', {
 		method: 'GET',
 		headers: { 'Authorization': `Token ${token}` }
 	}).then(response => {
@@ -193,9 +195,10 @@ export async function is_logged()
 			return true;
 		else
 			return false;
-	}).catch(error => {
+	}).catch(error => { // @TODO this catch does not catch 401 error
 		return false;
 	});
+	return ret;
 }
 
 async function login(username, password)
@@ -372,6 +375,44 @@ export async function forty2_callback()
 	}
 }
 
+export async function forty2_authentication()
+{
+	const list = new URLSearchParams(window.location.search);
+	const authCode = list.get('code');
+	const state = list.get('state');
+	const cookie_state = getCookie('42state');
+	deleteCookie('42state');
+	if (cookie_state !== state)
+	{
+		console.error('State received my API server does not match state sent');
+		return false;
+	}
+	try
+	{
+		const data = await fetch("api/auth/forty2_auth/", {
+			method : "POST",
+			headers: {'Content-type' : 'application/json'},
+			body: JSON.stringify({
+				"code" : authCode,
+				"state" : state,
+				})
+			})
+			.then(response => {return response.json();});
+		if (data.error)
+			throw new Error(data.error);
+
+		console.log(data);
+		console.log("42token: ", data.access_token);
+		setCookie("42token", data.access_token, 1);
+		return true;
+	}
+	catch(error)
+	{
+		console.log(error);
+		return false;
+	}
+}
+
 
 				/*** Events ***/
 export async function google_signup_event(e)
@@ -426,7 +467,12 @@ export async function username_event(e)
 	e.preventDefault();
 	const form = document.getElementById("username-form");
 	const username = form.elements.signup_username.value;
-	const email = await getEmailFrom42();
+	const username_button = document.getElementById("submit-username");
+	let email = null;
+	if (username_button.dataset.auth === "google")
+		email = await getEmailFromGoogle();
+	else if (username_button.dataset.auth === "forty2")
+		email = await getEmailFrom42();
 	const password = generateRandomString(15);
 	signup(username, password, email);
 }
@@ -465,45 +511,6 @@ export async function is_registered(email)
 	})
 	return result;
 }
-
-export async function forty2_authentication()
-{
-	const list = new URLSearchParams(window.location.search);
-	const authCode = list.get('code');
-	const state = list.get('state');
-	const cookie_state = getCookie('42state');
-	deleteCookie('42state');
-	if (cookie_state !== state)
-	{
-		console.error('State received my API server does not match state sent');
-		return false;
-	}
-	try
-	{
-		const data = await fetch("api/auth/forty2_auth/", {
-			method : "POST",
-			headers: {'Content-type' : 'application/json'},
-			body: JSON.stringify({
-				"code" : authCode,
-				"state" : state,
-				})
-			})
-			.then(response => {return response.json();});
-		if (data.error)
-			throw new Error(data.error);
-
-		console.log(data);
-		console.log("42token: ", data.access_token);
-		setCookie("42token", data.access_token, 1);
-		return true;
-	}
-	catch(error)
-	{
-		console.log(error);
-		return false;
-	}
-}
-
 
 function generateRandomString(length)
 {
@@ -554,22 +561,4 @@ async function getEmailFromGoogle()
 	});
 	console.log("data from Google :" , data);
 	return data.email;
-}
-
-function openOAuthPopup(url, name, width, height)
-{
-  const left = (window.innerWidth - width) / 2;
-  const top = (window.innerHeight - height) / 2;
-
-  const popup = window.open(
-    url,
-    name,
-    `popup=true,width=${width},height=${height},left=${left},top=${top}`
-  );
-
-  if (window.focus) {
-    popup.focus();
-  }
-
-  return popup;
 }

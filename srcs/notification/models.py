@@ -1,7 +1,5 @@
 from django.db import models
 from django.utils import timezone
-from user_management.models import Player
-
 
 class Notification(models.Model):
 
@@ -24,21 +22,5 @@ class IsNotified(models.Model):
 	notif = models.ForeignKey(Notification, on_delete=models.CASCADE)
 
 class RoomNotifies(models.Model):
-	room_id = models.IntegerField(default=0)
+	room_code = models.CharField(max_length=6, default='')
 	notif = models.ForeignKey(Notification, on_delete=models.CASCADE)
-
-
-	# different types :
-	# - friend_request
-	# - friend_request_accepted
-	# - friend_removal (?)
-	# - friend_request_rejected (?)
-
-	# - game_invitation
-	# - game_invitation_accepted (?)
-
-	# - game_winner
-	# - tournament_winner
-
-	# - number_one
-	# - game_down

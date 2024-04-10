@@ -2,7 +2,13 @@
 	<div class="profile_info">
 		<div class="profile_info_box">
 			<div class="center_profile">
-				<img src="{{avatar}}" class="avatar_img" alt="avatar">
+				<div class="avatar-container">
+					<label for="avatar-upload">
+						<img src="{{avatar}}" class="avatar_img" alt="Avatar">
+						<input type="file" id="avatar-upload" accept="image/*" style="display:none">
+						<div class="overlay">Upload Avatar</div>
+					</label>
+				</div>
 			</div>
 			<div class="center_profile">
 				<h2 class="edit" id="username">{{username}}</h2>
@@ -16,13 +22,9 @@
 				<p id="email"> {{email}} </p>
 			</div>
 			<div class="profile_table">
-				<img src="/front/ressources/img/svg/icons/language.svg" class="icon_svg" alt="">
-				<span>{{language}}</span>
-			</div>
-			<div class="profile_table">
 				<img src="/front/ressources/img/svg/icons/lock.svg" class="icon_svg" alt="">
 				Password
-				<p class="edit" id="password" value="password"> </p>
+				<input class="edit"  type="profile-password" id="password" value="password" >
 			</div>
 			<div class="profile_table">
 			</div>
@@ -30,8 +32,6 @@
 				<button id="edit-button" class="cta purple_cta" value="Button Text"></button>
 			</div>
 		</div>
-		<!-- <img src="/front/ressources/img/png/rank.png" style="icon_svg" alt="">	 -->
-		<!-- <p>{{language}}</p> -->
 	</div>
 	<div class="history_stats">
 		<div class="history">

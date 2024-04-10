@@ -1,15 +1,10 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from user_management.models import Player
-from game.models import Play
 from rest_framework.decorators import api_view
-from rooms.models import Rooms, Occupy
+from rooms.models import Rooms, Tournament, Occupy
 import random
 import string
 
-# TODO: Implement serialiser for rooms
-
-# Create your views here.
 @api_view(['POST'])
 def create_room(request):
 	"""
@@ -34,12 +29,8 @@ def create_room(request):
 		"visibility": request.data['visibility'],
 		"code": ""
 	}
-	username = request.data['username']
+	# username = request.data['username']
 
-	# geneate random rommCode of 6 string.ascii_uppercase + string.digits
-	# checks if roomCode already exists
-	# if not, create room
-	# else, generate another roomCode
 	code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 	while Rooms.objects.filter(code=code).exists():
 		code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
@@ -113,6 +104,48 @@ def roomInfo(request, roomCode):
 		room_data['visibility'] = Rooms.objects.get(code=code).visibility
 
 	return JsonResponse(room_data)
+
+@api_view(['POST'])
+def create_tournament(request, roomId):
+	"""
+	Create a new tournament
+
+	Args:
+	- request: Request object
+	- roomId: Room ID
+
+	Returns:
+	- tournament_data: Dictionary containing tournament data :
+		room_id
+		total_rounds
+		current_round
+	"""
+	tournament_data = {
+		"room_id": roomId,
+		"room_code": "",
+		"total_rounds": 1,
+		"current_round": 1,
+		"occupancy": 0,
+	}
+
+	if Rooms.objects.filter(room_id=roomId).exists():
+		room_ID = Rooms.objects.get(room_id=roomId)
+		room_CODE = room_ID.code
+		occupancy = len(Occupy.objects.filter(room_id=roomId))
+
+	# TODO: compute total_rounds based on occupancy HERE
+	total_rounds = 1
+	#
+
+	Tournament.objects.create(room_id=room_ID, total_rounds=total_rounds, current_round=1)
+
+	tournament_data['room_id'] = roomId
+	tournament_data['room_code'] = room_CODE
+	tournament_data['total_rounds'] = total_rounds
+	tournament_data['current_round'] = 1
+	tournament_data['occupancy'] = occupancy
+
+	return JsonResponse(tournament_data)
 
 @api_view(['GET'])
 def roomPlayers(request, room_id):

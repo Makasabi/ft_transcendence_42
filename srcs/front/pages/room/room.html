@@ -1,18 +1,28 @@
 <div class="room">
 	<div class="box_module">
 		<div class="sub_box">
-			<h1>{{roomMode}} game mode</h1>
-		</div>
-			<div class="sub_box">
-				<h2>Invite your friends to play!</h2>
-				<p>Here is your room code : {{roomCode}}</p>
+			<h1>{{roomVisibility}} room</h1>
+			<h2>{{roomMode}} mode</h2>
+			<div class="invite">
+				<div id="friends">
+					<h3>Invite your friends to the room</h3>
+					<div id="select-invite">
+						<select name="Invite friends" id="invite_friends">
+						</select>
+						<button class="JRM_cta" id="invite_button">Invite</button>
+					</div>
+				</div>
+				<div class="code">
+					<h3>Share the room code</h3>
+					<p class="room_code">{{roomCode}}</p>
+				</div>
+			</div>
 		</div>
 		<div class="sub_box">
 			<h2>Players in the room</h2>
 			<div class="playersInTheRoom">
-
 			</div>
-			<button class="cta purple_cta" id="start">start playing</button>
+			<button class="cta purple_cta" id="start">start</button>
 			<p id="unauthorosedToStart">Wait for the game master to launch the game</p>
 	</div>
 </div>

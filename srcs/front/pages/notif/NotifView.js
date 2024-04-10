@@ -1,6 +1,6 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
-import { HomeView } from "/front/pages/home/home.js";
+import { route } from "/front/pages/spa_router.js";
 
 export class NotifView extends IView {
 	static match_route(route) {
@@ -9,7 +9,7 @@ export class NotifView extends IView {
 	}
 
 	async render() {
-		console.log("NotifView.render");
+		// console.log("NotifView.render");
 		// HomeView.render();
 		handleNotificationDot();
 		displayNotifications();
@@ -61,31 +61,51 @@ export function createNotificationSocket(username) {
 	return notifySocket;
 }
 
+function acceptFriend(notification) {
+	fetch(`/api/user_management/add_friend/` + notification.sender_id, {
+		method: 'POST',
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	})
+	finish();
+}
 
-function renderAcceptIcon(notification, actionIcons) {
-	if (notification.type === 'friend_request') {
+function acceptGameInvitation(notification) {
+	finish();
+	route(`/room/${notification.room_code}`);
+}
+
+function finish(){
+	const notificationElement = event.target.closest('.notification');
+	fetch("/api/notif/delete_notif/" + notificationElement.id, {
+		method: 'DELETE',
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	})
+	if (notificationElement) {
+		notificationElement.style.display = 'none';
+	}
+
+}
+
+function renderAcceptIcon(notification, actionIcons, notifsLength) {
+	if (notification.type === 'friend_request' || notification.type === 'game_invitation') {
 		const acceptIcon = document.createElement('span');
 		acceptIcon.textContent = 'V';
 		acceptIcon.classList.add('action-icon');
-		acceptIcon.addEventListener('click', () => {
-			// Handle friend request acceptance
-			console.log('Friend request accepted');
-			// fetch(`/api/user_management/add_friend/${notification.user}`, {
-			//     method: 'POST',
-			//     headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-			// }).then(response => {
-			//     if (response.ok) {
-			//         console.log('Friend request accepted');
-			//     } else {
-			//         console.error('Failed to accept friend request');
-			//     }
-			// });
+		acceptIcon.addEventListener('click', (event) => {
+			if (notifsLength === 1) {
+				const foregroundBox = document.querySelector('.foreground-box');
+				foregroundBox.remove();
+			}
+			if (notification.type === 'friend_request')
+				acceptFriend(notification);
+			else
+				acceptGameInvitation(notification);
 		});
 		actionIcons.appendChild(acceptIcon);
 	}
 }
 
-function renderDeclineIcon(notificationElement) {
+function renderDeclineIcon(notifsLength) {
 	const declineIcon = document.createElement('span');
 	declineIcon.textContent = 'X';
 	declineIcon.classList.add('action-icon');
@@ -93,53 +113,69 @@ function renderDeclineIcon(notificationElement) {
 		console.log('Notification deleted');
 		// api call to delete notification from DB
 		const notificationElement = event.target.closest('.notification');
-
+		fetch("/api/notif/delete_notif/" + notificationElement.id, {
+			method: 'DELETE',
+			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+		})
 		if (notificationElement) {
 			notificationElement.style.display = 'none';
+		}
+		if (notifsLength === 1) {
+			const foregroundBox = document.querySelector('.foreground-box');
+			foregroundBox.remove();
 		}
 	});
 	return declineIcon;
 }
 
-function renderNotifIcons(notification, notificationElement) {
+function renderNotifIcons(notification, notificationElement, notifsLength) {
 	const actionIcons = document.createElement('div');
 	actionIcons.classList.add('action-icons');
 
-	renderAcceptIcon(notification, actionIcons);
-	const declineIcon = renderDeclineIcon(notificationElement);
+	renderAcceptIcon(notification, actionIcons, notifsLength);
+	const declineIcon = renderDeclineIcon(notifsLength);
 	actionIcons.appendChild(declineIcon);
 
 	notificationElement.appendChild(actionIcons);
 }
 
-function displayNotifBox(notifs) {
+async function displayNotifBox() {
 	const notificationsLink = document.getElementById('notif-box');
-		notificationsLink.addEventListener("click", (event) => {
+		notificationsLink.addEventListener("click", async (event) => {
+			let notifs = await fetch('/api/notif/get_notifs/all', {
+				headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+			}).then(response => response.json())
 			setNotifSeen();
+			if (notifs.length === 0)
+				return;
 			event.stopPropagation();
 
 			// Create and display the foreground box
 			const foregroundBox = document.createElement('div');
 			foregroundBox.classList.add('foreground-box');
-			document.body.appendChild(foregroundBox);
-	
+			
+			console.log('Notifications box');
+			
 			const notificationsContainer = document.createElement('div');
 			notificationsContainer.classList.add('notifications-container');
 			foregroundBox.appendChild(notificationsContainer);
-
+			
 			notifs.forEach(notification => {
 				const notificationElement = document.createElement('div');
 				notificationElement.classList.add('notification');
 				notificationElement.textContent = notification.message;
+				notificationElement.id = notification.notif_id;
 				notificationsContainer.appendChild(notificationElement);
-				console.log('Notification:', notification.message);
-				renderNotifIcons(notification, notificationElement);
+				renderNotifIcons(notification, notificationElement, notifs.length);
 			});
+			console.log('Notifications loaded');
+			
+			document.body.appendChild(foregroundBox);
 
 			const closeForegroundBox = function(event) {
 				if (!foregroundBox.contains(event.target)) {
-					foregroundBox.remove(); // Remove the foreground box when clicked outside
-					document.removeEventListener('click', closeForegroundBox); // Remove the event listener
+					foregroundBox.remove();
+					document.removeEventListener('click', closeForegroundBox);
 				}
 			}
 			document.addEventListener('click', closeForegroundBox);
@@ -155,41 +191,24 @@ function setNotifSeen() {
 }
 
 async function displayNotifications () {
-	let notifs = await fetch('/api/notif/get_notifs/all', {
-		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-	}).then(response => response.json())
-	console.log('Notifications fetched', notifs)
-	displayNotifBox(notifs);
+	displayNotifBox();
 }
 
 // display new notification red dot
-function displayNotifDot(message) {
+function displayNotifDot() {
 	document.getElementById('notificationDot').style.display = 'inline-block';
 }
 
 // Handle red dot for Notifications
 async function handleNotificationDot() {	
-	var notificationDot = document.getElementById('notificationDot');
 	await fetch('/api/notif/get_notifs/unseen',{
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	}).then(response => response.json())
 	.then(data => {
 		if (data.length > 0)
-		displayNotifDot(message);
+			displayNotifDot();
 	})
 	.catch((error) => {
 		console.error('Error:', error);
 	});
 }
-
-
-
-// @TODO
-
-// on decline, delete notification from DB
-// on accept, add friend to DB and delete notification from DB
-
-// USER_MGT : unilateral friendship (we love consent in this house)
-// USER_MGT : replace Add Friend with Accept request if other user sent request
-
-// USER_MGT : friends page
