@@ -34,7 +34,9 @@ export class RoomView extends IView {
 
 		let roomInfo = await fetch(`/api/rooms/info/${code}`, {
 			headers: {
-				'Authorization': `Token ${Login.getCookie('token')}`,}}).then(response => response.json());
+				'Authorization': `Token ${Login.getCookie('token')}`,
+			}}).then(response => response.json());
+
 		let html = await fetch("/front/pages/room/room.html").then(response => response.text());
 
 		html = html.replace("{{roomVisibility}}", roomInfo.visibility);
@@ -47,7 +49,7 @@ export class RoomView extends IView {
 
 		this.roomSocket = createRoomSocket(roomInfo.room_id);
 
-		if (roomInfo.roomMode === "tournament") {
+		if (roomInfo.roomMode === "Tournament") {
 			await document.getElementById("start").addEventListener("click", async () => {
 				createTournament(this.roomSocket ,roomInfo.room_id, roomInfo.code);
 			});

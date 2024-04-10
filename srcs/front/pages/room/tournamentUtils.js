@@ -21,6 +21,10 @@ export async function createTournament(roomSocket, room_id, roomCode) {
 	}).then(async response => {
 		if (response.status === 200) {
 			const data = await response.json();
+			if (data.occypancy < 8) {
+				console.error("Not enough players to start tournament");
+				return;
+			}
 			console.log("Tournament created:", data);
 			const to_send = JSON.stringify({
 				"type": "tournament_start",

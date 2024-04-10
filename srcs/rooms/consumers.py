@@ -42,9 +42,10 @@ class RoomConsumer(WebsocketConsumer):
 	def receive(self, text_data):
 		data = json.loads(text_data)
 		if data['type'] == 'start' or data['type'] == 'tournament_start':
-			if not (is_master(self.room_id, self.user.id)):
-				return
-			else:
+			# TODO: uncomment below for production
+			# if not (is_master(self.room_id, self.user.id)):
+				# return
+			# else:
 				if data['type'] == 'start':
 					async_to_sync(self.channel_layer.group_send)(
 						self.room_group_name,
@@ -156,7 +157,10 @@ def checkRoomAvailabilityDB(room_id):
 			else:
 				return False
 		elif room.roomMode == 'tournament':
-			return True
+			if Occupy.objects.filter(room_id=room_id).count() < 36:
+				return True
+			else:
+				return False
 	else:
 		return False
 
