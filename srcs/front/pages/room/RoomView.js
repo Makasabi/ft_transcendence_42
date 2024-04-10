@@ -3,6 +3,8 @@ import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
 import { checkRoomCode, addFriendList, inviteFriend } from "/front/pages/room/roomUtils.js";
 import { addPlayer, removePlayer, updatePlayer, } from "/front/pages/room/roomWebsockets.js";
+import { createTournament } from "/front/pages/room/tournamentUtils.js";
+
 /**
  * RoomView class
  *
@@ -82,28 +84,6 @@ export class RoomView extends IView {
 			this.roomSocket.close();
 		}
 	}
-}
-
-/**
- * send a POST request to back to create the tournament record in DB
- * once created, send a websocket message to all players in the room to start the tournament
- * @param {*} roomSocket 
- * @param {*} room_id 
- * @param {*} roomCode 
- */
-async function createTournament(roomSocket, room_id, roomCode) {
-	let tournament = await fetch (`/api/rooms/create_tournament/${room_id}`, {
-		method: "POST",
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': `Token ${Login.getCookie('token')}`},
-		body: JSON.stringify({
-			"room_id": room_id,
-			"room_code": roomCode,
-		}),
-	}).then(response => response.json())
-
-	console.log("Tournament created: ", tournament);
 }
 
 /**
