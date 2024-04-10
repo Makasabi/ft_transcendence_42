@@ -10,6 +10,7 @@ import { FullRoomView } from "./room/FullRoomView.js";
 import { UnknownRoomView } from "./room/UnknownRoomView.js";
 import { CreateRoomView } from "./room/CreateRoomView.js";
 
+
 /*** Views ***/
 var view = null;
 

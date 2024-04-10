@@ -1,4 +1,3 @@
-
 import * as Login from "/front/pages/login/login.js";
 import { route } from "/front/pages/spa_router.js";
 import { applyPlayerBorder} from "/front/pages/room/roomUtils.js";
@@ -12,7 +11,6 @@ export async function	addPlayer(data) {
 	let player = await fetch(`/api/user_management/user/id/${data.player_id}`, {
 		method: "GET",
 		headers: {
-			'Content-Type': 'application/json',
 			'Authorization': `Token ${Login.getCookie('token')}`,
 		},
 	}).then(response => response.json());
