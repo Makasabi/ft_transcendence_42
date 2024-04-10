@@ -12,7 +12,9 @@ from constants import ARENA_HEIGHT, ARENA_WIDTH, FPS, PLAYER_BASIC_SPEED, PLAYER
 from utils import get_hexagon_borders, get_arena_pilars, get_players_arrangement, rotate, get_middle_pilar
 
 class GameEngine(threading.Thread):
-	# INITIALIZATION
+	"""
+		Initialisation des parametres du jeu
+	"""
 	def __init__(self, game_id: int, players: list, state = None) -> None:
 		super().__init__()
 		if state is None:
@@ -40,10 +42,12 @@ class GameEngine(threading.Thread):
 			for wall in list(zip(pilar, rotate(pilar, 1))):
 				self.collisions_walls.append(wall)
 
-		self.ball = Ball(self.debug)
+		self.balls = list()
+		self.balls.append(Ball(self.debug))
 
 		self.ready = False
 		self.time = time()
+		self.ball_time = time()
 
 	def stop(self) -> None:
 		self.is_stop = True
@@ -51,7 +55,9 @@ class GameEngine(threading.Thread):
 	def is_ready(self) -> bool:
 		return self.ready
 
-	# GAME LOOP
+	"""
+		Loop principale
+	"""
 	def run(self) -> None:
 		if not self.debug:
 			while not self.is_stop:
@@ -60,6 +66,10 @@ class GameEngine(threading.Thread):
 				if elapsed_time < 1 / FPS:
 					sleep(1 / FPS - elapsed_time)
 				self.time = current_time
+				print('Time: ', time(), ' Start: ', self.ball_time)
+				if self.ball_time - time() >= 4:
+					print('New Ball')
+					self.balls.append(Ball(self.debug))
 
 				self.is_stop = self.game_loop(elapsed_time)
 				self.broadcast_state(self.render())
@@ -72,6 +82,10 @@ class GameEngine(threading.Thread):
 					if elapsed_time < 1 / FPS:
 						sleep(1 / FPS - elapsed_time)
 					self.time = current_time
+					if (time() - self.ball_time >= 4) and (len(self.balls) < 4):
+						print('New Ball')
+						self.balls.append(Ball(self.debug))
+						self.ball_time = time()
 
 					self.is_stop = self.game_loop(elapsed_time)
 					for key, value in self.render().items():
@@ -82,7 +96,8 @@ class GameEngine(threading.Thread):
 	def game_loop(self, timestamp) -> None:
 		for player in self.players.values():
 			player.update(timestamp)
-		self.ball.update(1 / 60, self.players, self.collisions_walls, self.middle_pilar)
+		for ball in self.balls:
+			ball.update(1 / 60, self.players, self.collisions_walls, self.middle_pilar, self.balls)
 		for player in self.players.values():
 			if player.HP <= 0:
 				self.players.pop(player.player_id)
@@ -93,11 +108,13 @@ class GameEngine(threading.Thread):
 			return True
 		return False
 
-	# RENDER
+	"""
+		Rendering a envoyer au front
+	"""
 	def render(self) -> dict:
 		return {
 			'players': [player.render() for player in self.players.values()],
-			'ball': self.ball.render(),
+			'balls': [ball.render() for ball in self.balls],
 			'walls': self.walls,
 			'pilars': self.pilars,
 			'middle_pilar': self.middle_pilar,
@@ -107,7 +124,9 @@ class GameEngine(threading.Thread):
 			'end' : self.is_stop
 		}
 
-	# INPUTS
+	"""
+		Inputs
+	"""
 	def input(self, input_type, player_id = None) -> None:
 		switcher = {
 			"left_pressed": self.left_pressed,
