@@ -21,8 +21,11 @@ export async function createTournament(roomSocket, room_id, roomCode) {
 	}).then(async response => {
 		if (response.status === 200) {
 			const data = await response.json();
-			if (data.occypancy < 8) {
+			console.log("data:", data);
+			if (data.occupancy < 8) {
 				console.error("Not enough players to start tournament");
+				errorMessage("You need at least 8 players to start a tournament.");
+				response.status === 400;
 				return;
 			}
 			console.log("Tournament created:", data);
@@ -38,4 +41,21 @@ export async function createTournament(roomSocket, room_id, roomCode) {
 			console.error("Error creating tournament");
 		}
 	})
+}
+
+
+function errorMessage(message) {
+	const insert = document.getElementById("readyToPlay");
+	// create a div and put the error message in it and alight it to the center
+	// do no redisplay the error message if it already exists
+	if (document.getElementById("errorDiv") !== null) {
+		return;
+	}
+	const errorDiv = document.createElement("div");
+	errorDiv.id = "errorDiv";
+	errorDiv.innerHTML = message;
+	errorDiv.style.color = "red";
+	errorDiv.style.textAlign = "center";
+	insert.appendChild(errorDiv);
+
 }
