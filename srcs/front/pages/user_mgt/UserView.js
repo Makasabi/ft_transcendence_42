@@ -18,6 +18,11 @@ export class UserView extends IView {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		}).then(response => response.json());
 		
+		if (window.location.pathname.split('/')[3] === requester.username)
+		{
+			route("/me");
+			return;
+		}
 		let html = await fetch("/front/pages/user_mgt/user.html").then(response => response.text());
 		let user = await fetch(call, {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
