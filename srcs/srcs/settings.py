@@ -51,6 +51,15 @@ INSTALLED_APPS = [
 	'notification',
 ]
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 7999)],
+        },
+    },
+}
+
 REST_FRAMEWORK = {
 	'DEFAULT_AUTHENTICATION_CLASSES': [
 		'rest_framework.authentication.TokenAuthentication',
@@ -100,6 +109,9 @@ CHANNEL_LAYERS = {
 		},
 	},
 }
+
+# Daphne
+ASGI_APPLICATION = 'srcs.asgi.application'
 
 
 # Database

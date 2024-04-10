@@ -77,6 +77,9 @@ def edit_profile(request):
 	- JsonResponse: Response containing the new user data
 	"""
 	print(request.data)
+   # serializer = profile_serializer(request.data)
+   # if not serializer.is_valid():
+
 	user = request.user
 	if "username" in request.data:
 		user.username = request.data["username"]
@@ -213,21 +216,4 @@ def is_friend(request, user_id):
 	elif BeFriends.objects.filter(user1=user2, user2=user1).exists():
 		return JsonResponse({'friends': "Invite Pending"})
 	return JsonResponse({'friends': False})
-
-
-@api_view(['GET'])
-def get_friends(request):
-	"""
-	Return all friends of the user
-
-	Returns:
-	- JsonResponse: Response containing the list of friends
-	"""
-	friends_json = []
-	for friend in BeFriends.objects.filter(user1=request.user.id):
-		data = Player.objects.get(id=friend.user2)
-		friends_json.append({
-			"username": data.username,
-			"avatar_file": data.avatar_file
-		})
-	return JsonResponse(friends_json, safe=False)
+	
