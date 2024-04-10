@@ -8,6 +8,23 @@ import os
 import requests
 
 
+def simple_serializer(request, user):
+	"""
+	Retrieve user's data
+
+	Args:
+	- user: Player instance
+
+	Returns:
+	- user_data: Dictionary containing user data
+	"""
+	user_data = {
+		"id": user.id,
+		"username": user.username,
+		"avatar_file": user.avatar_file,
+	}
+	return user_data
+
 
 def profile_serializer(request, user):
 	"""
@@ -40,6 +57,13 @@ def profile_serializer(request, user):
 	higher_scores = Player.objects.filter(global_score__gt=user.global_score).count()
 	user_data["global_rank"] = f"{higher_scores + 1}/{Player.objects.count()}"
 	return user_data
+
+@api_view(['GET'])
+def me_id(request):
+	"""
+	Return id of the user
+	"""
+	return JsonResponse({'id': request.user.id})
 
 
 @api_view(['GET'])
@@ -139,7 +163,7 @@ def user_id(request, id):
 	user = Player.objects.filter(id=id).first()
 	if user is None:
 		return JsonResponse({'error': 'User not found'}, status=404)
-	data = profile_serializer(request, user)
+	data = simple_serializer(request, user)
 	return JsonResponse(data, safe=False)
 
 # function to return an array of users that match the username
@@ -235,3 +259,5 @@ def get_friends(request):
 			"avatar_file": data.avatar_file
 		})
 	return JsonResponse(friends_json, safe=False)
+
+

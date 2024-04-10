@@ -47,7 +47,7 @@ export class RoomView extends IView {
 
 		this.roomSocket = createRoomSocket(roomInfo.room_id);
 
-		if (roomInfo.roomMode === "Tournament") {
+		if (roomInfo.roomMode === "tournament") {
 			await document.getElementById("start").addEventListener("click", async () => {
 				createTournament(this.roomSocket ,roomInfo.room_id, roomInfo.code);
 			});
@@ -138,7 +138,7 @@ export function createRoomSocket(roomid) {
 
 	// on receiving message on group
 	roomSocket.onmessage = function (e) {
-		console.log('Rooms - Message received:', e.data);
+		// console.log('Rooms - Message received:', e.data);
 		const data = JSON.parse(e.data);
 		const type = data.type;
 		switch (type) {

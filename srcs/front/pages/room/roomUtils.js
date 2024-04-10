@@ -81,7 +81,7 @@ export function joinRoomForm()
  */
 export async function applyPlayerBorder(player_id) {
 
-	let me = await fetch(`/api/user_management/me`, {
+	let me = await fetch(`/api/user_management/me_id`, {
 		method: "GET",
 		headers: {
 			'Content-Type': 'application/json',
