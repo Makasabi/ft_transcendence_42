@@ -52,11 +52,15 @@ export class GameContext {
 		};
 
 		this.websocket.onclose = function() {
-			console.log('Game socket closed unexpectedly');
+			console.log('Game socket closed');
 			game.end = true;
 		};
 
 		this.websocket.onmessage = function(e) {
+			if (e.data === "pong") {
+				game.pong = true;
+				return;
+			}
 			const data = JSON.parse(e.data);
 			const type = data.type;
 			if (type === "update") {
@@ -64,6 +68,9 @@ export class GameContext {
 			}
 			else if (type === "error") {
 				console.error("Game error", data);
+				game.end = true;
+			}
+			else if (type === "end") {
 				game.end = true;
 			}
 		};
@@ -238,11 +245,6 @@ export class GameContext {
 			console.log("wait for websocket");
 			if (this.end)
 				return;
-			count++;
-			if (count % 5 == 0) {
-				if (!await this.test_ping())
-					return;
-			}
 			await new Promise(resolve => setTimeout(resolve, 300));
 		}
 		count = 0;

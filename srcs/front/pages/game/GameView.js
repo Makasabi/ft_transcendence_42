@@ -18,9 +18,9 @@ export class GameView extends IView {
 		//if (particule.length > 0)
 		//	particule[0].remove();
 
-		let footer = document.querySelector("footer");
-		if (footer !== null)
-			footer.remove();
+		this.footer = document.querySelector("footer");
+		if (this.footer !== null)
+			this.footer.remove();
 
 		await fetch("/front/pages/game/game.html").then(response => response.text()).then(html => {
 			main.innerHTML = html;
@@ -66,6 +66,8 @@ export class GameView extends IView {
 
 	destroy() {
 		this.game.destroy();
-		this.stylesheet.remove();
+		document.head.removeChild(this.stylesheet);
+		const main = document.querySelector("main");
+		main.insertAdjacentHTML("afterend", this.footer.outerHTML);
 	}
 }
