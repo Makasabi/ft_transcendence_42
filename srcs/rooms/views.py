@@ -167,3 +167,19 @@ def roomPlayers(request, room_id):
 			players.append(occupant.player_id)
 
 	return JsonResponse({'players_ids': players})
+
+@api_view(['GET'])
+def get_code(request, room_id):
+	"""
+	Return the room code of the game with the given game_id
+
+	json response format:
+	{
+		room_code: "room_code"
+	}
+	"""
+	room = Rooms.objects.get(room_id=room_id)
+
+	return JsonResponse({
+		"room_code": room.code
+	})

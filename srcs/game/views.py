@@ -72,6 +72,26 @@ def start(request, room_id):
 	})
 
 @api_view(["GET"])
+def get_roomcode(request, game_id):
+	"""
+	Return the room code of the game with the given game_id
+
+	json response format:
+	{
+		room_code: "room_code"
+	}
+	"""
+	game = Game.objects.get(game_id=game_id)
+	url = f"http://localhost:8000/api/rooms/get_code/{game.room_id}"
+	headers = {
+		"Authorization": f"Token {request.COOKIES.get('token')}"
+	}
+	room_code = requests.get(url, headers=headers)
+	return JsonResponse({
+		"room_code": room_code.json()['room_code']
+	})
+
+@api_view(["GET"])
 def get_players(request, game_id):
 	"""
 	Return the list of players in the room with the given room_id
