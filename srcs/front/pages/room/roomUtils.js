@@ -158,13 +158,18 @@ export function copyLink(){
 	copyButton.addEventListener("click", async () => {
 		const roomCode = document.getElementById("this_code");
 		const code = roomCode.textContent;
-		await navigator.clipboard.writeText(code);
-		const bubble = document.createElement("div");
-		bubble.id = "bubble";
-		bubble.textContent = "Copied!";
-		copyButton.appendChild(bubble);
+		const clipboard = navigator.clipboard;
+		if (!clipboard) {
+			return;
+		}
+		await clipboard.writeText(code);
+		const text = document.getElementById("this_code");
+		const bubble = document.getElementById("bubble");
+		text.hidden = true;
+		bubble.hidden = false;
 		setTimeout(() => {
-			copyButton.removeChild(bubble);
+			text.hidden = false;
+			bubble.hidden = true;
 		}, 1000);
 	}
 	);
