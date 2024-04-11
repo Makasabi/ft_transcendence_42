@@ -105,11 +105,11 @@ def edit_profile(request):
    # if not serializer.is_valid():
 
 	user = request.user
-	if "username" in request.data:
+	if "username" in request.data and request.data["username"] != "":
 		user.username = request.data["username"]
 	if "avatar_file" in request.data:
 		user.avatar_file = request.data["avatar_file"]
-	if "password" in request.data:
+	if "password" in request.data and request.data["password"] != "":
 		user.set_password(request.data["password"])
 	user.save()
 	return JsonResponse(profile_serializer(request, user))
@@ -199,8 +199,7 @@ def add_friend(request, user_id):
 	if user1 == user2:
 		return JsonResponse({'error': 'Cannot add yourself as a friend'}, status=400)
 	BeFriends.objects.create(user1=user1, user2=user2)
-	return JsonResponse(profile_serializer(request.user))
-
+	return JsonResponse(profile_serializer(request, request.user))
 
 @api_view(['DELETE'])
 def remove_friend(request, user_id):
@@ -216,7 +215,7 @@ def remove_friend(request, user_id):
 
 	BeFriends.objects.filter(user1=user1, user2=user2).delete()
 	BeFriends.objects.filter(user1=user2, user2=user1).delete()
-	return JsonResponse(profile_serializer(request.user))
+	return JsonResponse(profile_serializer(request, request.user))
 
 
 @api_view(['GET'])
@@ -260,4 +259,17 @@ def get_friends(request):
 		})
 	return JsonResponse(friends_json, safe=False)
 
+@api_view(['GET'])
+def find_match(request, username):
+	"""
+	Return all friends of the user
 
+	Returns:
+	- JsonResponse: Response containing the list of friends
+	"""
+	current_user = request.user.username
+	if (current_user == username):
+		return JsonResponse({'status': 'ok', 'username': current_user})
+	elif Player.objects.filter(username=username):
+		return JsonResponse({'status': 'error',  'username': current_user})
+	return JsonResponse({'status': 'ok', 'username': current_user})

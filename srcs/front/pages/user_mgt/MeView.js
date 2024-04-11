@@ -29,7 +29,22 @@ async function editProfile() {
 
 	let username = document.getElementById("username").textContent;
 	let password = document.getElementById("password").textContent;
-	
+
+	if (username === "") {
+		console.log("Username or password cannot be empty");
+		// display error message
+		return;
+	}
+
+	const responseUsername = await fetch('api/user_management/find_match/' + username, {
+		headers: {'Authorization': `Token ${Login.getCookie('token')}`},
+		}).then(response => response.json());
+	if (responseUsername.status === "error") {
+		// display error message
+		document.getElementById("username").textContent = responseUsername.username;
+		return;
+	}
+
 	const response = await fetch('api/user_management/edit_profile', {
 		method: 'POST',
 		headers: {

@@ -15,5 +15,6 @@ urlpatterns = [
 	path("friends/<int:user_id>", views.is_friend, name="is_friend"),
 	path("add_friend/<int:user_id>", views.add_friend, name="add_friend"),
 	path("remove_friend/<int:user_id>", views.remove_friend, name="remove_friend"),
+	path("find_match/<str:username>", views.find_match, name="find_match"),
 	path('', views.me, name='me'),
 ]
