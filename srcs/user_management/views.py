@@ -282,7 +282,10 @@ def switch_online(request, username, status):
 	"""
 	Switch user online status
 	"""
-	user = Player.objects.filter(username=username).first()
+	try:
+		user = Player.objects.get(username=username)
+	except Player.DoesNotExist:
+		return JsonResponse({'status': 'error', 'message': 'User not found'})
 	if (status == 'online'):
 		user.online = True
 	else:

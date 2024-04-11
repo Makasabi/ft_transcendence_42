@@ -108,5 +108,5 @@ def is_registered(request):
 		serializer = PlayerSerializer(instance=user)
 		return Response({ "token" : token.key, "user" : serializer.data }, status=status.HTTP_200_OK)
 	except Player.DoesNotExist as error:
-		print(error)
-		return Response({"error" : "User not registered"}, status=status.HTTP_400_BAD_REQUEST)
+		print("In is_register", error)
+		return Response({"error" : "User not registered"}, status=status.HTTP_401_UNAUTHORIZED)

@@ -195,7 +195,7 @@ export async function is_logged()
 			return true;
 		throw new Error(response.statusText);
 	}).catch(error => {
-		console.error("Login failed:", error);
+		//console.error("Login failed:", error);
 		return false;
 	});
 	return await ret;
@@ -495,17 +495,14 @@ export async function is_registered(email)
 				console.log("User registered : ", data['token']);
 				return true;
 			}));
-		else if (response.status === 400)
+		else if (response.status === 401)
 		{
 			return response.json().then(data => {
 				console.log("Not registered");
 				return false;
 			});
 		}
-		else
-			return response.json().then(data => {
-				throw new Error("Error in registration");
-			});
+		throw new Error("Error in registration");
 	})
 	.catch(error => {
 		throw new Error(error);
