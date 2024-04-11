@@ -55,6 +55,11 @@ def start(request, room_id):
 		}, status=500)
 	players = players.json()
 
+	if len(players['players_ids']) < 2:
+		return JsonResponse({
+			"error": "Not enough players"
+		}, status=400)
+
 	game = Game.objects.create(room_id=room_id)
 	game.save()
 

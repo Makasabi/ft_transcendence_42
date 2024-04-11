@@ -178,5 +178,19 @@ TODO: Limit number of players in tournament at MIN 8 & MAX 36
 */
 
 
+export function errorMessage(message) {
+	const insert = document.getElementById("readyToPlay");
+	// create a div and put the error message in it and alight it to the center
+	// do no redisplay the error message if it already exists
+	if (document.getElementById("errorDiv") !== null) {
+		return;
+	}
+	const errorDiv = document.createElement("div");
+	errorDiv.id = "errorDiv";
+	errorDiv.innerHTML = message;
+	errorDiv.style.color = "red";
+	errorDiv.style.textAlign = "center";
+	insert.appendChild(errorDiv);
 
+}
 
