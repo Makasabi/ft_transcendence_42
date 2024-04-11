@@ -4,6 +4,7 @@ import { route } from "/front/pages/spa_router.js";
 import { checkRoomCode, addFriendList, inviteFriend, copyLink } from "/front/pages/room/roomUtils.js";
 import { addPlayer, removePlayer, updatePlayer, } from "/front/pages/room/roomWebsockets.js";
 import { createTournament } from "/front/pages/room/tournamentUtils.js";
+import { errorMessage } from "/front/pages/room/roomUtils.js";
 
 /**
  * RoomView class
@@ -32,11 +33,14 @@ export class RoomView extends IView {
 			return;
 		}
 
+		// TODO: check if a tournament has already been launched for this room
+		// if so -> route to page "tournament has started already"
+
 		let roomInfo = await fetch(`/api/rooms/info/${code}`, {
 			headers: {
 				'Authorization': `Token ${Login.getCookie('token')}`,
 			}}).then(response => response.json());
-
+		
 		let html = await fetch("/front/pages/room/room.html").then(response => response.text());
 
 		html = html.replace("{{roomVisibility}}", roomInfo.visibility);
@@ -79,6 +83,7 @@ export class RoomView extends IView {
 						this.roomSocket.send(to_send);
 					} else {
 						console.error("Error starting game");
+						errorMessage("You need at least 2 players to start a game.");
 					}
 				})
 			});

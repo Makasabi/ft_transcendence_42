@@ -64,6 +64,7 @@ class RoomConsumer(WebsocketConsumer):
 					)
 
 
+
 # Send Events #
 
 	def sendAddPlayer(self):
@@ -166,6 +167,9 @@ def checkRoomAvailabilityDB(room_id):
 
 def addPlayerToRoomDB(room_id, user_id):
 	room = Rooms.objects.get(room_id=room_id)
+	if Occupy.objects.filter(room_id=room_id, player_id=user_id).exists():
+		occupant = Occupy.objects.get(room_id=room_id, player_id=user_id)
+		occupant.delete()
 	Occupy.objects.create(room_id=room, player_id=user_id)
 
 def assignMasterDB(room_id, user_id):

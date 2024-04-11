@@ -1,5 +1,6 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
+import { errorMessage } from "/front/pages/room/roomUtils.js";
 
 /**
  * send a POST request to back to create the tournament record in DB
@@ -44,18 +45,3 @@ export async function createTournament(roomSocket, room_id, roomCode) {
 }
 
 
-function errorMessage(message) {
-	const insert = document.getElementById("readyToPlay");
-	// create a div and put the error message in it and alight it to the center
-	// do no redisplay the error message if it already exists
-	if (document.getElementById("errorDiv") !== null) {
-		return;
-	}
-	const errorDiv = document.createElement("div");
-	errorDiv.id = "errorDiv";
-	errorDiv.innerHTML = message;
-	errorDiv.style.color = "red";
-	errorDiv.style.textAlign = "center";
-	insert.appendChild(errorDiv);
-
-}
