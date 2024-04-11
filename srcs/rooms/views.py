@@ -138,9 +138,11 @@ def create_tournament(request, roomId):
 
 	total_rounds = (occupancy + 6) // 7
 
+
+	# Move that part to a function
 	repartition = compute_repartition(occupancy)
 	repartition = distribute_contestants(request, contestants, repartition)
-	print("Repartition ", repartition)
+	
 
 	Tournament.objects.create(room_id=room_ID, total_rounds=total_rounds, current_round=1)
 
@@ -190,6 +192,8 @@ def compute_repartition(occupancy):
 	else:
 		nb_pools = occupancy // 6
 
+	first_round_elimination(occupancy, nb_pools)
+
 	repartition = []
 	extra = occupancy % nb_pools
 	for i in range(nb_pools):
@@ -237,3 +241,29 @@ def distribute_contestants(request, contestants, repartition):
 @api_view(['GET'])
 def tournamentInfo(request, code):
 	pass
+
+def first_round_elimination(occupancy, nb_pool):
+	"""
+	Compute the number of players to eliminate in the first round
+
+	Args:
+	- occupancy: Number of players in the room
+	- nb_pool: Number of pools
+
+	Returns:
+	- nb to eliminate in each pool
+	"""
+
+	total_elim = occupancy - ((occupancy - nb_pool) - (occupancy - nb_pool) % 6)
+	elim_per_room = total_elim // nb_pool
+	extra_elim = total_elim % nb_pool
+
+	elim_per_pool = []
+	for i in range(nb_pool):
+		elim = elim_per_room
+		if extra_elim > 0:
+			elim += 1
+			extra_elim -= 1
+		elim_per_pool.append({'elim': elim})
+	# print("\n".join([f"Pool {i}: {elim_per_pool[i]}" for i in range(nb_pool)]))
+	return elim_per_pool
