@@ -66,6 +66,13 @@ def me_id(request):
 	"""
 	return JsonResponse({'id': request.user.id})
 
+@api_view(['GET'])
+def me_username(request):
+	"""
+	Return username of the user
+	"""
+	return JsonResponse({'username': request.user.username})
+
 
 @api_view(['GET'])
 def me(request):

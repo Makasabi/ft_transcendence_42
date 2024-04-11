@@ -12,16 +12,16 @@ export class MeView extends IView {
 		let user = await fetch("/api/user_management/me", {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		}).then(response => response.json());
-	
+
 		// profile-infos
 		html = getProfileInfos(html, user);
 		// history-stats
 		html = getHistoryStats(html, user);
-		
+
 		document.querySelector("main").innerHTML = html;
 		editProfileButton();
 		displayGameBox(user);
-		avatarUpload(); 
+		avatarUpload();
 	}
 }
 
@@ -33,6 +33,16 @@ async function editProfile() {
 	if (username === "") {
 		console.log("Username or password cannot be empty");
 		// display error message
+		const me = await fetch('api/user_management/me_username', {
+			headers: {'Authorization': `Token ${Login.getCookie('token')}`},
+		}).then(response => response.json());
+		document.getElementById("username").textContent = me.username;
+		const error_username = document.getElementById("error_username");
+		error_username.textContent = "Username cannot be empty";
+		error_username.hidden = false;
+		setTimeout(() => {
+			error_username.hidden = true;
+		}, 2000);
 		return;
 	}
 
@@ -41,18 +51,24 @@ async function editProfile() {
 		}).then(response => response.json());
 	if (responseUsername.status === "error") {
 		// display error message
+		const error_username = document.getElementById("error_username");
+		error_username.textContent = "Be original, this username is already taken!";
+		error_username.hidden = false;
 		document.getElementById("username").textContent = responseUsername.username;
+		setTimeout(() => {
+			error_username.hidden = true;
+		}, 2000);
 		return;
 	}
 
 	const response = await fetch('api/user_management/edit_profile', {
 		method: 'POST',
 		headers: {
-			'Content-type' : 'application/json', 
+			'Content-type' : 'application/json',
 			'Authorization': `Token ${Login.getCookie('token')}`
 		},
 		body: JSON.stringify({ 'username' : username, 'password' : password}),
-	
+
 	}).then(response => response.json());
 }
 
@@ -79,20 +95,28 @@ function editModeOff(editables) {
 		editable.style.removeProperty("border");
 		editable.style.color = "#dedede";
 	}
-	document.getElementById("edit-button").textContent = "Edit my Profile"; 
+	document.getElementById("edit-button").textContent = "Edit my Profile";
 	document.getElementById("password").style.display = "none";
 	return false;
 }
 
 function editProfileButton()
 {
-	document.getElementById("edit-button").textContent = "Edit my Profile"; 
+	const edit_button = document.getElementById("edit-button");
+	edit_button.textContent = "Edit my Profile";
 	const editables = document.getElementsByClassName("edit");
 	let edit = false;
-	
+
+	for (let editable of editables) {
+		editable.addEventListener("keydown", (e) => {
+			if (e.key === "Enter") {
+				e.preventDefault();
+				edit_button.click();
+		}});
+	}
 
 	const avatarContainer = document.querySelector(".avatar-container");
-	document.getElementById("edit-button").addEventListener("click", () => {
+	edit_button.addEventListener("click", () => {
 		if (edit === true) {
 			editProfile();
 			edit = editModeOff(editables);
