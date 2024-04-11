@@ -151,6 +151,6 @@ def get_history(request, player_id):
 			"rank": rank,
 			"mode" : game.game.mode,
 			"visibility" : game.game.visibility,
-			"date_played": game.game.date_begin,
+			"date_played": game.game.date_begin
 		})
 	return JsonResponse(history_json, safe=False)

@@ -6,7 +6,25 @@ from rest_framework.decorators import api_view
 from django.conf import settings
 import os
 import requests
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
+
+def simple_serializer(request, user):
+	"""
+	Retrieve user's data
+
+	Args:
+	- user: Player instance
+
+	Returns:
+	- user_data: Dictionary containing user data
+	"""
+	user_data = {
+		"id": user.id,
+		"username": user.username,
+		"avatar_file": user.avatar_file,
+	}
+	return user_data
 
 
 def profile_serializer(request, user):
@@ -40,6 +58,13 @@ def profile_serializer(request, user):
 	higher_scores = Player.objects.filter(global_score__gt=user.global_score).count()
 	user_data["global_rank"] = f"{higher_scores + 1}/{Player.objects.count()}"
 	return user_data
+
+@api_view(['GET'])
+def me_id(request):
+	"""
+	Return id of the user
+	"""
+	return JsonResponse({'id': request.user.id})
 
 
 @api_view(['GET'])
@@ -81,11 +106,11 @@ def edit_profile(request):
    # if not serializer.is_valid():
 
 	user = request.user
-	if "username" in request.data:
+	if "username" in request.data and request.data["username"] != "":
 		user.username = request.data["username"]
 	if "avatar_file" in request.data:
 		user.avatar_file = request.data["avatar_file"]
-	if "password" in request.data:
+	if "password" in request.data and request.data["password"] != "":
 		user.set_password(request.data["password"])
 	user.save()
 	return JsonResponse(profile_serializer(request, user))
@@ -139,7 +164,7 @@ def user_id(request, id):
 	user = Player.objects.filter(id=id).first()
 	if user is None:
 		return JsonResponse({'error': 'User not found'}, status=404)
-	data = profile_serializer(request, user)
+	data = simple_serializer(request, user)
 	return JsonResponse(data, safe=False)
 
 # function to return an array of users that match the username
@@ -177,7 +202,6 @@ def add_friend(request, user_id):
 	BeFriends.objects.create(user1=user1, user2=user2)
 	return JsonResponse(profile_serializer(request, request.user))
 
-
 @api_view(['DELETE'])
 def remove_friend(request, user_id):
 	"""
@@ -192,7 +216,7 @@ def remove_friend(request, user_id):
 
 	BeFriends.objects.filter(user1=user1, user2=user2).delete()
 	BeFriends.objects.filter(user1=user2, user2=user1).delete()
-	return JsonResponse(profile_serializer(request.user))
+	return JsonResponse(profile_serializer(request, request.user))
 
 
 @api_view(['GET'])
@@ -235,3 +259,42 @@ def get_friends(request):
 			"avatar_file": data.avatar_file
 		})
 	return JsonResponse(friends_json, safe=False)
+
+@api_view(['GET'])
+def find_match(request, username):
+	"""
+	Return all friends of the user
+
+	Returns:
+	- JsonResponse: Response containing the list of friends
+	"""
+	current_user = request.user.username
+	if (current_user == username):
+		return JsonResponse({'status': 'ok', 'username': current_user})
+	elif Player.objects.filter(username=username):
+		return JsonResponse({'status': 'error',  'username': current_user})
+	return JsonResponse({'status': 'ok', 'username': current_user})
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def switch_online(request, username, status):
+	"""
+	Switch user online status
+	"""
+	user = Player.objects.filter(username=username).first()
+	if (status == 'online'):
+		user.online = True
+	else:
+		user.online = False
+	print("User online status: ", user.online)
+	user.save()
+	return JsonResponse({'status': 'ok', 'is_online': user.online})
+
+@api_view(['GET'])
+def get_online_status(request, username):
+	"""
+	Return the online status of a user
+	"""
+	user = Player.objects.filter(username=username).first()
+	return JsonResponse({'is_online': user.online})
