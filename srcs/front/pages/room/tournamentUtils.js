@@ -53,4 +53,31 @@ export async function createTournament(roomSocket, room_id, roomCode) {
 	})
 }
 
+export async function getRoomInfo(code) {
+	let roomInfo = await fetch(`/api/rooms/info/${code}`, {
+		headers: {
+			'Authorization': `Token ${Login.getCookie('token')}`,
+		}}).then(response => response.json());
+	console.log("room:", roomInfo);
+	return roomInfo;
+}
 
+export async function getTournmentInfo(room_id) {
+	let tournament = await fetch(`/api/rooms/info_tournament/${room_id}`, {
+		headers: {
+			'Authorization': `Token ${Login.getCookie('token')}`,
+		}
+	}).then(response => response.json());
+	console.log("tournament:", tournament);
+	return tournament;
+}
+
+export async function getRoundInfo(tournament_id, round_number) {
+	let roundInfo = await fetch(`/api/rooms/info_round/${tournament_id}/${round_number}`, {
+		headers: {
+			'Authorization': `Token ${Login.getCookie('token')}`,
+		}
+	}).then(response => response.json());
+	console.log("roundInfo:", roundInfo);
+	return roundInfo;
+}

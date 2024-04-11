@@ -5,6 +5,7 @@
 	align-items: center;
 	width: 100%;
 	flex-wrap: wrap;
+	gap: 3vh 0;
 }
 
 #round_map, #pool_map{
@@ -14,9 +15,10 @@
 	align-items: center;
 	width: 40vw;
 	gap: 0.5vh;
+	min-width: 350px;
 }
 
-.rounds {
+.round {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -24,14 +26,27 @@
 	gap: 2.5vh;
 }
 
-.rounds img {
+.current_round {
+	border: var(--border-light) 1px solid;
+	border-radius: 10px;
+	background-color: var(--transparent-dark);
+	backdrop-filter: blur(4px);
+	padding: 1vh 01vw;
+}
+
+.round img {
 	width: 8vw;
 	max-width: 9vh;
 	min-width: 3vh;
 	filter: opacity(50%) invert(40%) sepia(73%) saturate(1183%) hue-rotate(218deg) brightness(104%) contrast(101%);
 }
 
-.rounds img:hover {
+.current_round img:hover {
+	filter: opacity(100%) invert(40%) sepia(73%) saturate(1183%) hue-rotate(218deg) brightness(104%) contrast(101%);
+}
+
+#pool_map img {
+	width: 15vw;
 	filter: opacity(100%) invert(40%) sepia(73%) saturate(1183%) hue-rotate(218deg) brightness(104%) contrast(101%);
 }
 

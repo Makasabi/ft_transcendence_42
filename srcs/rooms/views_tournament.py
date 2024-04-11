@@ -8,7 +8,7 @@ import requests
 import string
 from .view_utils import compute_repartition, distribute_contestants
 
-def tournament_serializer(tournament):
+def tournament_serializer(tournament, occupancy):
 	"""
 	Serialize a tournament object
 
@@ -22,11 +22,10 @@ def tournament_serializer(tournament):
 		current_round
 	"""
 	tournament_data = {
-		# "room_id": tournament.room_id,
 		"id": tournament.id,
 		"total_rounds": tournament.total_rounds,
 		"current_round": tournament.current_round,
-		# "occupancy": tournament.occupancy,
+		"occupancy": occupancy,
 	}
 	return tournament_data
 
@@ -81,18 +80,6 @@ def create_tournament(request, roomId):
 def tournamentInfo(request, room_id):
 	"""
 	get tournament data
-	get players in the room
-	get if round current_round exists ? 
-		if yes get all info about round 
-		else create round 1
-			create round current_round:
-				- create round 1
-				- call compute repartition
-				- call distribute contestants
-				- create game for each pool
-				- add players to each the game
-	get tournament data
-	return tournament data
 
 	Args:
 	- request: Request object
@@ -101,10 +88,14 @@ def tournamentInfo(request, room_id):
 	Returns:
 		json response containing tournament data
 	"""
+	if Rooms.objects.filter(room_id=room_id).exists():
+		contestants = Occupy.objects.filter(room_id=room_id)
+		occupancy = len(contestants)
+
 	tournament = Tournament.objects.get(room_id=room_id)
 	print(tournament)
 
-	return JsonResponse(tournament_serializer(tournament))
+	return JsonResponse(tournament_serializer(tournament, occupancy))
 
 @api_view(['GET'])
 def roundInfo(request, tournament_id, round_number):

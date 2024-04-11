@@ -13,6 +13,7 @@ import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
 import { checkRoomCode } from "/front/pages/room/roomUtils.js";
+import { getRoomInfo, getTournmentInfo, getRoundInfo } from "/front/pages/room/tournamentUtils.js";
 
 export class TournamentView extends IView {
 	static match_route(route) {
@@ -24,7 +25,6 @@ export class TournamentView extends IView {
 	}
 	
 	async render() {
-		
 		let code = document.URL.split("/")[4];
 		let roomExists = await checkRoomCode(code);
 		if (roomExists === false) {
@@ -32,31 +32,41 @@ export class TournamentView extends IView {
 			return;
 		}
 
-		// fetch all info about room with code of URL
-		// fetch all info about tournament which is linked to room with code of URL
+		let roomInfo = await getRoomInfo(code)
+		let tournament = await getTournmentInfo(roomInfo.room_id)
+		let roundInfo = await getRoundInfo(tournament.id, tournament.current_round)
 
-		let roomInfo = await fetch(`/api/rooms/info/${code}`, {
-			headers: {
-				'Authorization': `Token ${Login.getCookie('token')}`,
-			}}).then(response => response.json());
-		console.log("room:", roomInfo);
-
-		let tournament = await fetch(`/api/rooms/info_tournament/${roomInfo.room_id}`, {
-			headers: {
-				'Authorization': `Token ${Login.getCookie('token')}`,
-			}
-		}).then(response => response.json());
-		console.log("tournament:", tournament);
-
-		let roundInfo = await fetch(`/api/rooms/info_round/${tournament.id}/${tournament.current_round}`, {
-			headers: {
-				'Authorization': `Token ${Login.getCookie('token')}`,
-			}
-		}).then(response => response.json());
-		console.log("roundInfo:", roundInfo);
+		let pools = roundInfo.distribution;
+		console.log("pools : ", pools)
+		console.log("pools len :", Object.keys(pools).length)
 
 		let html = await fetch("/front/pages/room/tournament.html").then(response => response.text());
 		document.querySelector("main").innerHTML = html;
+
+		// compute the number of pool per round in another function
+		let round_map = document.getElementById("round_map");
+		console.log("round_map:", round_map);
+		// create a div with class "rounds" inside the div id "round_map" for each round with the round number as id
+		for (let i = 1; i <= tournament.total_rounds; i++) {
+			let round = document.createElement("div");
+			round.classList.add("round");
+			round.id = `round${i}`;
+			if (i === tournament.current_round) {
+				round.classList.add("current_round");
+				for (let j = 1; j <= Object.keys(pools).length; j++) {
+					let pool = document.createElement("img");
+					pool.src = "/front/ressources/img/svg/hexagon.svg";
+					pool.id = `pool${j}`;
+					round.appendChild(pool);
+				}
+			}
+			round_map.appendChild(round);
+		}
+
+
+		// insert an img inside the div with the src set to /front/ressources/img/svg/hexagon.svg with id "pool" + number of the pool
+
+		
 
 	}
 }
