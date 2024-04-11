@@ -1,7 +1,7 @@
 import math
 import numpy as np
 
-from .constants import PLAYER_WIDTH, PLAYER_LENGTH, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED, CENTER_Y, CENTER_X
+from .constants import PLAYER_HP, PLAYER_WIDTH, PLAYER_LENGTH, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED, CENTER_Y, CENTER_X
 
 class Player:
 	def __init__(self, player_id, border, debug):
@@ -24,10 +24,11 @@ class Player:
 		self.right_pilar = border_dist / 2
 		self.min_x = self.left_pilar_x + PLAYER_LENGTH / 2
 		self.max_x = self.right_pilar - PLAYER_LENGTH / 2
+		self.speed_factor = 0
 
 		self.normal = self.get_normal()
 
-		self.HP = 3
+		self.HP = PLAYER_HP
 		self.inputs = {
 			'left': False,
 			'right': False,
@@ -88,10 +89,15 @@ class Player:
 		Update the player's position based on the inputs.
 		"""
 		speed = PLAYER_RUNNING_SPEED if self.inputs['sprint'] else PLAYER_BASIC_SPEED
+		if ((self.inputs['left']) or (self.inputs['right'])):
+			if (self.speed_factor < 2):
+				self.speed_factor += 0.25
+		else:
+			self.speed_factor = 0
 		if self.inputs['left']:
-			self.border_relative_x += speed * timestamp
+			self.border_relative_x += speed * (math.exp(self.speed_factor) + 1) * timestamp
 		if self.inputs['right']:
-			self.border_relative_x -= speed * timestamp
+			self.border_relative_x -= speed * (math.exp(self.speed_factor) + 1) * timestamp
 		self.border_relative_x = max(self.min_x, min(self.max_x, self.border_relative_x))
 
 	def render(self):
@@ -103,11 +109,6 @@ class Player:
 		center = self.get_center()
 		sides = self.get_sides()
 
-		"""
-		Je mets des points 'decales' juste pour le render
-		pour pouvoir dessiner le jouer avec une ligne pygame qui soit
-		en dessous de la ligne qui correspond au joueur dans l'engine
-		"""
 		return {
 			'posx': center[0],
 			'posy': center[1],

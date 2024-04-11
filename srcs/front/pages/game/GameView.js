@@ -1,6 +1,7 @@
 import { GameContext } from "/front/pages/game/scripts/pong.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js"
+import { getCookie } from "../login/login.js";
 
 export class GameView extends IView {
 	static match_route(route) {
@@ -18,9 +19,9 @@ export class GameView extends IView {
 		//if (particule.length > 0)
 		//	particule[0].remove();
 
-		let footer = document.querySelector("footer");
-		if (footer !== null)
-			footer.remove();
+		this.footer = document.querySelector("footer");
+		if (this.footer !== null)
+			this.footer.remove();
 
 		await fetch("/front/pages/game/game.html").then(response => response.text()).then(html => {
 			main.innerHTML = html;
@@ -52,20 +53,32 @@ export class GameView extends IView {
 		try {
 			const game_id = document.URL.split("/")[4];
 			this.game = new GameContext(game_id);
+			let room_code = fetch("/api/game/" + game_id + "/room_code"
+				, {
+					method: "GET",
+					headers: {
+						"Authorization": `Token ${getCookie("token")}`,
+					}}
+				).then(response => response.json())
+				.then(data => data.room_code);
 
 			console.log("Start game");
 			await this.game.start();
 			console.log("End of game");
-			// @TODO take results and redirect to the room
-			route("/home");
+			const redirect = "/room/" + await room_code;
+			console.log("Redirect to", redirect);
+			route(redirect);
 		}
 		catch (e) {
 			console.error("Game error", e);
+			route("/");
 		}
 	}
 
 	destroy() {
 		this.game.destroy();
-		this.stylesheet.remove();
+		document.head.removeChild(this.stylesheet);
+		const main = document.querySelector("main");
+		main.insertAdjacentHTML("afterend", this.footer.outerHTML);
 	}
 }

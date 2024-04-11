@@ -34,7 +34,9 @@ export class RoomView extends IView {
 
 		let roomInfo = await fetch(`/api/rooms/info/${code}`, {
 			headers: {
-				'Authorization': `Token ${Login.getCookie('token')}`,}}).then(response => response.json());
+				'Authorization': `Token ${Login.getCookie('token')}`,
+			}}
+			).then(response => response.json());
 		let html = await fetch("/front/pages/room/room.html").then(response => response.text());
 
 		html = html.replace("{{roomVisibility}}", roomInfo.visibility);

@@ -1,8 +1,10 @@
 # game/consumers.py
 import json
 
+from django.utils import timezone
 from channels.generic.websocket import AsyncConsumer
-from game.models import Game
+from game.models import Game, Play, Player
+from channels.db import database_sync_to_async
 
 from .engine.GameEngine import GameEngine
 
@@ -39,6 +41,29 @@ class GameConsumer(AsyncConsumer):
 			"state": state
 		})
 		self.engines[game_id].ready_to_send = True
+
+	async def game_end(self, event):
+		game_id = event["game_id"]
+		await self.channel_layer.group_send(f"game_{game_id}", {
+			"type": "game.end"
+		})
+		del self.engines[game_id]
+		player_ranking = event["player_ranking"]
+		def create_history(game_id):
+			game = Game.objects.get(game_id=game_id)
+			game.date_end = timezone.now()
+			game.end_status = "success"
+
+			for i, player_id in enumerate(player_ranking):
+				play = Play.objects.create(score=i, game=game, user_id=player_id)
+				play.save()
+				if game.visibility == "public":
+					player = Player.objects.get(id=player_id)
+					player.global_score += play.score
+					player.save()
+			game.save()
+		await database_sync_to_async(create_history)(game_id)
+
 
 	async def input(self, event):
 		game_id = event["game_id"]
