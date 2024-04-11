@@ -1,6 +1,6 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
-import { HomeView } from "/front/pages/home/home.js";
+import { route } from "/front/pages/spa_router.js";
 
 export class NotifView extends IView {
 	static match_route(route) {
@@ -8,75 +8,205 @@ export class NotifView extends IView {
 		return regex.test(route);
 	}
 
-	static async render() {
-		console.log("NotifView.render");
-		HomeView.render();
+	async render() {
+		// console.log("NotifView.render");
+		// HomeView.render();
+		handleNotificationDot();
+		displayNotifications();
 	}
 }
 
+
 // create Notification socket for the user
 export function createNotificationSocket(username) {
-	console.log('Creating socket for:', username);
+	// console.log('Creating socket for:', username);
 	const notifySocket = new WebSocket(
-	'ws://'
-	+ window.location.host
-	+ '/ws/notif/'
-	+ username
+		'ws://'
+		+ window.location.host
+		+ '/ws/notif/'
+		+ username
 	);
 	if (notifySocket.error) {
-		console.log('Error creating socket');
+		console.log('Notif Error creating socket');
 		return;
 	}
-	handleNotificationDot();
+	else
+		handleNotificationDot();
 
 	// on socket open
 	notifySocket.onopen = function (e) {
-		console.log('Socket successfully connected.');
+		// console.log('Notif Socket successfully connected for:', username);
 	};
 
 	// on socket close
 	notifySocket.onclose = function (e) {
-		console.log('Socket closed unexpectedly');
+		console.log('Notif Socket closed unexpectedly');
+		switch (e.code) {
+			case 1000:
+				console.log('Socket closed normally');
+				break;
+			default:
+				console.log('Socket closed unexpectedly');
+		}
 	};
 	
 	notifySocket.onmessage = function (e) {
 		const data = JSON.parse(e.data);
 		const message = data.message;
-		// check if message is for the user
 		if (data.user === username) {
+			displayNotifDot(message);
 			// console.log('Message is for ', username);
-			newNotification(message);
 		}
 	};
+	return notifySocket;
+}
+
+function acceptFriend(notification) {
+	fetch(`/api/user_management/add_friend/` + notification.sender_id, {
+		method: 'POST',
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	})
+	finish();
+}
+
+function acceptGameInvitation(notification) {
+	finish();
+	route(`/room/${notification.room_code}`);
+}
+
+function finish(){
+	const notificationElement = event.target.closest('.notification');
+	fetch("/api/notif/delete_notif/" + notificationElement.id, {
+		method: 'DELETE',
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	})
+	if (notificationElement) {
+		notificationElement.style.display = 'none';
+	}
+
+}
+
+function renderAcceptIcon(notification, actionIcons, notifsLength) {
+	if (notification.type === 'friend_request' || notification.type === 'game_invitation') {
+		const acceptIcon = document.createElement('span');
+		acceptIcon.textContent = 'V';
+		acceptIcon.classList.add('action-icon');
+		acceptIcon.addEventListener('click', (event) => {
+			if (notifsLength === 1) {
+				const foregroundBox = document.querySelector('.foreground-box');
+				foregroundBox.remove();
+			}
+			if (notification.type === 'friend_request')
+				acceptFriend(notification);
+			else
+				acceptGameInvitation(notification);
+		});
+		actionIcons.appendChild(acceptIcon);
+	}
+}
+
+function renderDeclineIcon(notifsLength) {
+	const declineIcon = document.createElement('span');
+	declineIcon.textContent = 'X';
+	declineIcon.classList.add('action-icon');
+	declineIcon.addEventListener('click', (event) => {
+		console.log('Notification deleted');
+		// api call to delete notification from DB
+		const notificationElement = event.target.closest('.notification');
+		fetch("/api/notif/delete_notif/" + notificationElement.id, {
+			method: 'DELETE',
+			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+		})
+		if (notificationElement) {
+			notificationElement.style.display = 'none';
+		}
+		if (notifsLength === 1) {
+			const foregroundBox = document.querySelector('.foreground-box');
+			foregroundBox.remove();
+		}
+	});
+	return declineIcon;
+}
+
+function renderNotifIcons(notification, notificationElement, notifsLength) {
+	const actionIcons = document.createElement('div');
+	actionIcons.classList.add('action-icons');
+
+	renderAcceptIcon(notification, actionIcons, notifsLength);
+	const declineIcon = renderDeclineIcon(notifsLength);
+	actionIcons.appendChild(declineIcon);
+
+	notificationElement.appendChild(actionIcons);
+}
+
+async function displayNotifBox() {
+	const notificationsLink = document.getElementById('notif-box');
+		notificationsLink.addEventListener("click", async (event) => {
+			let notifs = await fetch('/api/notif/get_notifs/all', {
+				headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+			}).then(response => response.json())
+			setNotifSeen();
+			if (notifs.length === 0)
+				return;
+			event.stopPropagation();
+
+			// Create and display the foreground box
+			const foregroundBox = document.createElement('div');
+			foregroundBox.classList.add('foreground-box');
+			
+			console.log('Notifications box');
+			
+			const notificationsContainer = document.createElement('div');
+			notificationsContainer.classList.add('notifications-container');
+			foregroundBox.appendChild(notificationsContainer);
+			
+			notifs.forEach(notification => {
+				const notificationElement = document.createElement('div');
+				notificationElement.classList.add('notification');
+				notificationElement.textContent = notification.message;
+				notificationElement.id = notification.notif_id;
+				notificationsContainer.appendChild(notificationElement);
+				renderNotifIcons(notification, notificationElement, notifs.length);
+			});
+			console.log('Notifications loaded');
+			
+			document.body.appendChild(foregroundBox);
+
+			const closeForegroundBox = function(event) {
+				if (!foregroundBox.contains(event.target)) {
+					foregroundBox.remove();
+					document.removeEventListener('click', closeForegroundBox);
+				}
+			}
+			document.addEventListener('click', closeForegroundBox);
+			event.stopPropagation();
+		});
+}
+
+function setNotifSeen() {
+	fetch('/api/notif/set_seen', {
+		method: 'POST',
+		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+	}).then(response => response.json())
+}
+
+async function displayNotifications () {
+	displayNotifBox();
 }
 
 // display new notification red dot
-function newNotification(message) {
-
-	var notificationDot = document.getElementById('notificationDot');
-	if (notificationDot) {
-		console.log('Notification dot exists');
-		notificationDot.style.display = 'inline-block';
-	}
-	else {
-		console.log('Notification dot does not exist');
-	}
+function displayNotifDot() {
+	document.getElementById('notificationDot').style.display = 'inline-block';
 }
 
 // Handle red dot for Notifications
 async function handleNotificationDot() {	
-	var notificationDot = document.getElementById('notificationDot');
-	await fetch('/api/notif/get_notifs',{
+	await fetch('/api/notif/get_notifs/unseen',{
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 	}).then(response => response.json())
 	.then(data => {
 		if (data.length > 0)
-			newNotification();
-		// 	console.log('Unread notifications:', data.length);
-		// 	notificationDot.style.display = 'inline-block';
-		// }
-		// else
-		// 		notificationDot.style.display = 'none';
+			displayNotifDot();
 	})
 	.catch((error) => {
 		console.error('Error:', error);

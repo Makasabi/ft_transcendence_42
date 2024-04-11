@@ -32,9 +32,7 @@ def create_game(users):
 	# Create Play instances for each user in the game with random scores
 	for user, score in zip(users_list[:num_players], unique_scores):
 		print(f"Creating fake score for user {user.username}...")
-		game_score = Play.objects.create(score=score, game=game)
-		game_score.users.add(user)  # Add the user to the game score
-		#add score to user's global score
+		game_score = Play.objects.create(score=score, game=game, user_id=user.id)
 		if game.visibility == 'public':
 			user.global_score += game_score.score
 		user.save()
@@ -47,7 +45,7 @@ if __name__ == "__main__":
 
 	print(f"Total users: {users.count()}")
 	# Create fake games with random users and scores
-	num_games = 5  # Adjust the number of fake games as needed
+	num_games = 50
 	print(f"Creating {num_games} fake games...")
 	for _ in range(num_games):
 		game = create_game(users)

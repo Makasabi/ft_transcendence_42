@@ -6,6 +6,7 @@ networks:
 
 volumes:
   user_postgres_data:
+  notif_postgres_data:
 
 services:
   nginx:
@@ -32,24 +33,46 @@ services:
     expose: 
       - "8001"
 
+  notification:
+    container_name: notification_container
+    build: ./notification
+    env_file: .env
+      #command: gunicorn wsgi:application --bind 0.0.0.0:8001
+    restart: always
+    depends_on:
+      - db_notification
+    networks:
+      - ft_transcendence
+    expose: 
+      - "8002"
+
   db_user_management:
     container_name: db_user_management_container
     image: postgres:15
+    env_file: .env
     volumes:
       - user_postgres_data:/var/lib/postgresql/data/
-        # environment:
-        #   - POSTGRES_USER=hello_django
-        #   - POSTGRES_PASSWORD=hello_django
-        #   - POSTGRES_DB=hello_django_dev
     expose: 
       - "5432"
     networks:
       - ft_transcendence
 
-        #user: "1000:1000"
+  db_notification:
+    container_name: db_notification
+    image: postgres:15
+    env_file: .env
+    volumes:
+      - notif_postgres_data:/var/lib/postgresql/data/
+    expose:
+      - "5432"
+    networks:
+      - ft_transcendence
 
-       #  redis:
-       #    container_name: redis_server
-       #    restart: always
-       #    ports:
-       #     - '6379:6379'
+  redis:
+    image: redis
+    container_name: redis_server
+    restart: always
+    networks:
+      - ft_transcendence
+    expose:
+     - "7999"

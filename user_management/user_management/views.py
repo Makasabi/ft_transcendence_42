@@ -4,25 +4,27 @@ from user_management.models import Player, BeFriends
 #from game.models import Play
 from rest_framework.decorators import api_view
 
-#def profile_serializer(user):
-#	"""
-#	Retrieve user's data
-#
-#	Args:
-#	- user: Player instance
-#
-#	Returns:
-#	- user_data: Dictionary containing user data
-#	"""
-#	user_data = {
-#		"id": user.id,
-#		"username": user.username,
-#		"email": user.email,
-#		"avatar_file": user.avatar_file,
-#		"global_rank": 0,
-#		"game_history": []
-#	}
-#
+def profile_serializer(user):
+	"""
+	Retrieve user's data
+
+	Args:
+	- user: Player instance
+
+	Returns:
+	- user_data: Dictionary containing user data
+	"""
+	user_data = {
+		"id": user.id,
+		"username": user.username,
+		"email": user.email,
+		"avatar_file": user.avatar_file,
+		"global_rank": 0,
+		"game_history": []
+	}
+	"""
+	    Must ask data to the game container through api call
+	"""
 #	game_history = Play.objects.filter(users=user)
 #
 #	for game_score in game_history:
@@ -43,7 +45,7 @@ from rest_framework.decorators import api_view
 #
 #	higher_scores = Player.objects.filter(global_score__gt=user.global_score).count()
 #	user_data["global_rank"] = f"{higher_scores + 1}/{Player.objects.count()}"
-#	return user_data
+	return user_data
 
 @api_view(['GET'])
 def me(request):

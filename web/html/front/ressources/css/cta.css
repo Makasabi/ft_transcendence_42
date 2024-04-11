@@ -1,7 +1,7 @@
 .home_button {
-	padding: 1vh;
+	padding: 1.3vh;
+	font-weight: 400;
 	border-radius: 10px;
-	font-weight: 700;
 	color: var(--light);
 	border: var(--border-light) 1px solid;
 	backdrop-filter: blur(4px);
@@ -17,8 +17,8 @@
 
 form button {
 	margin: 1vh 0;
-	padding: 1vh;
-	font-weight: 700;
+	padding: 1.3vh;
+	font-weight: 400;
 	border-radius: 10px;
 	background-color: var(--primary-color);
 	color: var(--light);
@@ -31,22 +31,30 @@ form button:hover {
 	transition: ease-in-out 0.1s;
 }
 
-.purple_cta {
+.cta {
 	margin: inherit;
-	padding: 1vh;
-	font-weight: 700;
+	padding: 1.3vh;
+	font-weight: 400;
 	border-radius: 10px;
-	background-color: var(--primary-color);
 	color: white;
 	border: none;
 	width: 70%;
 	cursor: pointer;
 }
 
+.purple_cta {
+	background-color: var(--primary-color);
+}
 .purple_cta:hover {
 	background-color: var(--hover-primary-color);
 	transition: ease-in-out 0.1s;
 }
+
+.grey_cta {
+	background-color: var(--grey);
+	cursor: not-allowed;
+}
+
 
 
 .gsi-material-button {
@@ -64,7 +72,6 @@ form button:hover {
 	color: #1f1f1f;
 	cursor: pointer;
 	font-family: 'Roboto', arial, sans-serif;
-	font-size: 14px;
 	height: 40px;
 	letter-spacing: 0.25px;
 	outline: none;
@@ -172,32 +179,25 @@ form button:hover {
 	background-color: var(--primary-color);
   }
 
-  /* .createRoom {
-	display: flex;
-	flex-direction: column;
-	place-items: center;
-} */
-
   .inactive,
   label {
 	--inactive-btn-text: var(--light);
   }
 
-  .createRoomMode {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    /* padding: 5px 0; */
-    background-color: var(--transparent-primary);
-    width: 100%;
-    border-radius: 10px;
+.createRoomMode {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	background-color: var(--transparent-primary);
+	width: 100%;
+	border-radius: 10px;
 }
 
 .JRM_cta,
 .CRM_cta {
+	margin: inherit;
 	padding: 10px 20px;
-	margin: 1vh 0;
 	border-radius: 10px;
 	font-weight: 700;
 	color: var(--light);
@@ -240,3 +240,58 @@ form button:hover {
 	font-weight: bold;
 	color: var(--light);
   }
+
+
+.search_bar {
+	display: flex;
+	flex-direction: row;
+	justify-content: left;
+	align-items: center;
+	border-radius: 10px;
+	border: var(--border-light) 1px solid;
+	backdrop-filter: blur(4px);
+	background-color: var(--transparent-dark);
+	color: var(--ligth);
+}
+
+.search_bar img {
+	margin: 0 1vw;
+	width: 2vh;
+	filter: invert(53%) sepia(1%) saturate(0%) hue-rotate(184deg) brightness(100%) contrast(85%);
+}
+
+.search_bar input {
+	border: none;
+	padding: 1vh;
+	width: 85%;
+	background-color: transparent;
+	color: var(--light);
+}
+
+.homeSB {
+	width: 100%;
+}
+
+.friendSB {
+	width: 50%;
+}
+
+select, .room_code{ 
+	padding: 1vh;
+	width: 100%;
+	margin: 1vh 0;
+	border-radius: 10px;
+	border: var(--border-light) 1px solid;
+	backdrop-filter: blur(4px);
+	background-color: var(--transparent-dark);
+	color: var(--ligth);
+}
+
+.room_code:hover {
+	background-color: var(--hover-primary-color);
+	transition: ease-in-out 0.1s;
+}
+
+option { 
+	background-color: var(--transparent-dark);
+}

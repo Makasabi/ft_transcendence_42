@@ -1,35 +1,54 @@
 import { footer, LoggedHeaderView, HomeView } from "./home/home.js";
 import { MeView } from "./user_mgt/MeView.js";
+import { FriendsView } from "./user_mgt/FriendsView.js";
 import { UserView } from "./user_mgt/UserView.js";
 import * as login from "./login/login.js";
 import { GameView } from "./game/GameView.js";
 import { UnloggedHeaderView, LoginView, SignupView, Forty2View } from "./login/login.js";
-import { FullRoomView, UnknownRoomView, createRoomView, } from "./room/room.js";
 import { RoomView } from "./room/RoomView.js";
+import { FullRoomView } from "./room/FullRoomView.js";
+import { UnknownRoomView } from "./room/UnknownRoomView.js";
+import { CreateRoomView } from "./room/CreateRoomView.js";
 
+
+/*** Views ***/
+var view = null;
+
+const loggedViews = [
+	HomeView,
+	MeView,
+	FriendsView,
+	UserView,
+	// GameView,
+	CreateRoomView,
+	RoomView,
+	UnknownRoomView,
+	FullRoomView,
+];
+
+const unloggedViews = [
+	LoginView,
+	SignupView,
+	Forty2View,
+	login.GoogleView,
+	login.UsernameView,
+];
+	
 	/*** Utilities ***/
-export function route(path, event=null)
+export async function route(path, event=null)
 {
 	if (event)
 		event.preventDefault();
 	window.history.pushState({}, "", path);
-	handleLocation();
+	await handleLocation();
 }
 
-async function handleUnloggedLocation()
+async function handleLocationViews(views, defaultRoute)
 {
-	const views = [
-		LoginView,
-		SignupView,
-		Forty2View,
-		login.GoogleView,
-		login.UsernameView,
-	];
-
 	const match = views.filter(view => view.match_route(window.location.pathname));
 	if (match.length === 0) {
 		console.warn("No route matches the path:", window.location.pathname);
-		route("/login");
+		route(defaultRoute);
 		return;
 	}
 	if (match.length > 1)
@@ -37,63 +56,42 @@ async function handleUnloggedLocation()
 		console.warn("Multiple routes match the same path:", window.location.pathname);
 		return;
 	}
-	match[0].render();
+	console.log("this is the current view:", view);
+	if (view)
+		view.destroy();
+	view = new match[0]();
+	await view.render();
 }
 
-async function handleLoggedLocation()
-{
-	const views = [
-		HomeView,
-		MeView,
-		createRoomView,
-		RoomView,
-		UnknownRoomView,
-		FullRoomView,
-		UserView,
-		GameView,
-	];
-
-	const match = views.filter(view => view.match_route(window.location.pathname));
-	if (match.length === 0) {
-		console.warn("No route matches the path:", window.location.pathname);
-		route("/home");
-		return;
-	}
-	if (match.length > 1)
-	{
-		console.warn("Multiple routes match the same path:", window.location.pathname);
-		return;
-	}
-	match[0].render();
-}
-
-function handleLocation()
+async function handleLocation()
 {
 	var was_logged;
 
-	login.is_logged().then(is_logged => {
+	await login.is_logged().then(async (is_logged) => {
 		console.log("is_logged", is_logged);
 		if (was_logged !== is_logged)
-			update_header(is_logged);
+			await update_header(is_logged);
 		if (is_logged)
 		{
-			handleLoggedLocation();
+			await handleLocationViews(loggedViews, "/home");
 			was_logged = true;
 		}
 		else
 		{
-			handleUnloggedLocation();
+			await handleLocationViews(unloggedViews, "/login");
 			was_logged = false;
 		}
 	});
 }
 
-function update_header(is_logged)
+async function update_header(is_logged)
 {
-	if (is_logged)
-		LoggedHeaderView.render();
-	else
-		UnloggedHeaderView.render();
+	var headerView = null;
+	
+	if (headerView)
+		headerView.destroy();
+	headerView = new (is_logged ? LoggedHeaderView : UnloggedHeaderView)();
+	await headerView.render();
 }
 
 /*** Events ***/

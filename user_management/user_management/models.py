@@ -10,7 +10,6 @@ class Player(AbstractUser):
 	id = models.AutoField(primary_key=True)
 	groups = models.ManyToManyField('auth.Group', verbose_name=_('groups'), blank=True, related_name='custom_users')
 	user_permissions = models.ManyToManyField('auth.Permission', verbose_name=_('user permissions'), blank=True, related_name='custom_users')
-	
 	avatar_file = models.CharField(max_length=255, blank=True, null=True)
 	global_score = models.IntegerField(default=0)
 

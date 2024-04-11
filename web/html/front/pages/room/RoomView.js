@@ -1,7 +1,9 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
-import { checkRoomCode } from "/front/pages/room/room.js";
+import { checkRoomCode, addFriendList, inviteFriend } from "/front/pages/room/roomUtils.js";
+import { addPlayer, removePlayer, updatePlayer, } from "/front/pages/room/roomWebsockets.js";
+import { createTournament } from "/front/pages/room/tournamentUtils.js";
 
 /**
  * RoomView class
@@ -19,56 +21,68 @@ export class RoomView extends IView {
 
 	/**
 	 * Renders the room page after checking if the roomCode is valid or not
-	 *
 	 * if roomcode is valid, it renders the room page
-	 * TODO: else it redirects to unknown room code view -> explaining that the room code is either invalid or the room has been closed since.
 	 */
-	static async render() {
+	async render() {
+
 		let code = document.URL.split("/")[4];
-		checkRoomCode(code)
-			.then(roomCheck => {
-				if (roomCheck.status === false) {
-					route("/unknown");
-				}
-				console.log("Room status: ", roomCheck.status);
-			})
-			.catch(error => {
-				console.error('Error checking room availability:', error);
-				route("/unknown");
-			});
+		let roomExists = await checkRoomCode(code);
+		if (roomExists === false) {
+			route("/unknown");
+			return;
+		}
+
 		let roomInfo = await fetch(`/api/rooms/info/${code}`, {
 			headers: {
 				'Authorization': `Token ${Login.getCookie('token')}`,}}).then(response => response.json());
 		let html = await fetch("/front/pages/room/room.html").then(response => response.text());
 
+		html = html.replace("{{roomVisibility}}", roomInfo.visibility);
 		html = html.replace("{{roomMode}}" , roomInfo.roomMode);
 		html = html.replace("{{roomCode}}", roomInfo.code);
 		document.querySelector("main").innerHTML = html;
+		
+		addFriendList();
+		inviteFriend(roomInfo.code, roomInfo.roomMode);
 
-		const roomSocket = createRoomSocket(roomInfo.room_id);
+		this.roomSocket = createRoomSocket(roomInfo.room_id);
 
-		await document.getElementById("start").addEventListener("click", () => {
-			console.log("Starting game");
-			fetch(`/api/game/start/${roomInfo.room_id}`, {
-				method: "POST",
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Token ${Login.getCookie('token')}`,
-				},
-				body: JSON.stringify({
-					"room_id": roomInfo.room_id,
-				}),
-			}).then(response => {
-				if (response.status === 200) {
-					roomSocket.send(JSON.stringify({
-						"message": "Game starting",
-						"room": roomInfo.room_id,
-					}));
-				} else {
-					console.error("Error starting game");
-				}
-			})
-		});
+		if (roomInfo.roomMode === "Tournament") {
+			await document.getElementById("start").addEventListener("click", async () => {
+				createTournament(this.roomSocket ,roomInfo.room_id, roomInfo.code);
+			});
+		}
+		else {
+			await document.getElementById("start").addEventListener("click", () => {
+				console.log("Starting game");
+				fetch(`/api/game/start/${roomInfo.room_id}`, {
+					method: "POST",
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': `Token ${Login.getCookie('token')}`,
+					},
+					body: JSON.stringify({
+						"room_id": roomInfo.room_id,
+					}),
+				}).then(response => {
+					if (response.status === 200) {
+						this.roomSocket.send(JSON.stringify({
+							"message": "Game starting",
+							"room": roomInfo.room_id,
+						}));
+					} else {
+						console.error("Error starting game");
+					}
+				})
+			});
+		}
+	}
+
+	destroy() {
+		console.log("Destroying room view");
+		if (this.roomSocket) {
+			this.roomSocket.close();
+		}
 	}
 }
 
@@ -76,6 +90,7 @@ export class RoomView extends IView {
  * function to create a new socket when a user enters a room
  * (upon creation or joining (with code in URL, via home form, or via invite notification))
  */
+
 export function createRoomSocket(roomid) {
 	console.log('Creating socket for room:', roomid);
 	const roomSocket = new WebSocket(
@@ -85,28 +100,65 @@ export function createRoomSocket(roomid) {
 		+ roomid,
 	);
 	if (roomSocket.error) {
-		console.log('Error creating socket');
+		console.log('Rooms - Error creating socket');
 		return;
 	}
 
 	// on socket open
 	roomSocket.onopen = function (e) {
-		console.log('Socket successfully connected.');
+		console.log('Rooms - Socket successfully connected.');
 	};
 
 	// on socket close
 	roomSocket.onclose = function (e) {
-		console.log('Socket closed unexpectedly');
-		route("/fullroom");
+		console.log('Rooms - Socket closing:', e.code, e.reason);
+		const code = e.code;
+		const reason = e.reason;
+		switch (code) {
+			case 1000:
+				console.log('Rooms - Socket closed normally');
+				break;
+			case 3001:
+				console.log('Room - is already full');
+				route("/fullroom");
+				break;
+			case 3002:
+				console.log('Rooms - Unauthentified user');
+				route("/home");
+				break;
+			default:
+				console.log(reason);
+		}
 	};
 
 	// on receiving message on group
 	roomSocket.onmessage = function (e) {
+		console.log('Rooms - Message received:', e.data);
 		const data = JSON.parse(e.data);
-		const message = data.message;
-		// check if message is for the user
-		if (data.room === roomid) {
-			console.log('Message is for room:', roomid);
+		const type = data.type;
+		switch (type) {
+			case 'new_player':
+				console.log('New player joined:', data.player_id);
+				addPlayer(data);
+				break;
+			case 'remove_player':
+				console.log('Player left:', data.player_id);
+				removePlayer(data);
+				break;
+			case 'update_player':
+				console.log('Player updated:', data.player_id);
+				updatePlayer(data);
+				break;
+			case 'game_start':
+				console.log('Game starting');
+				route(`/game/${roomid}`);
+				break;
+			case 'tournament_start':
+				console.log('Tournament starting');
+				route(`/tournament/${roomid}`);
+				break;
+			default:
+				console.log('Unknown message type:', type);
 		}
 	};
 

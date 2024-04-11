@@ -6,7 +6,7 @@ export class GameView extends IView {
 		return route === "/game";
 	}
 
-	static async render() {
+	async render() {
 		let ready_state = 0;
 		let main = document.querySelector("main");
 		let main_set = false;
@@ -59,6 +59,6 @@ export class GameView extends IView {
 		}
 	}
 
-	static destroy() {
+	destroy() {
 	}
 }

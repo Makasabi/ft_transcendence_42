@@ -1,0 +1,143 @@
+@media (min-width: 48em) {
+	.room {
+		margin: 0 auto;
+		width: 80%;
+	}
+
+}
+
+.room {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	align-items: center;
+	align-content: center;
+	flex-wrap: wrap;
+}
+
+.box_module {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	align-items: center;
+	width: 80vw;
+	align-content: center;
+	flex-wrap: wrap;
+}
+
+.sub_box {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 2vh;
+	margin: 1vh auto;
+	padding: 3em;
+	border-radius: 10px;
+	border: var(--border-light) 1px solid;
+	backdrop-filter: blur(4px);
+	background-color: var(--transparent-dark);
+	width: 100%;
+}
+
+.sub_box h1 {
+	font-weight: 700;
+	text-align: center;
+	color:var(--primary-color);
+}
+
+.sub_box h2 {
+	font-weight: 700;
+	text-align: center;
+	color:var(--light);
+}
+
+.invite {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: 2vh 25vw;
+	width: 100%;
+	align-content: center;
+	flex-wrap: wrap;
+}
+
+.invite #friends, .invite #code {
+	align-content: center;
+}
+
+#select-invite {
+	display : flex;
+	flex-direction: row;
+	margin: 1vh 0;
+}
+
+.playersInTheRoom {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+	width: 100%;
+	align-content: center;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	gap: 2vw;
+}
+
+	.playersInTheRoom::-webkit-scrollbar-track
+	{
+		border-radius: 10px;
+		background-color: var(--border-light);
+	}
+
+	.playersInTheRoom::-webkit-scrollbar
+	{
+		width: 12px;
+		background-color: var(--transparent-dark);
+	}
+
+	.playersInTheRoom::-webkit-scrollbar-thumb
+	{
+		border-radius: 10px;
+		background-color: var(--transparent-primary);
+	} 
+
+.player_box {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	align-items: center;
+	width: 20vh;
+	align-content: center;
+	flex-wrap: wrap;
+	margin: 0 0 2vh 0;;
+}
+
+#master p{
+	display: inline-block;
+	vertical-align: middle;
+	margin-left: 5px;
+}
+
+#master #crown {
+	display: inline-block;
+	vertical-align: middle;
+	width: 1.5vh;
+	height: 1.5vh;
+	filter: invert(80%) sepia(74%) saturate(1710%) hue-rotate(354deg) brightness(99%) contrast(94%);
+}
+
+.player_box .room_avatar {
+	width: 10vh;
+	border-radius: 50%;
+	margin: 1vh;
+}
+
+#unauthorosedToStart {
+	display: block;
+	align-self: center;
+}
+
+#start {
+	display: none;
+}

@@ -35,7 +35,6 @@ INSTALLED_APPS = [
 	'django.contrib.contenttypes',
 	'django.contrib.sessions',
 	'django.contrib.messages',
-	'django.contrib.staticfiles',
 	'rest_framework.authtoken',
 	'authentication',
 	'user_management',
@@ -121,11 +120,5 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
-STATICFILES_DIRS = [
-	os.path.join(BASE_DIR, "node_modules"),
-]
-
-#STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

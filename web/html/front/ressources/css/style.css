@@ -2,13 +2,14 @@
 	--secondary-color: #4d00ff;		/* hex: #4d00ff rgba(77, 0, 255, 1)*/
 	--primary-color: #7b74ff;			/* hex: #7b74ff rgba(123, 116, 255, 1)  */
 	--hover-primary-color: #4d49a7;	/* hex: #4d49a7 rgba(77, 73, 167, 1)  */
-	--transparent-primary: #7b74ff66 ;	/* hex: #7b74ff66 rgba(123, 116, 255, 0.4) */
+	--transparent-primary: #7b74ff66;	/* hex: #7b74ff66 rgba(123, 116, 255, 0.4) */
 
 	--light: #dedede; 					/* hex: #dedede rgb(222, 222, 222)*/
 	--grey: #878787; 					/* hex: #868686 rgb(135, 135, 135)*/
 	--border-light: #dedede0d; 		/* hex: #dedede0d rgba(222, 222, 222, 0.05)*/
 	--dark: #1f1f1f; 					/* hex: #1f1f1f rgb(31, 31, 31)*/
 	--transparent-dark:  #1f1f1f66; 	/* hex: #1f1f1f66 rgba(31, 31, 31, 0.4)*/
+	--transparent-darker:  #1f1f1fee; 	/* hex: #1f1f1f66 rgba(31, 31, 31, 0.4)*/
 }
 
 *{
@@ -16,6 +17,28 @@
 	color: var(--light);
 	margin: 0;
 	z-index: 1;
+}
+
+h1 {
+	font-size: 3em;
+	font-weight: 700;
+}
+
+h2 {
+	font-size: 1.2em;
+	font-weight: 700;
+}
+
+h3 {
+	font-size: 1em;
+}
+
+h4 {
+	font-size: 0.94em;
+}
+
+p, label, button, a{
+	font-size: 0.9em;
 }
 
 ::selection {
@@ -29,7 +52,6 @@
 	min-height: 100vh;
 	justify-content: space-between;
 }
-
 
 .home_menu {
 	margin: 15vh auto;
@@ -59,15 +81,12 @@
 }
 
 .centered_box h1 {
-	font-size: 50px;
-	font-weight: 700;
 	text-align: center;
 	color:var(--primary-color);
 }
 
 .centered_box h2{
 	line-height: 1.1;
-	font-size: 1.1em;
 	margin: 1vh;
 	line-height: 150%;
 }
@@ -77,17 +96,6 @@
 	margin: 0 0 1vh 0;
 	line-height: 150%;
 }
-
-
-
-/* form {
-	align-self: center;
-	display: flex;
-	flex-direction: column;
-	text-align: left;
-	margin: 1vh;
-	min-width:100%;
-} */
 
 form {
     align-self: center;
@@ -100,11 +108,7 @@ form {
 }
 
 form label {
-	color: var(--light);
-	font-size: small;
-	/* margin-top: 1vh; */
 	margin-left: 0;
-	padding-top: 1vh;
 }
 
 form input {
@@ -119,23 +123,6 @@ form input::selection{
 	border: none;
 	color: var(--primary-color);
 }
-
-/* form button {
-	margin: 1vh 0;
-	padding: 1vh;
-	border-radius: 10px;
-	background-color: var(--primary-color);
-	font-weight: 700;
-	color: var(--light);
-	border: none;
-} */
-
-/* #google-auth-btn {
-	color: black;
-	background-color: white;
-	white-space: nowrap;
-	cursor: pointer;
-} */
 
 #forty2-auth-btn {
 	color: white;
