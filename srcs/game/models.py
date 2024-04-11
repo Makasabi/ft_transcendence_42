@@ -17,3 +17,6 @@ class Play(models.Model):
 	game = models.ForeignKey(Game, on_delete=models.CASCADE)  # Add the game field
 	user_id = models.IntegerField(default=0)
 	score = models.IntegerField(default=0)
+
+	class Meta:
+		unique_together = ('game', 'user_id',)
