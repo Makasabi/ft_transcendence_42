@@ -193,12 +193,12 @@ export async function is_logged()
 	}).then(response => {
 		if (response.ok)
 			return true;
-		else
-			return false;
-	}).catch(error => { // @TODO this catch does not catch 401 error
+		throw new Error(response.statusText);
+	}).catch(error => {
+		console.error("Login failed:", error);
 		return false;
 	});
-	return ret;
+	return await ret;
 }
 
 async function login(username, password)
@@ -213,12 +213,9 @@ async function login(username, password)
 		.then(response => {
 			if (response.ok)
 				return (response.json());
-			else
-			{
-				return response.json().then(data => {
-					throw new Error(data.error);
-				});
-			}
+			return response.json().then(data => {
+				throw new Error(data.error);
+			});
 		})
 		.then(async data => {
 			console.log("token: ", data.token);
@@ -228,7 +225,9 @@ async function login(username, password)
 			return true;
 		})
 		.catch(error => {
-			console.error(error);
+			//console.error(error);
+			document.getElementById("login_error").hidden = false;
+			document.getElementById("login_password").value = "";
 			return false;
 		});
 	return result;
@@ -251,6 +250,9 @@ async function signup(username, password, email)
 			{
 				return response.json().then(data => {
 					console.error(data.error);
+					const error_field = document.getElementById("signup_error");
+					error_field.textContent = data.error;
+					error_field.hidden = false;
 					throw new Error('Wrong registration');
 				});
 			}
@@ -445,8 +447,8 @@ export async function login_event(e)
 	const password = form.elements.login_password.value;
 
 	const log = await login(username, password);
-	if (!log)
-		route("/login");
+	//if (!log)
+	//	route("/login");
 }
 
 export async function signup_event(e)

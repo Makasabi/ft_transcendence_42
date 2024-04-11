@@ -43,6 +43,10 @@ def signup(request):
 	serializer = PlayerSerializer(data=request.data)
 	if not serializer.is_valid():
 		print("error : ", serializer.errors)
+		if 'email' in serializer.errors:
+			return Response({"error" : "Email already used"}, status=status.HTTP_400_BAD_REQUEST)
+		if 'username' in serializer.errors:
+			return Response({"error" : "Username already used"}, status=status.HTTP_400_BAD_REQUEST)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 	serializer.save()
 	user = Player.objects.get(username=request.data["username"])

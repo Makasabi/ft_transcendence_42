@@ -13,6 +13,7 @@ export class GameContext {
 	last_time = performance.now();
 	end = false;
 	ready = false;
+	pong = false;
 
 	constructor(game_id) {
 		this.rendering_context = new RenderingContext();
@@ -24,6 +25,9 @@ export class GameContext {
 
 	destroy() {
 		console.log("GameContext.destroy");
+		window.removeEventListener("resize", resize_canvas);
+		document.removeEventListener("keydown", keydown_event);
+		document.removeEventListener("keyup", keyup_event);
 		this.websocket.close();
 		this.end = true;
 	}
@@ -48,11 +52,15 @@ export class GameContext {
 		};
 
 		this.websocket.onclose = function() {
-			console.log('Game socket closed unexpectedly');
+			console.log('Game socket closed');
 			game.end = true;
 		};
 
 		this.websocket.onmessage = function(e) {
+			if (e.data === "pong") {
+				game.pong = true;
+				return;
+			}
 			const data = JSON.parse(e.data);
 			const type = data.type;
 			if (type === "update") {
@@ -60,6 +68,9 @@ export class GameContext {
 			}
 			else if (type === "error") {
 				console.error("Game error", data);
+				game.end = true;
+			}
+			else if (type === "end") {
 				game.end = true;
 			}
 		};
@@ -88,37 +99,9 @@ export class GameContext {
 			rotate_view(game);
 		});
 
-		const socket = this.websocket;
-		document.addEventListener("keydown", function(event) {
-			//console.log(event.key);
-			if (event.key == "ArrowLeft" || event.key == "q" || event.key == "a" || event.key == "Q" || event.key == "A") {
-				//console.log("DOWN left");
-				socket.send("left_pressed");
-			}
-			else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
-				//console.log("DOWN right");
-				socket.send("right_pressed");
-			}
-			else if (event.key == "Shift") {
-				//console.log("DOWN turbo");
-				socket.send("sprint_pressed");
-			}
-		});
-
-		document.addEventListener("keyup", function(event) {
-			if (event.key == "ArrowLeft" || event.key == "q" || event.key == "a" || event.key == "Q" || event.key == "A") {
-				//console.log("UP left");
-				socket.send("left_released");
-			}
-			else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
-				//console.log("UP right");
-				socket.send("right_released");
-			}
-			else if (event.key == "Shift") {
-				//console.log("UP turbo");
-				socket.send("sprint_released");
-			}
-		});
+		document.game_socket = this.websocket;
+		document.addEventListener("keydown", keydown_event);
+		document.addEventListener("keyup", keyup_event);
 	}
 
 	async load() {
@@ -199,16 +182,10 @@ export class GameContext {
 
 	game_loop() {
 		let dynamic_objects = [];
-		//for (let ball of this.state.balls) {
-		//	let object = new Ball(this.models.puck);
-		//	object.position = [ball.x, ball.y, ball.z];
-		//	object.scale = ball.radius;
-		//}
-		// @TODO handle multiple balls
-		if (this.state.ball) {
+		for (let ball of this.state.balls) {
 			let object = new Ball(this.models.puck);
-			object.position = [this.state.ball.posx, 0, this.state.ball.posy];
-			object.scale = [this.state.ball.radius, this.state.ball.radius, this.state.ball.radius];
+			object.position = [ball.posx, 0, ball.posy];
+			object.scale = [ball.radius, ball.radius, ball.radius];
 			dynamic_objects.push(object);
 		}
 
@@ -245,8 +222,23 @@ export class GameContext {
 		//wait(Math.random() * 100);
 	}
 
+	async test_ping() {
+		this.websocket.send("ping");
+		const now = performance.now();
+		while (performance.now() - now < 3000) {
+			if (this.pong)
+				this.pong = false;
+				return true;
+			await new Promise(resolve => setTimeout(resolve, 300));
+		}
+		console.log("ping timeout");
+		this.end = true;
+		return false;
+	}
+
 	async start() {
 		await this.load();
+		let count = 0;
 
 		console.log("Models loaded");
 		while (!this.ready) {
@@ -255,6 +247,7 @@ export class GameContext {
 				return;
 			await new Promise(resolve => setTimeout(resolve, 300));
 		}
+		count = 0;
 
 		this.websocket.send("ready");
 
@@ -263,8 +256,14 @@ export class GameContext {
 			console.log("wait for state2", this.end);
 			if (this.end)
 				return;
+			count++;
+			if (count % 5 == 0) {
+				if (!await this.test_ping())
+					return;
+			}
 			await new Promise(resolve => setTimeout(resolve, 300));
 		}
+		count = 0;
 
 		console.log("GameContext.start", this.state);
 		this.rendering_context.scale = 1 / this.state.width
@@ -274,8 +273,14 @@ export class GameContext {
 			console.log("wait for ongoing");
 			if (this.end)
 				return;
+			count++;
+			if (count % 5 == 0) {
+				if (!await this.test_ping())
+					return;
+			}
 			await new Promise(resolve => setTimeout(resolve, 300));
 		}
+		count = 0;
 
 		this.create_static_objects();
 
@@ -289,10 +294,8 @@ export class GameContext {
 		object.position = [(wall[0][0] + wall[1][0]) / 2, 0, (wall[0][1] + wall[1][1]) / 2];
 		object.scale = [Math.sqrt(wall[1][0] ** 2 + wall[1][1] ** 2) / 2, this.state.width / 20, this.state.width / 200];
 		const vector = [wall[1][0] - wall[0][0], wall[1][1] - wall[0][1]];
-		let rota;
-		rota = -Math.atan2(vector[1], vector[0]);
-		object.rotation = [0, rota, 0];
-		console.log(object.rotation[1]);
+		object.rotation = [0, -Math.atan2(vector[1], vector[0]), 0];
+		//console.log(object.rotation[1]);
 		this.static_objects.push(object);
 	}
 
@@ -323,4 +326,37 @@ async function resize_canvas() {
 	//const canvas = document.querySelector('canvas');
 	//canvas.width = canvas.clientWidth;
 	//canvas.height = canvas.width * 0.5;
+}
+
+function keydown_event(event) {
+	//console.log(event.key);
+	let socket = event.currentTarget.game_socket;
+	if (event.key == "ArrowLeft" || event.key == "q" || event.key == "a" || event.key == "Q" || event.key == "A") {
+		//console.log("DOWN left");
+		socket.send("left_pressed");
+	}
+	else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
+		//console.log("DOWN right");
+		socket.send("right_pressed");
+	}
+	else if (event.key == "Shift") {
+		//console.log("DOWN turbo");
+		socket.send("sprint_pressed");
+	}
+}
+
+function keyup_event(event) {
+	let socket = event.currentTarget.game_socket;
+	if (event.key == "ArrowLeft" || event.key == "q" || event.key == "a" || event.key == "Q" || event.key == "A") {
+		//console.log("UP left");
+		socket.send("left_released");
+	}
+	else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
+		//console.log("UP right");
+		socket.send("right_released");
+	}
+	else if (event.key == "Shift") {
+		//console.log("UP turbo");
+		socket.send("sprint_released");
+	}
 }

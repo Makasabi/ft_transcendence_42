@@ -223,7 +223,7 @@ def remove_friend(request, user_id):
 def is_friend(request, user_id):
 	"""
 	Check if two users are friends
-	
+
 	Args:
 	- request: Request containing the friend's username
 

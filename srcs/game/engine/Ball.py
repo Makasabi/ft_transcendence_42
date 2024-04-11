@@ -42,7 +42,10 @@ class Ball:
 			'debug': debug_info
 		}
 
-	def update(self, timestamp, players, walls, middle_pilar):
+	"""
+		Update de la position de la balle
+	"""
+	def update(self, timestamp, players, walls, middle_pilar, balls):
 		if self.position[0] - BALL_RADIUS <= CENTER_X - ARENA_WIDTH \
 			or self.position[0] + BALL_RADIUS >= CENTER_X + ARENA_WIDTH \
 			or self.position[1] - BALL_RADIUS <= CENTER_Y - ARENA_HEIGHT \
@@ -71,6 +74,9 @@ class Ball:
 			if new_dir is None:
 				new_dir = self.handle_player_collisions(players, next_position)
 
+			if new_dir is None:
+				new_dir = self.handle_ball_collisions(balls, next_position)
+
 			if (new_dir is None) and (self.handle_player_border(players, next_position)):
 				self.reset()
 				return
@@ -84,11 +90,20 @@ class Ball:
 			self.speed += 10
 		self.position = next_position
 
-	def find_distance(a,b):
-		return math.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
-
-	def is_between(a,c,b):
-		return Ball.find_distance(a,c) + Ball.find_distance(c,b) == Ball.find_distance(a,b)
+	"""
+		Gestion des collisions
+	"""
+	def handle_ball_collisions(self, balls, next_position):
+		for ball in balls:
+			if self is ball:
+				continue
+			A = np.array(next_position)
+			B = np.array(ball.position)
+			AB = B - A
+			distance = np.linalg.norm(AB)
+			if distance <= BALL_RADIUS * 2:
+				return [AB[0], AB[1]]
+		return None
 
 	def handle_wall_redirection(self, wall):
 		A = np.array(wall[0])
@@ -140,6 +155,9 @@ class Ball:
 				return True
 		return False
 
+	"""
+		Utilities
+	"""
 	def has_wall_intersection(self, line_points, ball_position):
 		A = np.array(line_points[0])
 		B = np.array(line_points[1])
