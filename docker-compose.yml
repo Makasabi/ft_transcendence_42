@@ -15,7 +15,7 @@ services:
     networks:
       - ft_transcendence
     ports:
-      - '8080:80'
+      - '8080:443'
     depends_on:
       - db_user_management
 
@@ -37,10 +37,11 @@ services:
     image: postgres:15
     volumes:
       - user_postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=hello_django
-      - POSTGRES_PASSWORD=hello_django
-      - POSTGRES_DB=hello_django_dev
+    env_file: .env
+      #environment:
+      #  - POSTGRES_USER=tito
+      #  - POSTGRES_PASSWORD=titi
+      #  - POSTGRES_DB=postgres
     expose: 
       - "5432"
     networks:

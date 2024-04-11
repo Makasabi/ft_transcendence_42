@@ -27,7 +27,6 @@ else:
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(' ')
 
 # Application definition
-
 AUTH_USER_MODEL = 'user_management.Player'
 
 INSTALLED_APPS = [
@@ -123,10 +122,10 @@ USE_I18N = True
 
 USE_TZ = True
 
-#STATICFILES_DIRS = [
-#	os.path.join(BASE_DIR, "node_modules"),
-#]
-#
+STATICFILES_DIRS = [
+	os.path.join(BASE_DIR, "node_modules"),
+]
+
 #STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
