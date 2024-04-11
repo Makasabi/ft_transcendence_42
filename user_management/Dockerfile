@@ -15,5 +15,4 @@ RUN pip install -r requirements.txt
 # copy project
 COPY . .
 RUN chmod +x user_management.sh
-
 ENTRYPOINT [ "./user_management.sh"]
