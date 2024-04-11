@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view
 from django.conf import settings
 import os
 import requests
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
 
 def simple_serializer(request, user):
@@ -273,3 +274,27 @@ def find_match(request, username):
 	elif Player.objects.filter(username=username):
 		return JsonResponse({'status': 'error',  'username': current_user})
 	return JsonResponse({'status': 'ok', 'username': current_user})
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def switch_online(request, username, status):
+	"""
+	Switch user online status
+	"""
+	user = Player.objects.filter(username=username).first()
+	if (status == 'online'):
+		user.online = True
+	else:
+		user.online = False
+	print("User online status: ", user.online)
+	user.save()
+	return JsonResponse({'status': 'ok', 'is_online': user.online})
+
+@api_view(['GET'])
+def get_online_status(request, username):
+	"""
+	Return the online status of a user
+	"""
+	user = Player.objects.filter(username=username).first()
+	return JsonResponse({'is_online': user.online})
