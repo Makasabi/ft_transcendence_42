@@ -18,7 +18,8 @@ from django.urls import path
 from notification.consumers import NotificationConsumer
 from game.player_consumer import PlayerConsumer
 from game.game_consumer import GameConsumer
-from rooms.consumers import RoomConsumer
+from rooms.Room_consumers import RoomConsumer
+from rooms.Tournament_consumers import TournamentConsumer
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'srcs.settings')
 
@@ -29,6 +30,7 @@ application = ProtocolTypeRouter({
 			URLRouter([
 				path('ws/notif/<str:username>', NotificationConsumer.as_asgi()),
 				path('ws/room/<int:room_id>', RoomConsumer.as_asgi()),
+				path('ws/tournament/<str:code>', TournamentConsumer.as_asgi()),
 				path('ws/game/<int:game_id>', PlayerConsumer.as_asgi()),
 			])
 		)

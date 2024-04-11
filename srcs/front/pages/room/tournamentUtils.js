@@ -30,6 +30,15 @@ export async function createTournament(roomSocket, room_id, roomCode) {
 				return;
 			}
 			console.log("Tournament created:", data);
+
+			let roundInfo = await fetch(`/api/rooms/create_round/${data.id}/${data.current_round}`, {
+				method: "POST",
+				headers: {
+					'Authorization': `Token ${Login.getCookie('token')}`,
+				}
+			}).then(response => response.json());
+			console.log(`Round ${data.current_round} created: `, roundInfo);
+
 			const to_send = JSON.stringify({
 				"type": "tournament_start",
 				"message": "Tournament starting",

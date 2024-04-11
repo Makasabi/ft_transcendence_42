@@ -32,11 +32,31 @@ export class TournamentView extends IView {
 			return;
 		}
 
+		// fetch all info about room with code of URL
+		// fetch all info about tournament which is linked to room with code of URL
+
+		let roomInfo = await fetch(`/api/rooms/info/${code}`, {
+			headers: {
+				'Authorization': `Token ${Login.getCookie('token')}`,
+			}}).then(response => response.json());
+		console.log("room:", roomInfo);
+
+		let tournament = await fetch(`/api/rooms/info_tournament/${roomInfo.room_id}`, {
+			headers: {
+				'Authorization': `Token ${Login.getCookie('token')}`,
+			}
+		}).then(response => response.json());
+		console.log("tournament:", tournament);
+
+		let roundInfo = await fetch(`/api/rooms/info_round/${tournament.id}/${tournament.current_round}`, {
+			headers: {
+				'Authorization': `Token ${Login.getCookie('token')}`,
+			}
+		}).then(response => response.json());
+		console.log("roundInfo:", roundInfo);
+
 		let html = await fetch("/front/pages/room/tournament.html").then(response => response.text());
 		document.querySelector("main").innerHTML = html;
-
-		// let tournament = await fetch (`/api/rooms/info_tournament/${code}`, {}
-
 
 	}
 }

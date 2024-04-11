@@ -1,0 +1,40 @@
+#tournament_info {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	flex-wrap: wrap;
+}
+
+#round_map, #pool_map{
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	width: 40vw;
+	gap: 0.5vh;
+}
+
+.rounds {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 2.5vh;
+}
+
+.rounds img {
+	width: 8vw;
+	max-width: 9vh;
+	min-width: 3vh;
+	filter: opacity(50%) invert(40%) sepia(73%) saturate(1183%) hue-rotate(218deg) brightness(104%) contrast(101%);
+}
+
+.rounds img:hover {
+	filter: opacity(100%) invert(40%) sepia(73%) saturate(1183%) hue-rotate(218deg) brightness(104%) contrast(101%);
+}
+
+.tournament	 {
+	gap: 5vh;
+}
