@@ -5,33 +5,40 @@
 	align-items: center;
 	width: 100%;
 	flex-wrap: wrap;
-	gap: 3vh 0;
+	gap: 2vh 0;
 }
 
-#round_map, #pool_map{
+#round_map, #pool_map, #round_headers{
+	gap: 0.5vh 1vw;
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
 	align-items: center;
 	width: 40vw;
-	gap: 0.5vh;
 	min-width: 350px;
 }
 
-.round {
+.header {
+	min-width: 3vw;
+	max-width: 9vh;
+	width: 8vw;
+	text-align: center;
+}
+
+.round,  #rounds, #pools {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	gap: 2.5vh;
+	gap: 2vh;
 }
 
 .current_round {
-	border: var(--border-light) 1px solid;
 	border-radius: 10px;
-	background-color: var(--transparent-dark);
-	backdrop-filter: blur(4px);
-	padding: 1vh 01vw;
+}
+
+.current_round img {
+	cursor: pointer;
 }
 
 .round img {
@@ -45,11 +52,44 @@
 	filter: opacity(100%) invert(40%) sepia(73%) saturate(1183%) hue-rotate(218deg) brightness(104%) contrast(101%);
 }
 
-#pool_map img {
+#map {
 	width: 15vw;
 	filter: opacity(100%) invert(40%) sepia(73%) saturate(1183%) hue-rotate(218deg) brightness(104%) contrast(101%);
 }
 
 .tournament	 {
 	gap: 5vh;
+}
+
+.players {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.center {
+	gap : 4vh;
+}
+
+.side {
+	gap: 7vh;
+	width: 13vh;
+	max-width: 15vw;
+}
+
+.player {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 1vh;
+}
+
+.player img {
+	width: 3vw;
+	max-width: 4vh;
+	min-width: 3vh;
+	filter: none;
+	border-radius: 50px;
 }
