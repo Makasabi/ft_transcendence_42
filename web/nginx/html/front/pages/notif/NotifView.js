@@ -21,7 +21,7 @@ export class NotifView extends IView {
 export function createNotificationSocket(username) {
 	// console.log('Creating socket for:', username);
 	const notifySocket = new WebSocket(
-		'ws://'
+		'wss://'
 		+ window.location.host
 		+ '/ws/notif/'
 		+ username

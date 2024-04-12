@@ -28,6 +28,14 @@ def login(request):
 
 
 @api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def test(request):
+	print("received data from : ", request.data)
+	print("header : ", request.headers)
+	return Response({"message": "Token is valid"}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
 def check_token(request):
 	"""
 	Communication endpoint to check if a token is valid for other services

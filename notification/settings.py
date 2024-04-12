@@ -51,11 +51,8 @@ INSTALLED_APPS = [
 
 
 REST_FRAMEWORK = {
-	'DEFAULT_AUTHENTICATION_CLASSES': [
-		'rest_framework.authentication.TokenAuthentication',
-	],
 	'DEFAULT_PERMISSION_CLASSES': [
-		'rest_framework.permissions.IsAuthenticated',
+		'permissions.NotifPermission',
 	]
 }
 
@@ -93,7 +90,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis", 7999)],
+            "hosts": [("redis", 6379)],
         },
     },
 }
