@@ -78,6 +78,7 @@ def create_send_notification(user, target, type, request):
 def build_message(user, type, data):
 	"""
 	Build the message of the notification
+	
 	Args:
 	- user: User that triggered the notification
 	- type: Type of notification
