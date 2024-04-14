@@ -17,4 +17,3 @@ class NotifPermission(permissions.BasePermission):
             print(response)
             raise AuthenticationFailed('Could not found token in database')
         return True
-

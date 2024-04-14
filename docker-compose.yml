@@ -7,8 +7,11 @@ networks:
 volumes:
   user_postgres_data:
   notif_postgres_data:
+  rooms_postgres_data:
+  game_postgres_data:
 
 services:
+        #WEB
   nginx:
     container_name: nginx_container
     env_file: .env
@@ -32,11 +35,11 @@ services:
     expose:
       - '80'
 
+        #APPS
   user_management:
     container_name: user_management_container
     build: ./user_management
     env_file: .env
-      #command: gunicorn wsgi:application --bind 0.0.0.0:8001
     restart: always
     depends_on:
       - db_user_management
@@ -49,7 +52,6 @@ services:
     container_name: notification_container
     build: ./notification
     env_file: .env
-      #command: gunicorn wsgi:application --bind 0.0.0.0:8001
     restart: always
     depends_on:
       - db_notification
@@ -58,8 +60,33 @@ services:
     expose: 
       - "8002"
 
+  rooms:
+    container_name: rooms_container
+    build: ./rooms
+    env_file: .env
+    restart: always
+    depends_on:
+      - db_rooms
+    networks:
+      - ft_transcendence
+    expose: 
+      - "8003"
+
+  game:
+    container_name: game_container
+    build: ./game
+    env_file: .env
+    restart: always
+    depends_on:
+      - db_game
+    networks:
+      - ft_transcendence
+    expose: 
+      - "8004"
+
+        #DATABASES
   db_user_management:
-    container_name: db_user_management_container
+    container_name: db_user_management
     image: postgres:15
     env_file: .env
     volumes:
@@ -75,6 +102,28 @@ services:
     env_file: .env
     volumes:
       - notif_postgres_data:/var/lib/postgresql/data/
+    expose:
+      - "5432"
+    networks:
+      - ft_transcendence
+
+  db_rooms:
+    container_name: db_rooms
+    image: postgres:15
+    env_file: .env
+    volumes:
+      - rooms_postgres_data:/var/lib/postgresql/data/
+    expose:
+      - "5432"
+    networks:
+      - ft_transcendence
+
+  db_game:
+    container_name: db_game
+    image: postgres:15
+    env_file: .env
+    volumes:
+      - game_postgres_data:/var/lib/postgresql/data/
     expose:
       - "5432"
     networks:

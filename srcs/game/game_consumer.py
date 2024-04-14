@@ -1,40 +1,83 @@
 # game/consumers.py
 import json
 
-from channels.generic.websocket import SyncConsumer
+from django.utils import timezone
+from channels.generic.websocket import AsyncConsumer
+from game.models import Game, Play, Player
+from channels.db import database_sync_to_async
 
-from .engine import GameEngine
+from .engine.GameEngine import GameEngine
 
-class GameConsumer(SyncConsumer):
+class GameConsumer(AsyncConsumer):
 	def __init__(self, *args, **kwargs):
 		"""
 		Created on demand when the first player joins.
 		"""
 		super().__init__(*args, **kwargs)
-		print("GameConsumer.__init__")
-		self.engine = GameEngine()
-		self.engine.start()
+		self.engines = {}
 
-	def game_start(self, event):
+	async def game_start(self, event):
+		game_id = event["game_id"]
+		player_ids = event["players"]
+		#print(f"GameConsumer.game_start: {game_id}", player_ids)
 		try:
-			self.engine.start_game(event["room_id"])
-		except ValueError as e:
-			print(e)
+			engine = GameEngine(game_id, player_ids)
+			engine.start()
+		except Exception as e:
+			print(f"GameConsumer.game_start: {e}")
+			await self.channel_layer.group_send(f"game_{game_id}", {
+				"type": "game.error",
+				"error": str(e)
+			})
+			return
+		self.engines[game_id] = engine
 
-	def game_update(self, event):
+	async def game_update(self, event):
 		state = event["state"]
-		room_id = event["room_id"]
-		print(f"GameConsumer.game_update: {room_id}", state)
-		self.channel_layer.group_send(f"game_{room_id}", {
+		game_id = event["game_id"]
+		#print(f"GameConsumer.game_update: {game_id}", state)
+		await self.channel_layer.group_send(f"game_{game_id}", {
 			"type": "game.update",
 			"state": state
 		})
+		self.engines[game_id].ready_to_send = True
+
+	async def game_end(self, event):
+		game_id = event["game_id"]
+		await self.channel_layer.group_send(f"game_{game_id}", {
+			"type": "game.end"
+		})
+		del self.engines[game_id]
+		player_ranking = event["player_ranking"]
+		await database_sync_to_async(create_history)(game_id, player_ranking)
 
 
+	async def input(self, event):
+		game_id = event["game_id"]
+		engine = self.engines.get(game_id, None)
+		if engine is None:
+			print(f"GameConsumer.input: Engine not found for game {game_id}")
+			await self.channel_layer.group_send(f"game_{game_id}", {
+				"type": "game.error",
+				"error": "Engine not found"
+			})
+			return
+		engine.input(event["input"], event["player_id"])
 
-	#def player_new(self, event):
-	#	self.engine.join_queue(event["player"])
+def create_history(game_id, player_ranking):
+	game = Game.objects.get(game_id=game_id)
+	game.date_end = timezone.now()
+	game.end_status = "success"
 
-	#def player_direction(self, event):
-	#	direction = event.get("direction", "UP")
-	#	self.engine.set_player_direction(event["player"], direction)
+	for i, player_id in enumerate(player_ranking):
+		play = Play.objects.update_or_create(
+			game=game,
+			user_id=player_id,
+			defaults={"score":i},
+		)[0]
+		play.save()
+		if game.visibility == "public": # @TODO PLAYER model can't be accessed here
+			player = Player.objects.get(id=player_id)
+			player.global_score += play.score
+			player.save()
+	game.save()

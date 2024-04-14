@@ -2,4 +2,4 @@
 
 python3 manage.py makemigrations notification
 python3 manage.py makemigrations && python3 manage.py migrate
-python3 manage.py runserver 0.0.0.0:8002
+if [ $DEBUG = 1 ]; then python3 manage.py runserver 0.0.0.0:8002; else gunicorn wsgi:application --bind 0.0.0.0:8002; fi

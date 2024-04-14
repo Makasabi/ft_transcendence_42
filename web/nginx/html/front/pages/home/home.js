@@ -1,6 +1,6 @@
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
-import { createRoomForm, joinRoomForm } from "/front/pages/room/roomUtils.js";
+import { createRoomForm, joinRoomForm } from "../room/roomUtils.js";
 import { NotifView, createNotificationSocket } from "../notif/NotifView.js";
 import * as Login from "/front/pages/login/login.js";
 
@@ -9,7 +9,7 @@ export class LoggedHeaderView extends IView {
 		let header_promise = fetch("/front/pages/home/header.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("header").innerHTML = html);
-			
+
 		let user = await fetch("/api/user_management/me", {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		}).then(response => response.json())
@@ -43,6 +43,7 @@ export class HomeView extends IView {
 					break;
 				case "join":
 					document.querySelector('.joinRoomForm').classList.toggle('show');
+					document.getElementById("inputRoomCode").focus();
 					if (document.querySelector('.createRoomSelect').classList.contains('show'))
 						{ document.querySelector('.createRoomSelect').classList.remove('show'); }
 					break;

@@ -187,17 +187,18 @@ export async function is_logged()
 	if (!token)
 		return false;
 	// @TODO test with a bad token
-	return fetch('api/auth/', {
+	const ret = fetch('api/auth/', {
 		method: 'GET',
 		headers: { 'Authorization': `Token ${token}` }
 	}).then(response => {
 		if (response.ok)
 			return true;
-		else
-			return false;
+		throw new Error(response.statusText);
 	}).catch(error => {
+		//console.error("Login failed:", error);
 		return false;
 	});
+	return await ret;
 }
 
 async function login(username, password)
@@ -212,12 +213,9 @@ async function login(username, password)
 		.then(response => {
 			if (response.ok)
 				return (response.json());
-			else
-			{
-				return response.json().then(data => {
-					throw new Error(data.error);
-				});
-			}
+			return response.json().then(data => {
+				throw new Error(data.error);
+			});
 		})
 		.then(async data => {
 			console.log("token: ", data.token);
@@ -227,7 +225,9 @@ async function login(username, password)
 			return true;
 		})
 		.catch(error => {
-			console.error(error);
+			//console.error(error);
+			document.getElementById("login_error").hidden = false;
+			document.getElementById("login_password").value = "";
 			return false;
 		});
 	return result;
@@ -250,6 +250,9 @@ async function signup(username, password, email)
 			{
 				return response.json().then(data => {
 					console.error(data.error);
+					const error_field = document.getElementById("signup_error");
+					error_field.textContent = data.error;
+					error_field.hidden = false;
 					throw new Error('Wrong registration');
 				});
 			}
@@ -444,8 +447,8 @@ export async function login_event(e)
 	const password = form.elements.login_password.value;
 
 	const log = await login(username, password);
-	if (!log)
-		route("/login");
+	//if (!log)
+	//	route("/login");
 }
 
 export async function signup_event(e)
@@ -458,7 +461,7 @@ export async function signup_event(e)
 	const username = form.elements.signup_username.value;
 	const password = form.elements.signup_password.value;
 	const email = form.elements.signup_email.value;
-	signup(username, password, email); 
+	signup(username, password, email);
 }
 
 export async function username_event(e)
@@ -492,17 +495,14 @@ export async function is_registered(email)
 				console.log("User registered : ", data['token']);
 				return true;
 			}));
-		else if (response.status === 400)
+		else if (response.status === 401)
 		{
 			return response.json().then(data => {
 				console.log("Not registered");
 				return false;
 			});
 		}
-		else
-			return response.json().then(data => {
-				throw new Error("Error in registration");
-			});
+		throw new Error("Error in registration");
 	})
 	.catch(error => {
 		throw new Error(error);

@@ -1,9 +1,13 @@
-import { GameContext, events } from "/front/pages/game/scripts/pong.js";
+import { GameContext } from "/front/pages/game/scripts/pong.js";
 import { IView } from "/front/pages/IView.js";
+import { route } from "/front/pages/spa_router.js"
+import { getCookie } from "../login/login.js";
 
 export class GameView extends IView {
 	static match_route(route) {
-		return route === "/game";
+		const regex = new RegExp("^/game/[0-9]+$");
+		console.log("GameView.match_route", route, regex.test(route));
+		return regex.test(route);
 	}
 
 	async render() {
@@ -15,50 +19,66 @@ export class GameView extends IView {
 		//if (particule.length > 0)
 		//	particule[0].remove();
 
-		let footer = document.querySelector("footer");
-		if (footer !== null)
-			footer.remove();
+		this.footer = document.querySelector("footer");
+		if (this.footer !== null)
+			this.footer.remove();
 
 		await fetch("/front/pages/game/game.html").then(response => response.text()).then(html => {
 			main.innerHTML = html;
 			main_set = true;
-
 		});
 
-		let stylesheet = document.createElement("link");
-		stylesheet.rel = "stylesheet";
-		stylesheet.href = "/front/pages/game/style.css";
-		stylesheet.onload = () => {
+		this.stylesheet = document.createElement("link");
+		this.stylesheet.rel = "stylesheet";
+		this.stylesheet.href = "/front/pages/game/style.css";
+		this.stylesheet.onload = () => {
 			ready_state++;
 		};
-		document.head.appendChild(stylesheet);
+		document.head.appendChild(this.stylesheet);
 
-		let script = document.createElement("script");
-		script.src = "/front/pages/game/scripts/pong.js";
-		script.type = "module";
-		script.onload = () => {
-			ready_state++;
-		};
+		//let script = document.createElement("script");
+		//script.src = "/front/pages/game/scripts/pong.js";
+		//script.type = "module";
+		//script.onload = () => {
+		//	ready_state++;
+		//};
 
 		while (!main_set)
 			await new Promise(resolve => setTimeout(resolve, 100));
-		main.appendChild(script);
+		//main.appendChild(script);
 
-		while (ready_state < 2)
+		while (ready_state < 1)
 			await new Promise(resolve => setTimeout(resolve, 100));
 
 		try {
-			let game = new GameContext();
+			const game_id = document.URL.split("/")[4];
+			this.game = new GameContext(game_id);
+			let room_code = fetch("/api/game/" + game_id + "/room_code"
+				, {
+					method: "GET",
+					headers: {
+						"Authorization": `Token ${getCookie("token")}`,
+					}}
+				).then(response => response.json())
+				.then(data => data.room_code);
 
-			events(game);
-			await game.load();
-			game.run();
+			console.log("Start game");
+			await this.game.start();
+			console.log("End of game");
+			const redirect = "/room/" + await room_code;
+			console.log("Redirect to", redirect);
+			route(redirect);
 		}
 		catch (e) {
 			console.error("Game error", e);
+			route("/");
 		}
 	}
 
 	destroy() {
+		this.game.destroy();
+		document.head.removeChild(this.stylesheet);
+		const main = document.querySelector("main");
+		main.insertAdjacentHTML("afterend", this.footer.outerHTML);
 	}
 }

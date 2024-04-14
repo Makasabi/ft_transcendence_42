@@ -141,3 +141,29 @@
 #start {
 	display: none;
 }
+
+.room_code{ 
+	padding: 1vh;
+	width: 100%;
+	margin: 1vh 0;
+	border-radius: 10px;
+	border: var(--border-light) 1px solid;
+	backdrop-filter: blur(4px);
+	background-color: var(--transparent-dark);
+	color: var(--ligth);
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.room_code img {
+	margin: 0 1vw;
+	width: 2vh;
+	filter: invert(53%) sepia(1%) saturate(0%) hue-rotate(184deg) brightness(100%) contrast(85%);
+}
+
+.room_code:hover {
+	background-color: var(--hover-primary-color);
+	transition: ease-in-out 0.1s;
+}

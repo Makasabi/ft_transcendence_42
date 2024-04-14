@@ -19,7 +19,7 @@ def create_notif(request, type, target):
 	"""
 	user1 = request.user
 	# @TODO : change localhost for scalable solution
-	url = f"http://localhost:8000/api/user_management/user/username/{target}"
+	url = f"http://proxy/api/user_management/user/username/{target}"
 	token = request.COOKIES.get('token')
 	headers = {'Authorization': "Token " + token}
 	target = requests.get(url, headers=headers)
@@ -78,7 +78,6 @@ def create_send_notification(user, target, type, request):
 def build_message(user, type, data):
 	"""
 	Build the message of the notification
-	
 	Args:
 	- user: User that triggered the notification
 	- type: Type of notification

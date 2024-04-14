@@ -1,7 +1,7 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
-import { checkRoomCode, addFriendList, inviteFriend } from "/front/pages/room/roomUtils.js";
+import { checkRoomCode, addFriendList, inviteFriend, copyLink } from "/front/pages/room/roomUtils.js";
 import { addPlayer, removePlayer, updatePlayer, } from "/front/pages/room/roomWebsockets.js";
 import { createTournament } from "/front/pages/room/tournamentUtils.js";
 
@@ -34,16 +34,19 @@ export class RoomView extends IView {
 
 		let roomInfo = await fetch(`/api/rooms/info/${code}`, {
 			headers: {
-				'Authorization': `Token ${Login.getCookie('token')}`,}}).then(response => response.json());
+				'Authorization': `Token ${Login.getCookie('token')}`,
+			}
+		}).then(response => response.json());
 		let html = await fetch("/front/pages/room/room.html").then(response => response.text());
 
 		html = html.replace("{{roomVisibility}}", roomInfo.visibility);
 		html = html.replace("{{roomMode}}" , roomInfo.roomMode);
 		html = html.replace("{{roomCode}}", roomInfo.code);
 		document.querySelector("main").innerHTML = html;
-		
+
 		addFriendList();
 		inviteFriend(roomInfo.code, roomInfo.roomMode);
+		copyLink();
 
 		this.roomSocket = createRoomSocket(roomInfo.room_id);
 
@@ -64,12 +67,16 @@ export class RoomView extends IView {
 					body: JSON.stringify({
 						"room_id": roomInfo.room_id,
 					}),
-				}).then(response => {
+				}).then(async response => {
 					if (response.status === 200) {
-						this.roomSocket.send(JSON.stringify({
+						const data = await response.json();
+						const to_send = JSON.stringify({
+							"type": "start",
 							"message": "Game starting",
-							"room": roomInfo.room_id,
-						}));
+							"game_id": data.game_id,
+						})
+						console.log("Sending message to start game:", to_send);
+						this.roomSocket.send(to_send);
 					} else {
 						console.error("Error starting game");
 					}
@@ -99,10 +106,11 @@ export function createRoomSocket(roomid) {
 		+ '/ws/room/'
 		+ roomid,
 	);
-	if (roomSocket.error) {
-		console.log('Rooms - Error creating socket');
-		return;
-	}
+
+	roomSocket.onerror = function (e) {
+		console.log('Rooms - Socket error:', e);
+		route("/home");
+	};
 
 	// on socket open
 	roomSocket.onopen = function (e) {
@@ -133,7 +141,7 @@ export function createRoomSocket(roomid) {
 
 	// on receiving message on group
 	roomSocket.onmessage = function (e) {
-		console.log('Rooms - Message received:', e.data);
+		// console.log('Rooms - Message received:', e.data);
 		const data = JSON.parse(e.data);
 		const type = data.type;
 		switch (type) {
@@ -149,13 +157,13 @@ export function createRoomSocket(roomid) {
 				console.log('Player updated:', data.player_id);
 				updatePlayer(data);
 				break;
-			case 'game_start':
+			case 'start':
 				console.log('Game starting');
-				route(`/game/${roomid}`);
+				route(`/game/${data.game_id}`);
 				break;
 			case 'tournament_start':
 				console.log('Tournament starting');
-				route(`/tournament/${roomid}`);
+				route(`/tournament/${data.tournament_id}`);
 				break;
 			default:
 				console.log('Unknown message type:', type);

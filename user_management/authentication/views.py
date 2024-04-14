@@ -28,14 +28,6 @@ def login(request):
 
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
-def test(request):
-	print("received data from : ", request.data)
-	print("header : ", request.headers)
-	return Response({"message": "Token is valid"}, status=status.HTTP_200_OK)
-
-@api_view(['GET'])
 def check_token(request):
 	"""
 	Communication endpoint to check if a token is valid for other services
@@ -51,6 +43,10 @@ def signup(request):
 	serializer = PlayerSerializer(data=request.data)
 	if not serializer.is_valid():
 		print("error : ", serializer.errors)
+		if 'email' in serializer.errors:
+			return Response({"error" : "Email already used"}, status=status.HTTP_400_BAD_REQUEST)
+		if 'username' in serializer.errors:
+			return Response({"error" : "Username already used"}, status=status.HTTP_400_BAD_REQUEST)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 	serializer.save()
 	user = Player.objects.get(username=request.data["username"])
@@ -71,7 +67,7 @@ def forty2_auth(request):
 		'client_id': 'u-s4t2ud-778802c450d2090b49c6c92d251ff3d1fbb51b03a9284f8f43f5df0af1dae8fa',
 		'client_secret': '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',
 		'code': request.data['code'],
-		'redirect_uri': 'http://localhost:8080/forty2',
+		'redirect_uri': 'http://localhost:8000/forty2',
 	}
 	print(data)
 	response = requests.post("https://api.intra.42.fr/oauth/token", data=data)
@@ -112,5 +108,5 @@ def is_registered(request):
 		serializer = PlayerSerializer(instance=user)
 		return Response({ "token" : token.key, "user" : serializer.data }, status=status.HTTP_200_OK)
 	except Player.DoesNotExist as error:
-		print(error)
-		return Response({"error" : "User not registered"}, status=status.HTTP_400_BAD_REQUEST)
+		print("In is_register", error)
+		return Response({"error" : "User not registered"}, status=status.HTTP_401_UNAUTHORIZED)

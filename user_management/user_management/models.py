@@ -12,8 +12,9 @@ class Player(AbstractUser):
 	user_permissions = models.ManyToManyField('auth.Permission', verbose_name=_('user permissions'), blank=True, related_name='custom_users')
 	avatar_file = models.CharField(max_length=255, blank=True, null=True)
 	global_score = models.IntegerField(default=0)
+	online = models.BooleanField(default=False)
 
 class BeFriends(models.Model):
-	user1 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='user1')
-	user2 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='user2')
+	user1 = models.IntegerField()
+	user2 = models.IntegerField()
 	created_at = models.DateTimeField(auto_now_add=True)
