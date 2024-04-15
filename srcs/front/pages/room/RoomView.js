@@ -155,7 +155,7 @@ export function createRoomSocket(roomid) {
 		const type = data.type;
 		switch (type) {
 			case 'new_player':
-				console.log('New player joined:', data.player_id);
+				// console.log('New player joined:', data.player_id);
 				addPlayer(data);
 				break;
 			case 'remove_player':

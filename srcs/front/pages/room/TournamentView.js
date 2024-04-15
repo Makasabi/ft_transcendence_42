@@ -13,7 +13,7 @@ import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
 import { checkRoomCode } from "/front/pages/room/roomUtils.js";
-import { getRoomInfo, getTournmentInfo, getRoundInfo, fillRoundMap, displayMyPool, renamePools, displayAPool} from "/front/pages/room/tournamentUtils.js";
+import { getRoomInfo, getTournmentInfo, getRoundInfo, getRoundStartTime, fillRoundMap, displayMyPool, renamePools, displayAPool} from "/front/pages/room/tournamentUtils.js";
 import { createTournament } from "./tournamentUtils.js";
 
 export class TournamentView extends IView {
@@ -40,13 +40,14 @@ export class TournamentView extends IView {
 		let html = await fetch("/front/pages/room/tournament.html").then(response => response.text());
 		document.querySelector("main").innerHTML = html;
 
-		let pools = renamePools(roundInfo.distribution);
+		let pools = await renamePools(roundInfo.distribution);
 
 		fillRoundMap(tournament, pools);
 		displayMyPool(pools);
 		displayAPool(pools);
-
+		
 		this.TournamentSocket = createTournamentSocket(tournament.id);
+		updateNextRoundTimer();
 	}
 
 	destroy() {
@@ -65,7 +66,7 @@ export function createTournamentSocket(tournament_id) {
 		+ '/ws/tournament/'
 		+ tournament_id,
 	);
-	console.log(TournamentSocket);
+	// console.log(TournamentSocket);
 
 	TournamentSocket.onerror = function (e) {
 		console.log('Tournament - Socket error', e);
@@ -73,7 +74,7 @@ export function createTournamentSocket(tournament_id) {
 	};
 
 	TournamentSocket.onopen = function (e) {
-		console.log('Tournament - Socket successfully connected: ', e);
+		// console.log('Tournament - Socket successfully connected: ', e);
 
 	};
 
@@ -123,4 +124,38 @@ export function createTournamentSocket(tournament_id) {
 
 	return TournamentSocket;
 
+}
+
+async function updateNextRoundTimer() {
+
+	let roomCode = document.URL.split("/")[4];
+	getRoomInfo(roomCode).then(roomInfo => {
+			return getTournmentInfo(roomInfo.room_id);
+		}).then(tournament => {
+			return getRoundStartTime(tournament.id, tournament.current_round);
+		}).then(start_time => {
+			if (!start_time) {
+				document.getElementById("next_round_timer").innerText = "No upcoming round";
+				return;
+			}
+
+			let startTime = new Date(start_time);
+			let currentTime = new Date();
+			let timeRemaining = startTime - currentTime;
+			if (timeRemaining <= 0) {
+				// trigger game 
+				document.getElementById("next_round_timer").innerText = "Round has started";
+				return;
+			}
+
+			let minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+			let seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+			let formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+			document.getElementById("next_round_timer").innerText = `Next round starting in ${formattedTime}`;
+			setTimeout(updateNextRoundTimer, 100);
+		})
+		.catch(error => {
+			console.error("Error fetching round info:", error);
+		});
 }

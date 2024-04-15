@@ -31,6 +31,7 @@ class Tournament(models.Model):
 class Round(models.Model):
 	tournament_id = models.ForeignKey(Tournament, on_delete=models.CASCADE)
 	round_number = models.IntegerField()
+	date_start = models.DateTimeField(max_length=100)
 
 	def __str__(self):
 		return f"{self.id} is round {self.round_number} in {self.tournament_id}"

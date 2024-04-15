@@ -58,7 +58,7 @@ export async function getRoomInfo(code) {
 		headers: {
 			'Authorization': `Token ${Login.getCookie('token')}`,
 		}}).then(response => response.json());
-	console.log("room:", roomInfo);
+	// console.log("room:", roomInfo);
 	return roomInfo;
 }
 
@@ -68,7 +68,7 @@ export async function getTournmentInfo(room_id) {
 			'Authorization': `Token ${Login.getCookie('token')}`,
 		}
 	}).then(response => response.json());
-	console.log("tournament:", tournament);
+	// console.log("tournament:", tournament);
 	return tournament;
 }
 
@@ -78,7 +78,7 @@ export async function getRoundInfo(tournament_id, round_number) {
 			'Authorization': `Token ${Login.getCookie('token')}`,
 		}
 	}).then(response => response.json());
-	console.log("roundInfo:", roundInfo);
+	// console.log("roundInfo:", roundInfo);
 	return roundInfo;
 }
 
@@ -127,7 +127,7 @@ export function renamePools(pools) {
 		return acc;
 	}, {});
 	pools = numberedPools;
-	console.log(pools);
+	// console.log(pools);
 	return pools;
 }
 
@@ -206,4 +206,14 @@ export async function displayMyPool(pools) {
 	myPoolImg.style.filter = "opacity(100%) invert(40%) sepia(73%) saturate(1183%) hue-rotate(218deg) brightness(104%) contrast(101%)";
 
 	APool(pools, myPool);
+}
+
+export async function getRoundStartTime(tournament_id, round_number) {
+	let start_time = await fetch(`/api/rooms/round_start_time/${tournament_id}/${round_number}`, {
+		headers: {
+			'Authorization': `Token ${Login.getCookie('token')}`,
+		}
+	}).then(response => response.json());
+	// console.log("start_time:", start_time);
+	return start_time.start_time;
 }

@@ -7,6 +7,7 @@ import random
 import requests
 import string
 from .view_utils import compute_repartition, distribute_contestants
+from datetime import datetime, timedelta
 
 def tournament_serializer(tournament, occupancy):
 	"""
@@ -107,12 +108,14 @@ def roundInfo(request, tournament_id, round_number):
 		- round_number
 		- tournament_id
 		- distribution
+		- start_time
 
 	"""
 	round_data = {
 		"round_id": 0,
 		"round_number": 0,
-		"tournament_id": ""
+		"tournament_id": "",
+		"start_time": 0
 	}
 
 	res = {}
@@ -125,10 +128,11 @@ def roundInfo(request, tournament_id, round_number):
 	headers = {'Authorization': token}
 	response = requests.get(url, headers=headers)
 	res['distribution'] = response.json()
-
+	
 	round_data['round_id'] = round.id
 	round_data['round_number'] = round.round_number
 	round_data['tournament_id'] = tournament_id
+	round_data['start_time'] = round.date_start
 
 	res['round_data'] = round_data
 
@@ -140,7 +144,10 @@ def roundCreate(request, tournament_id, round_number):
 	tournament = Tournament.objects.get(id=tournament_id)
 
 	if not Round.objects.filter(tournament_id=tournament, round_number=round_number).exists():
-		round = Round.objects.create(tournament_id=tournament, round_number=round_number)
+		# DETAIL time to seconds
+		start_time = datetime.now() + timedelta(minutes=2)
+		print("Start time: ", start_time)
+		round = Round.objects.create(tournament_id=tournament, round_number=round_number, date_start=start_time)
 		contestants = Occupy.objects.filter(room_id=tournament.room_id)
 		repartition = compute_repartition(len(contestants))
 		distribution = distribute_contestants(request, contestants, repartition)
@@ -157,3 +164,8 @@ def roundCreate(request, tournament_id, round_number):
 			requests.post(url, headers=headers, data=data)
 		return JsonResponse({"round_id": round.id})
 		
+@api_view(['GET'])
+def round_start_time(request, tournament_id, round_number):
+	tournament = Tournament.objects.get(id=tournament_id)
+	round = Round.objects.get(tournament_id=tournament, round_number=round_number)
+	return JsonResponse({"start_time": round.date_start})
