@@ -46,6 +46,7 @@ create_key:
 	@if [ ! -d "venv" ]; then echo "\033[93mPlease create a virtual environment first. Check the README.md for some help ;)\033[0m"; exit 1; fi
 	@if [ ! -e ".env" ]; then echo "\033[93mPlease create a .env file first. Check the README.md for some help ;)\033[0m"; exit 1; fi
 	@venv/bin/python3 srcs/manage.py shell -c "from django.core.management import utils; print('DJANGO_SECRET_KEY=', utils.get_random_secret_key(), sep='')"
+	@venv/bin/python3 srcs/manage.py shell -c "from django.core.management import utils; print('APP_KEY=', utils.get_random_secret_key(), sep='')"
 
 fill_db:
 	@if [ ! -d "venv" ]; then echo "\033[93mPlease create a virtual environment first. Check the README.md for some help ;)\033[0m"; exit 1; fi

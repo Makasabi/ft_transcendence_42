@@ -227,6 +227,12 @@ export class GameContext {
 	}
 
 	async start() {
+		document.getElementById("centered_box").style.display = "flex";
+		const game_status = document.getElementById("game_status");
+		game_status.style.display = "flex";
+		const status_title = document.querySelector("#game_status h2");
+		status_title.textContent = "Loading...";
+
 		await this.load();
 		let count = 0;
 
@@ -240,6 +246,8 @@ export class GameContext {
 		count = 0;
 
 		this.websocket.send("ready");
+
+		status_title.textContent = "Waiting for other players";
 
 		console.log("GameContext.start", this.state);
 		while (this.state === undefined) {
@@ -259,8 +267,13 @@ export class GameContext {
 		this.rendering_context.scale = 1 / this.state.width
 		this.rotate_view_to_me();
 
-		while (this.state.status !== "ongoing") {
-			console.log("wait for ongoing");
+		while (this.state.status === "waiting_for_players") {
+			let dots = "";
+			for (let i = 0; i < count % 4; i++)
+				dots += ".";
+			status_title.textContent = "Waiting for other players" + dots;
+			document.querySelector("#game_status h2").textContent = this.state.timeout + "s before force start";
+			this.update_players();
 			if (this.end)
 				return;
 			count++;
@@ -274,9 +287,35 @@ export class GameContext {
 
 		this.create_static_objects();
 
+		game_status.style.display = "none";
+		this.start_timer();
 		this.run();
 		while (!this.end)
 			await new Promise(resolve => setTimeout(resolve, 300));
+	}
+
+	async update_players() {
+		const players = document.getElementById("players");
+		players.innerHTML = "";
+		for (let player of this.state.players) {
+			let li = document.createElement("li");
+			li.textContent = player.username;
+			li.style.color = player.ready ? "green" : "red";
+			players.appendChild(li);
+		}
+	}
+
+	async start_timer() {
+		if (this.state.start_time === undefined || this.state.start_time === 0)
+			return;
+		let timer = document.getElementById("timer");
+		timer.hidden = false;
+		while (this.state.start_time !== undefined && this.state.start_time !== 0) {
+			timer.textContent = this.state.start_time;
+			await new Promise(resolve => setTimeout(resolve, 100));
+		}
+		timer.hidden = true;
+		document.getElementById("centered_box").style.display = "none";
 	}
 
 	addWall(wall) {

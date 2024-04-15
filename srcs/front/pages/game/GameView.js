@@ -65,6 +65,8 @@ export class GameView extends IView {
 			console.log("Start game");
 			await this.game.start();
 			console.log("End of game");
+			if (window.location.pathname !== "/game/" + game_id)
+				return;
 			const redirect = "/room/" + await room_code;
 			console.log("Redirect to", redirect);
 			route(redirect);
