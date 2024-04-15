@@ -44,11 +44,12 @@ class GameConsumer(AsyncConsumer):
 
 	async def game_end(self, event):
 		game_id = event["game_id"]
-		await self.channel_layer.group_send(f"game_{game_id}", {
-			"type": "game.end"
-		})
 		del self.engines[game_id]
 		player_ranking = event["player_ranking"]
+		await self.channel_layer.group_send(f"game_{game_id}", {
+			"type": "game.end",
+			"player_ranking": player_ranking
+		})
 		await database_sync_to_async(create_history)(game_id, player_ranking)
 
 

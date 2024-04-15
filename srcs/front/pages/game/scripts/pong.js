@@ -8,8 +8,6 @@ export class GameContext {
 	rendering_context;
 	websocket;
 	arena;
-	ball;
-	player;
 	last_time = performance.now();
 	end = false;
 	ready = false;
@@ -71,6 +69,7 @@ export class GameContext {
 				game.end = true;
 			}
 			else if (type === "end") {
+				game.ranking = data.player_ranking;
 				game.end = true;
 			}
 		};

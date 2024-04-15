@@ -41,6 +41,7 @@ class GameEngine(threading.Thread):
 				self.walls.append(arena_borders[i])
 			else:
 				self.players[players[side]] = Player(players[side], arena_borders[i], self.debug)
+		self.everyone = list(self.players.values())
 
 		self.collisions_walls = list(self.walls)
 		for pilar in self.pilars:
@@ -239,6 +240,7 @@ class GameEngine(threading.Thread):
 		return {
 			'status': 'ongoing',
 			'players': [player.render() for player in self.players.values()],
+			'everyone': [player.render() for player in self.everyone],
 			'balls': [ball.render() for ball in self.balls],
 			'walls': self.walls,
 			'pilars': self.pilars,
