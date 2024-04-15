@@ -49,20 +49,7 @@ class GameConsumer(AsyncConsumer):
 		})
 		del self.engines[game_id]
 		player_ranking = event["player_ranking"]
-		def create_history(game_id):
-			game = Game.objects.get(game_id=game_id)
-			game.date_end = timezone.now()
-			game.end_status = "success"
-
-			for i, player_id in enumerate(player_ranking):
-				play = Play.objects.create(score=i, game=game, user_id=player_id)
-				play.save()
-				if game.visibility == "public":
-					player = Player.objects.get(id=player_id)
-					player.global_score += play.score
-					player.save()
-			game.save()
-		await database_sync_to_async(create_history)(game_id)
+		await database_sync_to_async(create_history)(game_id, player_ranking)
 
 
 	async def input(self, event):
@@ -76,3 +63,21 @@ class GameConsumer(AsyncConsumer):
 			})
 			return
 		engine.input(event["input"], event["player_id"])
+
+def create_history(game_id, player_ranking):
+	game = Game.objects.get(game_id=game_id)
+	game.date_end = timezone.now()
+	game.end_status = "success"
+
+	for i, player_id in enumerate(player_ranking):
+		play = Play.objects.update_or_create(
+			game=game,
+			user_id=player_id,
+			defaults={"score":i},
+		)[0]
+		play.save()
+		if game.visibility == "public": # @TODO PLAYER model can't be accessed here
+			player = Player.objects.get(id=player_id)
+			player.global_score += play.score
+			player.save()
+	game.save()

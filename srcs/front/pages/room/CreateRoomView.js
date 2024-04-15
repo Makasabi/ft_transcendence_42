@@ -8,7 +8,7 @@ import { checkRoomCode } from "/front/pages/room/roomUtils.js";
  *
  * this buffer class is only used to create a room in the db.
 	 *  @returns {void} routes to the room page after creating a room in the db
- * 
+ *
  */
 export class CreateRoomView extends IView {
 	static match_route(route) {
@@ -24,7 +24,7 @@ export class CreateRoomView extends IView {
 		let user = await fetch("/api/user_management/me", {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		}).then(response => response.json());
-	
+
 		let roomdb = await fetch("/api/rooms/create_room", {
 			method: "POST",
 			headers: {
@@ -36,7 +36,7 @@ export class CreateRoomView extends IView {
 				'visibility' : 'Private',
 				'roomMode' : roomMode,})
 		}).then(responsedb => responsedb.json());
-	
+
 		let newUrl = "/room/" + roomdb.code;
 		let state = { 'code': roomdb.code };
 		let title = "Room " + roomdb.code;

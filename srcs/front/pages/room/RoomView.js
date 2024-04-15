@@ -119,7 +119,7 @@ export function createRoomSocket(roomid) {
 
 	// on socket open
 	roomSocket.onopen = function (e) {
-		console.log('Rooms - Socket successfully connected.');
+		console.log('Rooms - Socket successfully connected: ', e);
 	};
 
 	// on socket close
@@ -139,6 +139,10 @@ export function createRoomSocket(roomid) {
 				console.log('Rooms - Unauthentified user');
 				route("/home");
 				break;
+			case 3004:
+				console.log('Rooms - Game has already started');
+				route("/gamestarted");
+				break;
 			default:
 				console.log(reason);
 		}
@@ -151,7 +155,7 @@ export function createRoomSocket(roomid) {
 		const type = data.type;
 		switch (type) {
 			case 'new_player':
-				console.log('New player joined:', data.player_id);
+				// console.log('New player joined:', data.player_id);
 				addPlayer(data);
 				break;
 			case 'remove_player':

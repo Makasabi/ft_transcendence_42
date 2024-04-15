@@ -142,7 +142,7 @@ def create_tournament(request, roomId):
 	# Move that part to a function
 	repartition = compute_repartition(occupancy)
 	repartition = distribute_contestants(request, contestants, repartition)
-	
+
 
 	Tournament.objects.create(room_id=room_ID, total_rounds=total_rounds, current_round=1)
 
@@ -267,3 +267,19 @@ def first_round_elimination(occupancy, nb_pool):
 		elim_per_pool.append({'elim': elim})
 	# print("\n".join([f"Pool {i}: {elim_per_pool[i]}" for i in range(nb_pool)]))
 	return elim_per_pool
+
+@api_view(['GET'])
+def get_code(request, room_id):
+	"""
+	Return the room code of the game with the given game_id
+
+	json response format:
+	{
+		room_code: "room_code"
+	}
+	"""
+	room = Rooms.objects.get(room_id=room_id)
+
+	return JsonResponse({
+		"room_code": room.code
+	})

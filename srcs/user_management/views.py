@@ -66,6 +66,13 @@ def me_id(request):
 	"""
 	return JsonResponse({'id': request.user.id})
 
+@api_view(['GET'])
+def me_username(request):
+	"""
+	Return username of the user
+	"""
+	return JsonResponse({'username': request.user.username})
+
 
 @api_view(['GET'])
 def me(request):
@@ -282,7 +289,10 @@ def switch_online(request, username, status):
 	"""
 	Switch user online status
 	"""
-	user = Player.objects.filter(username=username).first()
+	try:
+		user = Player.objects.get(username=username)
+	except Player.DoesNotExist:
+		return JsonResponse({'status': 'error', 'message': 'User not found'})
 	if (status == 'online'):
 		user.online = True
 	else:
