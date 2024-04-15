@@ -4,10 +4,8 @@ from channels.layers import get_channel_layer
 from rest_framework.decorators import api_view
 from asgiref.sync import async_to_sync
 from game.models import Game, Play
-from django.db.models import Count
 import requests
-
-
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from game.models import Game
 
 # Create your views here.
@@ -187,3 +185,27 @@ def get_history(request, player_id):
 			"date_played": game.game.date_begin
 		})
 	return JsonResponse(history_json, safe=False)
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([])
+def get_game_started(request, room_id):
+	"""
+	Return whether the game has started in the room with the given room_id
+
+	json response format:
+	{
+		game_started: game_started
+	}
+	"""
+	game = Game.objects.filter(parent_id=room_id).first()
+	if game:
+		print("Game found")
+		return JsonResponse({
+			"game_started": True
+		})
+	else:
+		print("Game not found")
+		return JsonResponse({
+			"game_started": False
+	})

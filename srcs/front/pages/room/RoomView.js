@@ -139,6 +139,10 @@ export function createRoomSocket(roomid) {
 				console.log('Rooms - Unauthentified user');
 				route("/home");
 				break;
+			case 3004:
+				console.log('Rooms - Game has already started');
+				route("/gamestarted");
+				break;
 			default:
 				console.log(reason);
 		}

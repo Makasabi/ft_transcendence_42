@@ -10,6 +10,7 @@ import { FullRoomView } from "./room/FullRoomView.js";
 import { UnknownRoomView } from "./room/UnknownRoomView.js";
 import { CreateRoomView } from "./room/CreateRoomView.js";
 import { TournamentView } from "./room/TournamentView.js";
+import { GameStartedView } from "./room/GameStartedView.js";
 
 
 /*** Views ***/
@@ -25,6 +26,7 @@ const loggedViews = [
 	RoomView,
 	UnknownRoomView,
 	FullRoomView,
+	GameStartedView,
 	TournamentView,
 ];
 
