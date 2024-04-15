@@ -17,16 +17,31 @@ export class FriendsView extends IView {
 		let html = await fetch("/front/pages/user_mgt/friends.html").then(response => response.text());
 		document.querySelector("main").innerHTML = html;
 
-		// console.log(friends);
+		console.log(friends);
 		const friendsContainer = document.querySelector(".current-friends");
-		friends.forEach(friend => {
+		friends.forEach(async friend =>{
 			const friendContainer = document.createElement("div");
 			friendContainer.classList.add("friend-container");
+
 			
 			const avatar = document.createElement("img");
 			avatar.src = friend.avatar_file;
 			avatar.alt = friend.username;
+			
+			// api call to /user_management/get_online_status/username
+			// if online, set border to green
+			await fetch(`/api/user_management/get_online_status/${friend.username}`, {
+				headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+			}).then(response => response.json()).then(data => {
+				console.log(data);
+				if (data.is_online === true) {
+					avatar.style.border = "var(--online-green) 4px solid";
+				}
+			});
+			
+			// avatar.style.border = "var(--online-green) 4px solid";
 			avatar.classList.add("friend-avatar");
+
 			
 			let friend_profile = "/user/username/" + friend.username;
 			avatar.addEventListener("click", (e) => {

@@ -33,7 +33,22 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 		state["player_id"] = self.user.id
 		await self.send(json.dumps(state))
 
+	async def game_error(self, event):
+		error = event["error"]
+		await self.send(json.dumps({"type": "error", "error": error}))
+
+		self.close(4000)
+
+	async def game_end(self, event):
+		await self.send(json.dumps({"type": "end"}))
+		self.close()
+
 	async def receive(self, text_data=None, bytes_data=None):
+		if text_data is None:
+			return
+		if text_data == "ping":
+			await self.send("pong")
+			return
 		await self.channel_layer.send(
 			self.group_send,
 			{
@@ -43,12 +58,6 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 				"input": text_data,
 			},
 		)
-
-	async def game_error(self, event):
-		error = event["error"]
-		await self.send(json.dumps({"type": "error", "error": error}))
-
-		self.close(4000)
 
 	async def disconnect(self, close_code):
 		# Leave room group

@@ -5,6 +5,7 @@ from . import views_tournament
 
 urlpatterns = [
 	path('create_room', views_rooms.create_room, name='create_room'),
+	path('get_code/<int:room_id>', views_rooms.get_code, name='get_code'),
 	path("code/<str:roomCode>", views_rooms.roomCode, name='roomCode'),
 	path("info/<str:roomCode>", views_rooms.roomInfo, name='roomCode'),
 	path("<int:room_id>/players", views_rooms.roomPlayers, name='roomPlayers'),

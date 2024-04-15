@@ -1,8 +1,10 @@
 # game/consumers.py
 import json
 
+from django.utils import timezone
 from channels.generic.websocket import AsyncConsumer
-from game.models import Game
+from game.models import Game, Play, Player
+from channels.db import database_sync_to_async
 
 from .engine.GameEngine import GameEngine
 
@@ -40,6 +42,16 @@ class GameConsumer(AsyncConsumer):
 		})
 		self.engines[game_id].ready_to_send = True
 
+	async def game_end(self, event):
+		game_id = event["game_id"]
+		await self.channel_layer.group_send(f"game_{game_id}", {
+			"type": "game.end"
+		})
+		del self.engines[game_id]
+		player_ranking = event["player_ranking"]
+		await database_sync_to_async(create_history)(game_id, player_ranking)
+
+
 	async def input(self, event):
 		game_id = event["game_id"]
 		engine = self.engines.get(game_id, None)
@@ -51,3 +63,21 @@ class GameConsumer(AsyncConsumer):
 			})
 			return
 		engine.input(event["input"], event["player_id"])
+
+def create_history(game_id, player_ranking):
+	game = Game.objects.get(game_id=game_id)
+	game.date_end = timezone.now()
+	game.end_status = "success"
+
+	for i, player_id in enumerate(player_ranking):
+		play = Play.objects.update_or_create(
+			game=game,
+			user_id=player_id,
+			defaults={"score":i},
+		)[0]
+		play.save()
+		if game.visibility == "public": # @TODO PLAYER model can't be accessed here
+			player = Player.objects.get(id=player_id)
+			player.global_score += play.score
+			player.save()
+	game.save()

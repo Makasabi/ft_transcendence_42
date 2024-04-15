@@ -14,12 +14,11 @@ class TournamentConsumer(WebsocketConsumer):
 			self.channel_name
 		)
 		self.user = self.scope['user']
-		if self.user.is_anonymous:
+		if self.user.is_anonymous or CheckPlayerAccess(self.user, self.tournament_id) == False:
 			self.accept()
 			self.close(3010)
-		# check if player can be in this room.
-		# elif ()
-		self.accept()
+		else :
+			self.accept()
 
 
 	def disconnect(self, close_code):
@@ -32,3 +31,15 @@ class TournamentConsumer(WebsocketConsumer):
 	def receive(self, text_data):
 		data = json.loads(text_data)
 		# if data['type'] == 'start' or data['type'] == 'tournament_start':
+
+
+
+
+# Database Functions #
+
+def CheckPlayerAccess(user, tournament):
+	room_id = Tournament.objects.get(id=tournament).room_id
+	if Occupy.objects.filter(player_id=user.id, room_id=room_id).exists():
+		return True
+	else:
+		return False
