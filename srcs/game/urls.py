@@ -10,4 +10,5 @@ urlpatterns = [
 	path('get_history/<int:player_id>', views.get_history, name='get_history'),
 	path('get_game_started/<int:room_id>', views.get_game_started, name='get_game_started'),
 	path('<int:game_id>/room_code', views.get_roomcode, name='get_roomcode'),
+	path('get_pool/<int:user_id>', views.get_pool, name='get_pool'),
 ]

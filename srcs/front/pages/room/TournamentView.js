@@ -48,8 +48,31 @@ export class TournamentView extends IView {
 		
 		this.TournamentSocket = createTournamentSocket(tournament.id);
 		updateNextRoundTimer();
-	}
 
+		let startButton = document.getElementById("startTheGame");
+		startButton.addEventListener("click", async () => {
+			console.log("Starting the game");
+			let myGame = await fetch()
+			// trigger start of game/
+			// send players to correct game
+		});
+	}
+/**
+ * .then(async response => {
+					if (response.status === 200) {
+						const data = await response.json();
+						const to_send = JSON.stringify({
+							"type": "start",
+							"message": "Game starting",
+							"game_id": data.game_id,
+						})
+						console.log("Sending message to start game:", to_send);
+						this.roomSocket.send(to_send);
+					} else {
+						console.error("Error starting game");
+						errorMessage("You need at least 2 players to start a game.");
+					}
+ */
 	destroy() {
 		console.log("Destroying tournament view");
 		if (this.TournamentSocket) {

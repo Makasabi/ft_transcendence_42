@@ -229,3 +229,4 @@ def get_game_started(request, room_id):
 		return JsonResponse({
 			"game_started": False
 	})
+
