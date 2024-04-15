@@ -132,9 +132,6 @@ class RoomConsumer(WebsocketConsumer):
 
 	def start_game(self, event):
 		game_id = event['game_id']
-		print("Username: ", self.user.username)
-		if self.user.username == "val2":
-			return
 		self.send(text_data=json.dumps({
 			'type': 'start',
 			'game_id': game_id,
