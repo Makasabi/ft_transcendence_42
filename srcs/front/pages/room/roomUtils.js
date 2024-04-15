@@ -58,6 +58,12 @@ export function joinRoomForm()
 	let input = document.getElementById("inputRoomCode");
 	let joinRoomCTA = document.getElementById("joinRoomCTA");
 
+	input.addEventListener("keyup", (e) => {
+		if (e.key === "Enter") {
+			joinRoomCTA.click();
+		}
+	});
+
 	joinRoomCTA.addEventListener("click", (e) => {
 		e.preventDefault();
 		const test = new RegExp(/^\w{6,6}$/gm);
@@ -81,7 +87,7 @@ export function joinRoomForm()
  */
 export async function applyPlayerBorder(player_id) {
 
-	let me = await fetch(`/api/user_management/me`, {
+	let me = await fetch(`/api/user_management/me_id`, {
 		method: "GET",
 		headers: {
 			'Content-Type': 'application/json',
@@ -151,6 +157,25 @@ export async function inviteFriend(code, mode) {
 		});
 	});
 }
+
+export function copyLink(){
+// when clicking on room code, copies it to the clipboard and adds a confirmation message in a bubble
+	const copyButton = document.getElementById("copy_room_code");
+	copyButton.addEventListener("click", async () => {
+		const roomCode = document.getElementById("this_code");
+		const code = roomCode.textContent;
+		await navigator.clipboard.writeText(code);
+		const bubble = document.createElement("div");
+		bubble.id = "bubble";
+		bubble.textContent = "Copied!";
+		copyButton.appendChild(bubble);
+		setTimeout(() => {
+			copyButton.removeChild(bubble);
+		}, 1000);
+	}
+	);
+}
+
 
 /*
 TODO: When last player leaves room --> define what to do with room record.

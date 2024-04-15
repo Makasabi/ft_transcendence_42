@@ -58,3 +58,4 @@ fill_db:
 
 clear_db:
 	@venv/bin/python3 srcs/tmp_db/clear_db.py
+	@rm -rf srcs/db.sqlite3

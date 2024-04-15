@@ -81,7 +81,7 @@ export async function updatePlayer(data) {
  * @param {*} is_master 
  */
 export async function updateStartButton(player_id, is_master) {
-	let me = await fetch(`/api/user_management/me`, {
+	let me = await fetch(`/api/user_management/me_id`, {
 		method: "GET",
 		headers: {
 			'Content-Type': 'application/json',
@@ -91,15 +91,17 @@ export async function updateStartButton(player_id, is_master) {
 
 	let Unabled = document.getElementById("unauthorosedToStart");
 	let buttonAbled = document.querySelector(".cta");
-
-	if (is_master === true) {
-		if (player_id === me.id) {
+	
+	//  TODO: uncomment below for production
+	// if (is_master === true) {
+		// if (player_id === me.id) {
+		// if (player_id != me.id) {
 			Unabled.style.display = "none";
 			buttonAbled.style.display = "block";
-		}
-		else {
-			Unabled.style.display = "block";
-			buttonAbled.style.display = "none";
-		}
-	}
+		// }
+		// else {
+			// Unabled.style.display = "block";
+			// buttonAbled.style.display = "none";
+		// }
+	// }
 }

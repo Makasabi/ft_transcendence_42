@@ -32,24 +32,37 @@ class RoomConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
-		removePlayerFromRoomDB(self.room_id, self.user.id)
-		new_master = reassignMasterDB(self.room_id)
-		self.sendUpdatePlayer(new_master)
-		self.sendRemovePlayer()
+		if close_code != 3003:
+			removePlayerFromRoomDB(self.room_id, self.user.id)
+			new_master = reassignMasterDB(self.room_id)
+			self.sendUpdatePlayer(new_master)
+			self.sendRemovePlayer()
 		self.close(close_code)
 
 	def receive(self, text_data):
 		data = json.loads(text_data)
-		if data['type'] == 'start':
-			if not (is_master(self.room_id, self.user.id)):
-				return
-			async_to_sync(self.channel_layer.group_send)(
-				self.room_group_name,
-				{
-					'type': 'start_game',
-					'game_id': data['game_id']
-				}
-			)
+		if data['type'] == 'start' or data['type'] == 'tournament_start':
+			# TODO: uncomment below for production
+			# if not (is_master(self.room_id, self.user.id)):
+				# return
+			# else:
+				if data['type'] == 'start':
+					async_to_sync(self.channel_layer.group_send)(
+						self.room_group_name,
+						{
+							'type': 'start_game',
+							'game_id': data['game_id']
+						}
+					)
+				elif data['type'] == 'tournament_start':
+					async_to_sync(self.channel_layer.group_send)(
+						self.room_group_name,
+						{
+							'type': 'start_tournament',
+							'tournament_id': data['room_code']
+						}
+					)
+
 
 # Send Events #
 
@@ -123,6 +136,15 @@ class RoomConsumer(WebsocketConsumer):
 			'type': 'start',
 			'game_id': game_id,
 		}))
+	
+	def start_tournament(self, event):
+		print("Tournament id is: ", event['tournament_id'])
+		tournament_id = event['tournament_id']
+		self.send(text_data=json.dumps({
+			'type': 'tournament_start',
+			'tournament_id': tournament_id,
+		}))
+		self.disconnect(3003)
 
 # Database Functions #
 
@@ -135,7 +157,10 @@ def checkRoomAvailabilityDB(room_id):
 			else:
 				return False
 		elif room.roomMode == 'tournament':
-			return True
+			if Occupy.objects.filter(room_id=room_id).count() < 36:
+				return True
+			else:
+				return False
 	else:
 		return False
 
@@ -166,7 +191,6 @@ def removePlayerFromRoomDB(room_id, user_id):
 		occupant = Occupy.objects.get(player_id=user_id, room_id=room_id)
 		occupant.delete()
 	except Occupy.DoesNotExist:
-		print(Occupy.objects.filter(room_id=room_id))
 		return
 
 def is_master(room_id, user_id):
