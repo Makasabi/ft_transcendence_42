@@ -61,10 +61,6 @@ def create_tournament(request, roomId):
 
 	total_rounds = (occupancy + 6) // 7
 
-	# Move that part to a function
-	# repartition = compute_repartition(occupancy)
-	# repartition = distribute_contestants(request, contestants, repartition)
-	
 	tournament = Tournament.objects.create(room_id=room, total_rounds=total_rounds, current_round=1)
 
 	tournament_data['id'] = tournament.id
@@ -93,7 +89,6 @@ def tournamentInfo(request, room_id):
 		occupancy = len(contestants)
 
 	tournament = Tournament.objects.get(room_id=room_id)
-	print(tournament)
 
 	return JsonResponse(tournament_serializer(tournament, occupancy))
 
@@ -129,9 +124,7 @@ def roundInfo(request, tournament_id, round_number):
 	token = f"Token {request.auth}"
 	headers = {'Authorization': token}
 	response = requests.get(url, headers=headers)
-	print("\n>>>---->>>>>", response, "\n")
 	res['distribution'] = response.json()
-	print(res)
 
 	round_data['round_id'] = round.id
 	round_data['round_number'] = round.round_number

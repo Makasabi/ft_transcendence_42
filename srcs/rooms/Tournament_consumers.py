@@ -7,19 +7,24 @@ import json
 
 class TournamentConsumer(WebsocketConsumer):
 	def connect(self):
-		self.code = self.scope['url_route']['kwargs']['code']
-		self.room = Rooms.objects.get(code=self.code)
-		self.room_group_name = f'tournament_{self.code}'
+		self.tournament_id = self.scope['url_route']['kwargs']['tournament_id']
+		self.tournament_group_name = f'tournament_{self.tournament_id}'
 		async_to_sync(self.channel_layer.group_add)(
-			self.room_group_name,
+			self.tournament_group_name,
 			self.channel_name
 		)
 		self.user = self.scope['user']
+		if self.user.is_anonymous:
+			self.accept()
+			self.close(3010)
+		# check if player can be in this room.
+		# elif ()
+		self.accept()
 
 
 	def disconnect(self, close_code):
 		async_to_sync(self.channel_layer.group_discard)(
-			self.room_group_name,
+			self.tournament_group_name,
 			self.channel_name
 		)
 		self.close(close_code)

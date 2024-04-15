@@ -119,7 +119,7 @@ export function createRoomSocket(roomid) {
 
 	// on socket open
 	roomSocket.onopen = function (e) {
-		console.log('Rooms - Socket successfully connected.');
+		console.log('Rooms - Socket successfully connected: ', e);
 	};
 
 	// on socket close
