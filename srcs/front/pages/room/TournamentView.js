@@ -33,6 +33,14 @@ export class TournamentView extends IView {
 			return;
 		}
 
+		let me = await fetch(`/api/user_management/me_id`, {
+			method: "GET",
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Token ${Login.getCookie('token')}`,
+			},
+		}).then(response => response.json());
+
 		let roomInfo = await getRoomInfo(code)
 		let tournament = await getTournmentInfo(roomInfo.room_id)
 		let roundInfo = await getRoundInfo(tournament.id, tournament.current_round)
@@ -47,14 +55,22 @@ export class TournamentView extends IView {
 		displayAPool(pools);
 		
 		this.TournamentSocket = createTournamentSocket(tournament.id);
+
 		updateNextRoundTimer();
 
 		let startButton = document.getElementById("startTheGame");
 		startButton.addEventListener("click", async () => {
 			console.log("Starting the game");
-			let myGame = await fetch()
-			// trigger start of game/
-			// send players to correct game
+			let myGame = await fetch(`/api/game/get_pool/${roundInfo.round_data.round_id}/${me.id}`,
+			{
+				method: "GET",
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Token ${Login.getCookie('token')}`,
+				},
+			}).then(response => response.json());
+			console.log("My game:", myGame);
+			route(`/game/${myGame.game_id}`);
 		});
 	}
 /**

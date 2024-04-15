@@ -74,6 +74,7 @@ def start(request, room_id):
 		"game_id": game.game_id
 	})
 
+
 @api_view(["POST"])
 def create_pool(request, round_id):
 	body = request.data
@@ -230,3 +231,20 @@ def get_game_started(request, room_id):
 			"game_started": False
 	})
 
+@api_view(["GET"])
+def get_pool(request, round_id, user_id):
+	"""
+	Returns the game id of the user in the pool with the given round_id
+	"""
+	games = Game.objects.filter(parent_id=round_id, mode="Tournament")
+	for game in games:
+		plays = Play.objects.filter(game_id=game.game_id)
+		for play in plays:
+			if play.user_id == user_id:
+				return JsonResponse({
+					"game_id": game.game_id
+				})
+
+	return JsonResponse({
+		"error": "User not found in pool"
+	})
