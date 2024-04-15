@@ -22,6 +22,47 @@ def index(request):
 		"game": "game"
 	})
 
+def start_pool(request, pool_id):
+	"""
+	Start the game with the given room_id
+
+	json response format:
+	{
+		game: "game",
+		game_id: game_id
+	}
+	"""
+	print("Game Start Pool")
+	try:
+		game = Game.objects.get(game_id=pool_id)
+		if game.ongoing == True:
+			return JsonResponse({
+				"game": "game",
+				"game_id": game.game_id
+			})
+		plays = Play.objects.filter(game_id=pool_id)
+		players = []
+		for play in plays:
+			players.append(play.user_id)
+		async_to_sync(get_channel_layer().send)(
+			"game_consumer",
+			{
+				"type": "game.start",
+				"game_id": pool_id,
+				"players": players
+			}
+		)
+		game.ongoing = True;
+		game.save()
+		return JsonResponse({
+			"game": "game",
+			"game_id": game.game_id
+		})
+	except Game.DoesNotExist:
+		return JsonResponse({
+			"game" : "error"
+		})
+
 
 @api_view(["POST"])
 def start(request, room_id):

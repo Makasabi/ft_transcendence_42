@@ -68,6 +68,7 @@ def create_history(game_id, player_ranking):
 	game = Game.objects.get(game_id=game_id)
 	game.date_end = timezone.now()
 	game.end_status = "success"
+	game.ongoing = False
 
 	for i, player_id in enumerate(player_ranking):
 		play = Play.objects.update_or_create(

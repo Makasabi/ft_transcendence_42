@@ -39,6 +39,10 @@ migrate:
 	if [ "$$answer" = "y" ]; then \
 		rm -f srcs/db.sqlite3; \
 	fi
+	venv/bin/python3 srcs/manage.py makemigrations user_management
+	venv/bin/python3 srcs/manage.py makemigrations notification
+	venv/bin/python3 srcs/manage.py makemigrations rooms
+	venv/bin/python3 srcs/manage.py makemigrations game
 	venv/bin/python3 srcs/manage.py makemigrations
 	venv/bin/python3 srcs/manage.py migrate
 

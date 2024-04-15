@@ -13,7 +13,6 @@ class TournamentConsumer(WebsocketConsumer):
 		self.tournament_group_name = f'tournament_{self.tournament_id}'
 		self.current_round = Tournament.objects.get(id=self.tournament_id).current_round
 		self.round_info = Round.objects.get(tournament_id=self.tournament_id, round_number=self.current_round)
-		print("round ID:", self.round_info.id)
 		async_to_sync(self.channel_layer.group_add)(
 			self.tournament_group_name,
 			self.channel_name
@@ -39,6 +38,7 @@ class TournamentConsumer(WebsocketConsumer):
 
 	def receive(self, text_data):
 		data = json.loads(text_data)
+		print("Received : ", data)
 		if data['type'] == 'ready_to_play' :
 			async_to_sync(self.channel_layer.group_send)(
 				self.tournament_group_name,
@@ -48,12 +48,23 @@ class TournamentConsumer(WebsocketConsumer):
 				}
 			)
 
+	def ready_to_play(self, event):
+		print("READY")
+		url = f"http://localhost:8000/api/game/start_pool/{self.my_pool}"
+		token = f"Token {self.scope['user'].auth_token}"
+		headers = {'Authorization': token}
+		response = requests.get(url, headers=headers)
 
-
-
+		print("Response from start pool : ", response.json())
+		if (response.json()['game'] == "error"):
+			self.send(text_data=json.dumps({"message" : "error"}))
+		else:
+			self.send(text_data=json.dumps({
+				"type" : "ready_to_play",
+				"game_id" : self.my_pool,
+			}))
 
 # Database Functions #
-
 def CheckPlayerAccess(user, tournament):
 	room_id = Tournament.objects.get(id=tournament).room_id
 	if Occupy.objects.filter(player_id=user.id, room_id=room_id).exists():

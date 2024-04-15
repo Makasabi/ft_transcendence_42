@@ -44,6 +44,7 @@ export class TournamentView extends IView {
 		let roomInfo = await getRoomInfo(code)
 		let tournament = await getTournmentInfo(roomInfo.room_id)
 		let roundInfo = await getRoundInfo(tournament.id, tournament.current_round)
+		console.log(roundInfo);
 
 		let html = await fetch("/front/pages/room/tournament.html").then(response => response.text());
 		document.querySelector("main").innerHTML = html;
@@ -61,16 +62,21 @@ export class TournamentView extends IView {
 		let startButton = document.getElementById("startTheGame");
 		startButton.addEventListener("click", async () => {
 			console.log("Starting the game");
-			let myGame = await fetch(`/api/game/get_pool/${roundInfo.round_data.round_id}/${me.id}`,
-			{
-				method: "GET",
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Token ${Login.getCookie('token')}`,
-				},
-			}).then(response => response.json());
-			console.log("My game:", myGame);
-			route(`/game/${myGame.game_id}`);
+			const luffy = JSON.stringify({
+				"type" : "ready_to_play",
+				"message" : "tony tony chopper",
+			})
+			this.TournamentSocket.send(luffy)
+//			let myGame = await fetch(`/api/game/get_pool/${roundInfo.round_data.round_id}/${me.id}`,
+//			{
+//				method: "GET",
+//				headers: {
+//					'Content-Type': 'application/json',
+//					'Authorization': `Token ${Login.getCookie('token')}`,
+//				},
+//			}).then(response => response.json());
+	//		console.log("My game:", myGame);
+	//		route(`/game/${myGame.game_id}`);
 		});
 	}
 /**
@@ -139,6 +145,7 @@ export function createTournamentSocket(tournament_id) {
 	};
 
 	TournamentSocket.onmessage = function (e) {
+		console.log('event : ', e);
 		const data = JSON.parse(e.data);
 		const type = data.type;
 		switch (type) {
@@ -155,6 +162,9 @@ export function createTournamentSocket(tournament_id) {
 			// case "tournament_end":
 			// 	console.log("Tournament ending:", data);
 			// 	break;
+			case "ready_to_play":
+				console.log(`Entering pool : ${data.game_id}`);
+				route(`/game/${data.game_id}`);
 			default:
 				console.error("Unknown message type:", data.type);
 				break;
