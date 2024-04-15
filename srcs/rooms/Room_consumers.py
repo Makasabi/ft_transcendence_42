@@ -21,7 +21,7 @@ class RoomConsumer(WebsocketConsumer):
 			self.accept()
 			self.close(3001)
 			print(f'Room {self.room_id} is full')
-		elif checkGameStarted(self.room_id):
+		elif checkGameStarted(self, self.room_id):
 			self.accept()
 			self.close(3004)
 		else:
@@ -208,8 +208,9 @@ def is_master(room_id, user_id):
 		return False
 	
 # check if game already started
-def checkGameStarted(room_id):
+def checkGameStarted(self, room_id):
 	url = f"http://localhost:8000/api/game/get_game_started/{room_id}"
-	started = requests.get(url)
-	# print("Game started: ", started)
+	token = self.scope['auth']
+	headers = {'Authorization': "Token" + token}
+	started = requests.get(url, headers=headers)
 	return started.json()['game_started']

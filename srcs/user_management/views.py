@@ -297,7 +297,6 @@ def switch_online(request, username, status):
 		user.online = True
 	else:
 		user.online = False
-	print("User online status: ", user.online)
 	user.save()
 	return JsonResponse({'status': 'ok', 'is_online': user.online})
 

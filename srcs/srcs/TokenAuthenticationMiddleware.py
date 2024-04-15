@@ -25,6 +25,7 @@ class TokenAuthMiddleware:
 			if not user:
 				return await self.app(scope, receive, send)
 			scope['user'] = user
+			scope['auth'] = token_key
 			close_old_connections()
 		return await self.app(scope, receive, send)
 

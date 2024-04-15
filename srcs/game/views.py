@@ -207,8 +207,6 @@ def get_history(request, player_id):
 	return JsonResponse(history_json, safe=False)
 
 @api_view(["GET"])
-@authentication_classes([])
-@permission_classes([])
 def get_game_started(request, room_id):
 	"""
 	Return whether the game has started in the room with the given room_id
