@@ -87,7 +87,7 @@ export function createTournamentSocket(tournament_id) {
 				break;
 			case 3010:
 				console.log('Tournament - Player not invited to tournament');
-				route('/playerNotInvited');
+				route('/uninvited');
 				break;
 			case 3011:
 				console.log('Tournament - Player was eliminated');
