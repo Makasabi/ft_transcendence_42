@@ -136,7 +136,7 @@ class RoomConsumer(WebsocketConsumer):
 			'type': 'start',
 			'game_id': game_id,
 		}))
-	
+
 	def start_tournament(self, event):
 		print("Tournament id is: ", event['tournament_id'])
 		tournament_id = event['tournament_id']

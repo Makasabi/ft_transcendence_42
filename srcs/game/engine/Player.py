@@ -1,5 +1,8 @@
 import math
+
+import requests
 import numpy as np
+from decouple import config
 
 from .constants import PLAYER_HP, PLAYER_WIDTH, PLAYER_LENGTH, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED, CENTER_Y, CENTER_X
 
@@ -14,6 +17,7 @@ class Player:
 			Player
 		"""
 		self.player_id = player_id
+		self.username = get_username(player_id)
 		self.border = border
 		self.debug = debug
 		self.ready = False
@@ -119,4 +123,22 @@ class Player:
 			'normal' : self.normal,
 			'HP': self.HP,
 			'player_id': self.player_id,
+			'username': self.username,
+			'ready': self.ready, # @TODO handle disconnected players
 		}
+
+def get_username(player_id):
+	"""
+	Get the username of the player.
+	params:
+		player_id: int
+	returns:
+		str
+	"""
+	headers = {
+		'Authorization': 'App ' + config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')
+	}
+	res = requests.get(f"http://localhost:8000/api/user_management/user/id/{player_id}", headers=headers)
+	if res.status_code != 200:
+		return "Unknown"
+	return res.json()["username"]
