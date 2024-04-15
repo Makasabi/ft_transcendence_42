@@ -58,6 +58,12 @@ export function joinRoomForm()
 	let input = document.getElementById("inputRoomCode");
 	let joinRoomCTA = document.getElementById("joinRoomCTA");
 
+	input.addEventListener("keyup", (e) => {
+		if (e.key === "Enter") {
+			joinRoomCTA.click();
+		}
+	});
+
 	joinRoomCTA.addEventListener("click", (e) => {
 		e.preventDefault();
 		const test = new RegExp(/^\w{6,6}$/gm);

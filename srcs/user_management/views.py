@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view
 from django.conf import settings
 import os
 import requests
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
 
 def simple_serializer(request, user):
@@ -65,6 +66,13 @@ def me_id(request):
 	"""
 	return JsonResponse({'id': request.user.id})
 
+@api_view(['GET'])
+def me_username(request):
+	"""
+	Return username of the user
+	"""
+	return JsonResponse({'username': request.user.username})
+
 
 @api_view(['GET'])
 def me(request):
@@ -105,11 +113,11 @@ def edit_profile(request):
    # if not serializer.is_valid():
 
 	user = request.user
-	if "username" in request.data:
+	if "username" in request.data and request.data["username"] != "":
 		user.username = request.data["username"]
 	if "avatar_file" in request.data:
 		user.avatar_file = request.data["avatar_file"]
-	if "password" in request.data:
+	if "password" in request.data and request.data["password"] != "":
 		user.set_password(request.data["password"])
 	user.save()
 	return JsonResponse(profile_serializer(request, user))
@@ -199,8 +207,7 @@ def add_friend(request, user_id):
 	if user1 == user2:
 		return JsonResponse({'error': 'Cannot add yourself as a friend'}, status=400)
 	BeFriends.objects.create(user1=user1, user2=user2)
-	return JsonResponse(profile_serializer(request.user))
-
+	return JsonResponse(profile_serializer(request, request.user))
 
 @api_view(['DELETE'])
 def remove_friend(request, user_id):
@@ -216,14 +223,14 @@ def remove_friend(request, user_id):
 
 	BeFriends.objects.filter(user1=user1, user2=user2).delete()
 	BeFriends.objects.filter(user1=user2, user2=user1).delete()
-	return JsonResponse(profile_serializer(request.user))
+	return JsonResponse(profile_serializer(request, request.user))
 
 
 @api_view(['GET'])
 def is_friend(request, user_id):
 	"""
 	Check if two users are friends
-	
+
 	Args:
 	- request: Request containing the friend's username
 
@@ -260,4 +267,44 @@ def get_friends(request):
 		})
 	return JsonResponse(friends_json, safe=False)
 
+@api_view(['GET'])
+def find_match(request, username):
+	"""
+	Return all friends of the user
 
+	Returns:
+	- JsonResponse: Response containing the list of friends
+	"""
+	current_user = request.user.username
+	if (current_user == username):
+		return JsonResponse({'status': 'ok', 'username': current_user})
+	elif Player.objects.filter(username=username):
+		return JsonResponse({'status': 'error',  'username': current_user})
+	return JsonResponse({'status': 'ok', 'username': current_user})
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def switch_online(request, username, status):
+	"""
+	Switch user online status
+	"""
+	try:
+		user = Player.objects.get(username=username)
+	except Player.DoesNotExist:
+		return JsonResponse({'status': 'error', 'message': 'User not found'})
+	if (status == 'online'):
+		user.online = True
+	else:
+		user.online = False
+	print("User online status: ", user.online)
+	user.save()
+	return JsonResponse({'status': 'ok', 'is_online': user.online})
+
+@api_view(['GET'])
+def get_online_status(request, username):
+	"""
+	Return the online status of a user
+	"""
+	user = Player.objects.filter(username=username).first()
+	return JsonResponse({'is_online': user.online})

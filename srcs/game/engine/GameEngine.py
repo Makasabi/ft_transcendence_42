@@ -8,11 +8,13 @@ from time import sleep, time
 
 from .Ball import Ball
 from .Player import Player
-from .constants import ARENA_HEIGHT, ARENA_WIDTH, FPS, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED, CENTER_X, CENTER_Y, M_PILAR_SIZE
+from .constants import ARENA_HEIGHT, ARENA_WIDTH, FPS, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED, CENTER_X, CENTER_Y, M_PILAR_SIZE, BALL_SPAWN_TIME, MAX_BALLS
 from .utils import get_hexagon_borders, get_arena_pilars, get_players_arrangement, rotate, get_middle_pilar
 
 class GameEngine(threading.Thread):
-	# INITIALIZATION
+	"""
+		Initialisation des parametres du jeu
+	"""
 	def __init__(self, game_id: int, players: list, state = None) -> None:
 		super().__init__()
 		if state is None:
@@ -23,6 +25,7 @@ class GameEngine(threading.Thread):
 		self.game_id = game_id
 		self.state = state
 		self.ready_to_send = True
+		self.death_order = []
 
 		arena_borders = get_hexagon_borders(ARENA_WIDTH // 2)
 
@@ -43,11 +46,13 @@ class GameEngine(threading.Thread):
 			for wall in list(zip(pilar, rotate(pilar, 1))):
 				self.collisions_walls.append(wall)
 
-		self.ball = Ball(self.debug)
+		self.balls = list()
+		self.balls.append(Ball(self.debug))
 
 		self.ready = False
 		self.status = 'waiting_for_players'
 		self.time = time()
+		self.ball_time = time()
 
 	def stop(self) -> None:
 		self.is_stop = True
@@ -66,6 +71,11 @@ class GameEngine(threading.Thread):
 					sleep(1 / FPS - elapsed_time)
 				self.time = current_time
 
+				if (time() - self.ball_time >= BALL_SPAWN_TIME) and (len(self.balls) < MAX_BALLS):
+					print('New Ball')
+					self.balls.append(Ball(self.debug))
+					self.ball_time = time()
+
 				self.is_stop = self.game_loop(elapsed_time)
 				self.debug_broadcast_state(f)
 				self.status = 'ongoing'
@@ -82,31 +92,55 @@ class GameEngine(threading.Thread):
 				sleep(1 / FPS - elapsed_time)
 			self.time = current_time
 
+			if (time() - self.ball_time >= BALL_SPAWN_TIME) and (len(self.balls) < MAX_BALLS):
+				self.balls.append(Ball(self.debug))
+				self.ball_time = time()
+
 			self.is_stop = self.game_loop(elapsed_time)
 			self.broadcast_state(self.render())
 			self.status = 'ongoing'
 
+	"""
+		Loop principale
+	"""
 	def run(self) -> None:
 		if self.debug:
 			self.debug_run()
-			return
-		self.normal_run()
+		else:
+			self.normal_run()
+		channel_layer = get_channel_layer()
+		async_to_sync(channel_layer.send)(
+			"game_consumer",
+			{
+				"type": "game.end",
+				"game_id": self.game_id,
+				"player_ranking": self.death_order,
+			}
+		)
+
 
 	def game_loop(self, timestamp) -> None:
 		for player in self.players.values():
 			player.update(timestamp)
-		self.ball.update(1 / 60, self.players, self.collisions_walls, self.middle_pilar)
+		for ball in self.balls:
+			ball.update(1 / 60, self.players, self.collisions_walls, self.middle_pilar, self.balls)
 		for player in self.players.values():
 			if player.HP <= 0:
-				self.players.pop(player.player_id)
+				self.death_order.append(player.player_id)
+				del self.players[player.player_id]
 				self.walls.append(player.border)
 				self.collisions_walls.append(player.border)
 				return False
-		if len(self.players) <= 1:
+		if len(self.players) == 1:
+			self.death_order.append(list(self.players.keys())[0])
 			return True
 		return False
 
 	# INPUTS
+
+	"""
+		Inputs
+	"""
 	def input(self, input_type, player_id = None) -> None:
 		switcher = {
 			"left_pressed": self.left_pressed,
@@ -183,11 +217,14 @@ class GameEngine(threading.Thread):
 		file.write(str(self.state) + '\n')
 
 	# RENDER
+	"""
+		Rendering a envoyer au front
+	"""
 	def render(self) -> dict:
 		return {
 			'status': 'ongoing',
 			'players': [player.render() for player in self.players.values()],
-			'ball': self.ball.render(),
+			'balls': [ball.render() for ball in self.balls],
 			'walls': self.walls,
 			'pilars': self.pilars,
 			'middle_pilar': self.middle_pilar,
