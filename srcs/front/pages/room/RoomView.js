@@ -168,6 +168,10 @@ export function createRoomSocket(roomid) {
 				break;
 			case 'start':
 				console.log('Game starting');
+				if (data.game_id === undefined) {
+					console.error('Game ID not received');
+					return;
+				}
 				route(`/game/${data.game_id}`);
 				break;
 			case 'tournament_start':

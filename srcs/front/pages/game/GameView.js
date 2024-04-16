@@ -65,6 +65,16 @@ export class GameView extends IView {
 			console.log("Start game");
 			await this.game.start();
 			console.log("End of game");
+
+			if (this.game.ranking !== null)
+				this.display_ranking();
+			else
+				this.display_bad_end();
+
+			await new Promise(resolve => setTimeout(resolve, 3000));
+
+			if (window.location.pathname !== "/game/" + game_id)
+				return;
 			const redirect = "/room/" + await room_code;
 			console.log("Redirect to", redirect);
 			route(redirect);
@@ -80,5 +90,51 @@ export class GameView extends IView {
 		document.head.removeChild(this.stylesheet);
 		const main = document.querySelector("main");
 		main.insertAdjacentHTML("afterend", this.footer.outerHTML);
+	}
+
+	reset_centered_box() {
+		const box = document.getElementById("centered_box");
+		const timer = document.getElementById("timer");
+		const status = document.getElementById("game_status");
+		const status_title = document.querySelector("#game_status h2");
+		const player_list = document.getElementById("players");
+
+		box.style.display = "none";
+		timer.hidden = true;
+		status.style.display = "none";
+		status_title.innerHTML = "";
+		player_list.innerHTML = "";
+	}
+
+	display_ranking() {
+		this.reset_centered_box()
+
+		const box = document.getElementById("centered_box");
+		const status = document.getElementById("game_status");
+		const status_title = document.querySelector("#game_status h2");
+
+		box.style.display = "flex";
+		status.style.display = "flex";
+
+		const ranking = this.game.ranking;
+		//const players = this.game.state.everyone;
+		//const sorted = [...players].sort((a, b) => ranking.indexOf(a) - ranking.indexOf(b));
+		//console.log("Sorted", sorted);
+		if (this.game.state.player_id === ranking[ranking.length - 1])
+			status_title.innerHTML = "You won!";
+		else
+			status_title.innerHTML = "You lost!";
+	}
+
+	display_bad_end() {
+		this.reset_centered_box()
+
+		const box = document.getElementById("centered_box");
+		const status = document.getElementById("game_status");
+		const status_title = document.querySelector("#game_status h2");
+
+		box.style.display = "flex";
+		status.style.display = "flex";
+		status_title.innerHTML = "Game ended unexpectedly";
 	}
 }

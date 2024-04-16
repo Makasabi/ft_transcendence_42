@@ -24,6 +24,7 @@ class GameEngine(threading.Thread):
 		self.is_stop = False
 		self.game_id = game_id
 		self.state = state
+		self.start_time = 5
 		self.ready_to_send = True
 		self.death_order = []
 
@@ -40,6 +41,7 @@ class GameEngine(threading.Thread):
 				self.walls.append(arena_borders[i])
 			else:
 				self.players[players[side]] = Player(players[side], arena_borders[i], self.debug)
+		self.everyone = list(self.players.values())
 
 		self.collisions_walls = list(self.walls)
 		for pilar in self.pilars:
@@ -83,8 +85,19 @@ class GameEngine(threading.Thread):
 	def normal_run(self) -> None:
 		self.ready = True
 		self.broadcast_state(self.render())
+		timeout = 100
 		while not self.is_ready():
-			sleep(0.3)
+			self.broadcast_state(self.waiting_for_players(timeout * 0.1))
+			sleep(0.1)
+			timeout -= 1
+			if timeout == 0:
+				self.status = 'ongoing'
+		while self.start_time > 0:
+			self.broadcast_state(self.render())
+			sleep(1)
+			self.start_time -= 1
+		self.time = time()
+		self.ball_time = time()
 		while not self.is_stop:
 			current_time = time()
 			elapsed_time = current_time - self.time
@@ -186,7 +199,10 @@ class GameEngine(threading.Thread):
 	def player_ready(self, player_id) -> None:
 		self.players[player_id].ready = True
 
+
 	def is_ready(self) -> bool:
+		if self.is_ongoin():
+			return True
 		for player in self.players.values():
 			if not player.ready:
 				return False
@@ -224,6 +240,7 @@ class GameEngine(threading.Thread):
 		return {
 			'status': 'ongoing',
 			'players': [player.render() for player in self.players.values()],
+			'everyone': [player.render() for player in self.everyone],
 			'balls': [ball.render() for ball in self.balls],
 			'walls': self.walls,
 			'pilars': self.pilars,
@@ -234,5 +251,24 @@ class GameEngine(threading.Thread):
 			'center_y': CENTER_Y,
 			'collisions_walls': self.collisions_walls,
 			'player_arrangement': self.player_arrangement,
-			'end' : self.is_stop
+			'end' : self.is_stop,
+			'start_time': self.start_time,
+		}
+
+	def waiting_for_players(self, timeout) -> dict:
+		return {
+			'status': 'waiting_for_players',
+			'players': [player.render() for player in self.players.values()],
+			'balls': [ball.render() for ball in self.balls],
+			'walls': self.walls,
+			'pilars': self.pilars,
+			'middle_pilar': self.middle_pilar,
+			'width': ARENA_WIDTH,
+			'height': ARENA_HEIGHT,
+			'center_x': CENTER_X,
+			'center_y': CENTER_Y,
+			'collisions_walls': self.collisions_walls,
+			'player_arrangement': self.player_arrangement,
+			'end' : self.is_stop,
+			'timeout': int(timeout),
 		}
