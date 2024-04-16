@@ -1,6 +1,7 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
-import { getProfileInfos, getHistoryStats, displayGameBox } from "/front/pages/user_mgt/user_mgt.js";
+import { getProfileInfos, getHistoryStats, displayGameBox } from "/front/pages/user_mgt/userMgtUtils.js";
+import { APIcall } from "./userMgtUtils.js";
 
 export class MeView extends IView {
 	static match_route(route) {
@@ -9,9 +10,7 @@ export class MeView extends IView {
 
 	async render() {
 		let html = await fetch("/front/pages/user_mgt/me.html").then(response => response.text());
-		let user = await fetch("/api/user_management/me", {
-			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-		}).then(response => response.json());
+		let user = await APIcall("/api/user_management/me");
 
 		// profile-infos
 		html = getProfileInfos(html, user);
@@ -31,11 +30,7 @@ async function editProfile() {
 	let password = document.getElementById("password").textContent;
 
 	if (username === "") {
-		console.log("Username or password cannot be empty");
-		// display error message
-		const me = await fetch('api/user_management/me_username', {
-			headers: {'Authorization': `Token ${Login.getCookie('token')}`},
-		}).then(response => response.json());
+		const me = await APIcall("/api/user_management/me");
 		document.getElementById("username").textContent = me.username;
 		const error_username = document.getElementById("error_username");
 		error_username.textContent = "Username cannot be empty";
@@ -46,9 +41,7 @@ async function editProfile() {
 		return;
 	}
 
-	const responseUsername = await fetch('api/user_management/find_match/' + username, {
-		headers: {'Authorization': `Token ${Login.getCookie('token')}`},
-		}).then(response => response.json());
+	const responseUsername = await APIcall('api/user_management/find_match/' + username);
 	if (responseUsername.status === "error") {
 		// display error message
 		const error_username = document.getElementById("error_username");
@@ -60,8 +53,8 @@ async function editProfile() {
 		}, 2000);
 		return;
 	}
-
-	const response = await fetch('api/user_management/edit_profile', {
+	
+	await fetch('api/user_management/edit_profile', {
 		method: 'POST',
 		headers: {
 			'Content-type' : 'application/json',

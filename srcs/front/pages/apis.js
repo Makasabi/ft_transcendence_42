@@ -42,4 +42,4 @@ const getRoomInfoAPI = "/api/rooms/info/"; // dynamic method -> add room_code
 
 // Game
 const startGameAPI = "/api/game/start/"; // dynamic method -> add room_id
-
+const getPlayersAPI = "/api/game/get_players/"; // dynamic method -> add game_id

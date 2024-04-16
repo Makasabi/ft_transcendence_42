@@ -1,6 +1,6 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
-import { getProfileInfos, getHistoryStats, displayGameBox } from "/front/pages/user_mgt/user_mgt.js";
+import { getProfileInfos, getHistoryStats, displayGameBox } from "/front/pages/user_mgt/userMgtUtils.js";
 import { route } from "/front/pages/spa_router.js";
 
 export class UserView extends IView {
