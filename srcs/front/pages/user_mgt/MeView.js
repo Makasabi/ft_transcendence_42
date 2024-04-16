@@ -13,10 +13,10 @@ export class MeView extends IView {
 		let user = await APIcall("/api/user_management/me");
 
 		// profile-infos
-		html = getProfileInfos(html, user);
+		html = await getProfileInfos(html, user);
 		// history-stats
-		html = getHistoryStats(html, user);
-
+		html = await getHistoryStats(html, user);
+		
 		document.querySelector("main").innerHTML = html;
 		editProfileButton();
 		displayGameBox(user);

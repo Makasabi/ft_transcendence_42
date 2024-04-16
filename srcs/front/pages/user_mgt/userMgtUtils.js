@@ -10,7 +10,7 @@ export function getProfileInfos(html, user) {
 	return html;
 }
 
-export function getHistoryStats(html, user)
+export async function getHistoryStats(html, user)
 {
 	let historyTable = '';
 	for (let i = 0; i < user.game_history.length; i++) {
@@ -28,15 +28,36 @@ export function getHistoryStats(html, user)
 	}
 
 	html = html.replace("{{history}}", historyTable);
-	html = html.replace("{{games_played}}", user.game_history.length);
-	html = html.replace("{{games_won}}", user.game_history.filter(game => game.rank.split('/')[0] === '1').length);
-	html = html.replace("{{tournament_played}}", user.game_history.filter(game => game.mode === 'Tournament').length);
-	html = html.replace("{{tournament_wins}}",
-		user.game_history.filter(game => game.rank.split('/')[0] === '1' && game.mode === 'Tournament').length);
+
+	html = displayStatsBars(html, user);
 	return html;
 }
 
+async function displayStatsBars(html, user) {
+	let gamesPlayed = user.game_history.length;
+	let gamesWon = user.game_history.filter(game => game.rank.split('/')[0] === '1').length;
+	let tournamentsPlayed = user.game_history.filter(game => game.mode === 'Tournament').length;
+	let tournamentWins = user.game_history.filter(game => game.mode === 'Tournament' 
+		&& game.rank.split('/')[0] === '1' && game.mode === 'Tournament').length;
 
+	
+	let gamesWinPercentage = gamesPlayed === 0 ? 0 : ((gamesWon / gamesPlayed) * 100).toFixed(2);
+	let tournamentWinPercentage = tournamentsPlayed === 0 ? 0 : ((tournamentWins / tournamentsPlayed) * 100).toFixed(2);
+	
+	console.log("gamesWinPercentage", gamesWinPercentage);
+	console.log("tournamentWinPercentage", tournamentWinPercentage);
+
+	let gamesBarHTML = `<div class="win-bar" style="height: ${gamesWinPercentage}%; background-color: var(--primary-color);"></div>`;
+	let tournamentBarHTML = `<div class="win-bar" style="height: ${tournamentWinPercentage}%; background-color: var(--primary-color);"></div>`;
+
+	let startIndexGames = html.indexOf('<div class="bar" id="gamesBar">') + '<div class="bar" id="gamesBar">'.length;
+	let modifiedHtml = html.slice(0, startIndexGames) + gamesBarHTML + html.slice(startIndexGames);
+	
+	let startIndexTournament = modifiedHtml.indexOf('<div class="bar" id="tournamentBar">') + '<div class="bar" id="tournamentBar">'.length;
+	modifiedHtml = modifiedHtml.slice(0, startIndexTournament) + tournamentBarHTML + modifiedHtml.slice(startIndexTournament);
+
+	return modifiedHtml;
+}
 
 async function displayGamePlayers (players, playersList) {
 

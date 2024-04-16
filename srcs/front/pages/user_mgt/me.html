@@ -53,14 +53,18 @@
 		</div>
 		<div class="stats">
 			<h2>Stats</h2>
-			<div class="stats_table"></div>
-			<ul>
-				<li>Games Played: {{games_played}}</li>
-				<li>Wins: {{games_won}}</li>
-				<li>Tournaments Participations: {{tournament_played}}</li>
-				<li>Tournaments Wins: {{tournament_wins}}</li>
-
-			</ul>
+			<div class="stats_table">
+				<div class="wins-label">Wins</div>
+				<div class="bars-container">
+					<div class="bar" id="gamesBar"></div>
+					<div class="win-bar win-bar-games" style="height: ${gamesWinPercentage}%"></div>
+					<div class="label">Games</div>
+				</div>
+				<div class="bars-container">
+					<div class="bar" id="tournamentBar"></div>
+					<div class="win-bar win-bar-tournament" style="height: ${tournamentWinPercentage}%"></div>
+					<div class="label">Tournament</div>
+				</div>
 			</div>
 		</div>
 	</div>

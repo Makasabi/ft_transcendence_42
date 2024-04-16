@@ -27,9 +27,9 @@ export class UserView extends IView {
 		}
 		
 		// profile-infos
-		html = getProfileInfos(html, user);
+		html = await getProfileInfos(html, user);
 		// history-stats
-		html = getHistoryStats(html, user);
+		html = await getHistoryStats(html, user);
 		
 		document.querySelector("main").innerHTML = html;
 		addFriendButton(requester.username);
