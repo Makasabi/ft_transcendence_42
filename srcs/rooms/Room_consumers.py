@@ -1,7 +1,7 @@
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from time import sleep
-from channels.exceptions import StopConsumer
+import requests
 from rooms.models import Rooms, Occupy
 import json
 
@@ -21,6 +21,9 @@ class RoomConsumer(WebsocketConsumer):
 			self.accept()
 			self.close(3001)
 			print(f'Room {self.room_id} is full')
+		elif checkGameStarted(self.room_id):
+			self.accept()
+			self.close(3004)
 		else:
 			addPlayerToRoomDB(self.room_id, self.user.id)
 			assignMasterDB(self.room_id, self.user.id)
@@ -62,6 +65,7 @@ class RoomConsumer(WebsocketConsumer):
 							'tournament_id': data['room_code']
 						}
 					)
+
 
 
 # Send Events #
@@ -166,6 +170,9 @@ def checkRoomAvailabilityDB(room_id):
 
 def addPlayerToRoomDB(room_id, user_id):
 	room = Rooms.objects.get(room_id=room_id)
+	if Occupy.objects.filter(room_id=room_id, player_id=user_id).exists():
+		occupant = Occupy.objects.get(room_id=room_id, player_id=user_id)
+		occupant.delete()
 	Occupy.objects.create(room_id=room, player_id=user_id)
 
 def assignMasterDB(room_id, user_id):
@@ -199,3 +206,10 @@ def is_master(room_id, user_id):
 		return True
 	else:
 		return False
+	
+# check if game already started
+def checkGameStarted(room_id):
+	url = f"http://localhost:8000/api/game/get_game_started/{room_id}"
+	started = requests.get(url)
+	# print("Game started: ", started)
+	return started.json()['game_started']

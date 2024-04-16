@@ -4,6 +4,7 @@ import { route } from "/front/pages/spa_router.js";
 import { checkRoomCode, addFriendList, inviteFriend, copyLink } from "/front/pages/room/roomUtils.js";
 import { addPlayer, removePlayer, updatePlayer, } from "/front/pages/room/roomWebsockets.js";
 import { createTournament } from "/front/pages/room/tournamentUtils.js";
+import { errorMessage } from "/front/pages/room/roomUtils.js";
 
 /**
  * RoomView class
@@ -32,11 +33,14 @@ export class RoomView extends IView {
 			return;
 		}
 
+		// TODO: check if a tournament has already been launched for this room
+		// if so -> route to page "tournament has started already"
+
 		let roomInfo = await fetch(`/api/rooms/info/${code}`, {
 			headers: {
 				'Authorization': `Token ${Login.getCookie('token')}`,
-			}
-		}).then(response => response.json());
+			}}).then(response => response.json());
+		
 		let html = await fetch("/front/pages/room/room.html").then(response => response.text());
 
 		html = html.replace("{{roomVisibility}}", roomInfo.visibility);
@@ -79,6 +83,7 @@ export class RoomView extends IView {
 						this.roomSocket.send(to_send);
 					} else {
 						console.error("Error starting game");
+						errorMessage("You need at least 2 players to start a game.");
 					}
 				})
 			});
@@ -114,7 +119,7 @@ export function createRoomSocket(roomid) {
 
 	// on socket open
 	roomSocket.onopen = function (e) {
-		console.log('Rooms - Socket successfully connected.');
+		console.log('Rooms - Socket successfully connected: ', e);
 	};
 
 	// on socket close
@@ -134,6 +139,10 @@ export function createRoomSocket(roomid) {
 				console.log('Rooms - Unauthentified user');
 				route("/home");
 				break;
+			case 3004:
+				console.log('Rooms - Game has already started');
+				route("/gamestarted");
+				break;
 			default:
 				console.log(reason);
 		}
@@ -146,7 +155,7 @@ export function createRoomSocket(roomid) {
 		const type = data.type;
 		switch (type) {
 			case 'new_player':
-				console.log('New player joined:', data.player_id);
+				// console.log('New player joined:', data.player_id);
 				addPlayer(data);
 				break;
 			case 'remove_player':

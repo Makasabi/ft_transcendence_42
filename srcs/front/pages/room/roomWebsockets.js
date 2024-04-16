@@ -15,6 +15,11 @@ export async function	addPlayer(data) {
 		},
 	}).then(response => response.json());
 
+	let checkkPlayer = document.getElementById(`player${data.player_id}`);
+	if (checkkPlayer) {
+		return;
+	}
+
 	let playerList = document.querySelector(".playersInTheRoom");
 	let playerDiv = document.createElement("div");
 
