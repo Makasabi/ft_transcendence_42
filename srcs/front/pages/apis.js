@@ -19,7 +19,7 @@ const editProfileAPI = "/api/user_management/edit_profile"; // static method
 const addFriendAPI = "/api/user_management/add_friend/"; // dynamic method -> add user_id
 const friendshipStatusAPI = "/api/user_management/friends/"; // dynamic method -> add user_id
 
-// Notoifications
+// Notifications
 const setSeenNotifsAPI = "/api/notif/set_seen"; // static method
 const getAllNotifsAPI = "/api/notif/get_notifs/all"; // static method
 const getUnseenNotifsAPI = "/api/notif/get_notifs/unseen"; // static method

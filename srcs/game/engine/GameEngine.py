@@ -86,12 +86,14 @@ class GameEngine(threading.Thread):
 		self.ready = True
 		self.broadcast_state(self.render())
 		timeout = 100
+		print('Waiting for players')
 		while not self.is_ready():
 			self.broadcast_state(self.waiting_for_players(timeout * 0.1))
 			sleep(0.1)
 			timeout -= 1
 			if timeout == 0:
 				self.status = 'ongoing'
+		print('Game started')
 		while self.start_time > 0:
 			self.broadcast_state(self.render())
 			sleep(1)
@@ -117,6 +119,7 @@ class GameEngine(threading.Thread):
 		Loop principale
 	"""
 	def run(self) -> None:
+		print('GameEngine started')
 		if self.debug:
 			self.debug_run()
 		else:
@@ -201,14 +204,14 @@ class GameEngine(threading.Thread):
 
 
 	def is_ready(self) -> bool:
-		if self.is_ongoin():
+		if self.is_ongoing():
 			return True
 		for player in self.players.values():
 			if not player.ready:
 				return False
 		return self.ready
 
-	def is_ongoin(self) -> bool:
+	def is_ongoing(self) -> bool:
 		return self.status == 'ongoing'
 
 	# BROADCAST STATE

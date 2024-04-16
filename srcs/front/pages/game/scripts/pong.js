@@ -289,8 +289,10 @@ export class GameContext {
 		game_status.style.display = "none";
 		this.start_timer();
 		this.run();
+		console.log("Game LOOOOOOOOOP started");
 		while (!this.end)
 			await new Promise(resolve => setTimeout(resolve, 300));
+		console.log("Game ended");
 	}
 
 	async update_players() {

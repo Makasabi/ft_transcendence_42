@@ -78,8 +78,7 @@ def create_history(game_id, player_ranking):
 			defaults={"score":i},
 		)[0]
 		play.save()
-		if game.visibility == "public": # @TODO PLAYER model can't be accessed here
-			player = Player.objects.get(id=player_id)
-			player.global_score += play.score
-			player.save()
+		player = Player.objects.get(id=player_id) # @TODO PLAYER model can't be accessed here
+		player.global_score += play.score
+		player.save()
 	game.save()

@@ -31,13 +31,13 @@ export async function createTournament(roomSocket, room_id, roomCode) {
 			}
 			console.log("Tournament created:", data);
 
-			let roundInfo = await fetch(`/api/rooms/create_round/${data.id}/${data.current_round}`, {
-				method: "POST",
-				headers: {
-					'Authorization': `Token ${Login.getCookie('token')}`,
-				}
-			}).then(response => response.json());
-			console.log(`Round ${data.current_round} created: `, roundInfo);
+			// let roundInfo = await fetch(`/api/rooms/create_round/${data.id}/${data.current_round}`, {
+			// 	method: "POST",
+			// 	headers: {
+			// 		'Authorization': `Token ${Login.getCookie('token')}`,
+			// 	}
+			// }).then(response => response.json());
+			// console.log(`Round ${data.current_round} created: `, roundInfo);
 
 			const to_send = JSON.stringify({
 				"type": "tournament_start",
@@ -62,13 +62,22 @@ export async function getRoomInfo(code) {
 	return roomInfo;
 }
 
-export async function getTournmentInfo(room_id) {
+export async function getTournamentInfo(room_id) {
 	let tournament = await fetch(`/api/rooms/info_tournament/${room_id}`, {
 		headers: {
 			'Authorization': `Token ${Login.getCookie('token')}`,
 		}
-	}).then(response => response.json());
-	// console.log("tournament:", tournament);
+		}).then((response) => {
+			console.log("response:", response);
+			if (!response.ok) {
+				console.error("Error fetching tournament info:", response);
+				return;
+			}
+			const res = response.json();
+			console.log("res:", res);
+			return res;
+		});
+	console.log("tournament:", tournament);
 	return tournament;
 }
 

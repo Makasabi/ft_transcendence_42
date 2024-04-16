@@ -12,7 +12,6 @@ class Game(models.Model):
 	date_begin = models.DateField(default=timezone.now)
 	date_end = models.DateField(null=True)
 	end_status = models.CharField(max_length=50, null=True)
-
 	ongoing = models.BooleanField(default=False)
 
 	def __str__(self):

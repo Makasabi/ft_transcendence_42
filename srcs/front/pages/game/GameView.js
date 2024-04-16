@@ -53,14 +53,22 @@ export class GameView extends IView {
 		try {
 			const game_id = document.URL.split("/")[4];
 			this.game = new GameContext(game_id);
-			let room_code = fetch("/api/game/" + game_id + "/room_code"
+			let redirect_route = fetch("/api/game/get_redirect/" + game_id
 				, {
 					method: "GET",
 					headers: {
 						"Authorization": `Token ${getCookie("token")}`,
 					}}
-				).then(response => response.json())
-				.then(data => data.room_code);
+				).then((response) => {
+					if (!response.ok)
+						throw new Error("HTTP error " + response.status);
+					return response.json();
+				})
+				.then(data => data.redirect_route)
+				.catch(e => {
+					console.error("Error getting redirect route", e);
+					return "/";
+				});
 
 			console.log("Start game");
 			await this.game.start();
@@ -75,7 +83,7 @@ export class GameView extends IView {
 
 			if (window.location.pathname !== "/game/" + game_id)
 				return;
-			const redirect = "/room/" + await room_code;
+			const redirect = await redirect_route;
 			console.log("Redirect to", redirect);
 			route(redirect);
 		}
