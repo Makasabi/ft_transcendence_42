@@ -86,12 +86,13 @@ def tournamentInfo(request, room_id):
 		json response containing tournament data
 	"""
 	if Rooms.objects.filter(room_id=room_id).exists():
-		contestants = Occupy.objects.filter(room_id=room_id)
+		room = Rooms.objects.get(room_id=room_id)
+		contestants = Occupy.objects.filter(room_id=room)
 		occupancy = len(contestants)
-
-	tournament = Tournament.objects.get(room_id=room_id)
-
-	return JsonResponse(tournament_serializer(tournament, occupancy))
+		tournament = Tournament.objects.get(room_id=room)
+		return JsonResponse(tournament_serializer(tournament, occupancy))
+	else:
+		return JsonResponse({"error": "Room not found"})
 
 @api_view(['GET'])
 def roundInfo(request, tournament_id, round_number):
