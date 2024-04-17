@@ -4,7 +4,7 @@ import { route } from "/front/pages/spa_router.js";
 import { checkRoomCode, addFriendList, inviteFriend, copyLink } from "/front/pages/room/roomUtils.js";
 import { addPlayer, removePlayer, updatePlayer, } from "/front/pages/room/roomWebsockets.js";
 import { createTournament } from "/front/pages/room/tournamentUtils.js";
-import { errorMessage } from "/front/pages/room/roomUtils.js";
+import { errorMessage, leaveRoom } from "/front/pages/room/roomUtils.js";
 
 /**
  * RoomView class
@@ -51,6 +51,7 @@ export class RoomView extends IView {
 		addFriendList();
 		inviteFriend(roomInfo.code, roomInfo.roomMode);
 		copyLink();
+		leaveRoom();
 
 		this.roomSocket = createRoomSocket(roomInfo.room_id);
 

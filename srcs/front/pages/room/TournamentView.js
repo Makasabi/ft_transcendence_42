@@ -2,6 +2,7 @@
  * 
  * TODO:
  * Implement end of tournament
+ * Implement - touirnament access
  * Improve display of rounds
  * Leave button
  * Display lives and usernames in game
@@ -42,7 +43,11 @@ export class TournamentView extends IView {
 			route("/unknown");
 			return;
 		}
+
 		this.roomInfo = await getRoomInfo(this.code)
+
+		// check if user can access the tournament
+
 		this.tournament = await getTournamentInfo(this.roomInfo.room_id)
 		if (this.tournament === undefined) {
 			console.error("Tournament not found")
@@ -202,7 +207,11 @@ export function createTournamentSocket(tournament_id) {
 				break;
 			case "round_created":
 				console.log("Round created:", data);
-				route(`/tournament/${this.code}`);
+				route(`/tournament/${data.code}`);
+				break;
+			case "tournament_finished":
+				console.log("tournament_finished:", data);
+				route(`/tournamentFinished/${data.winner}`)
 				break;
 			default:
 				console.error("Unknown message type:", data.type);
