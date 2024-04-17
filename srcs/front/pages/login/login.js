@@ -33,20 +33,18 @@ export class FAView extends IView {
 	{
 		let html = await fetch("/front/pages/login/2FA.html")
 			.then(response => response.text())
-	//	const secret_code = await APIcall("api/auth/totp_create/");
-		console.log("bebe");
 		var bob = await fetch("api/auth/totp_create/", {
 			headers: { 'Authorization': `Token ${getCookie('token')}`} 
 		})
 			.then(response => response.blob())
-		console.log("bob :", bob);
 		html = html.replace("{{src}}", URL.createObjectURL(bob));
 		document.querySelector("main").innerHTML = html;
+
 		const submit_button = document.getElementById("submit-secret-code");
+
 		submit_button.addEventListener("click", async e => {
 			e.preventDefault();
 			const token = document.getElementById("secret_code").value;
-			console.log("2FA token : ", token);
 			const data = await fetch("api/auth/totp_verify/", {
 				method: "POST",
 				headers: { 
@@ -54,8 +52,15 @@ export class FAView extends IView {
 					'Authorization': `Token ${getCookie('token')}`}, 
 				body: JSON.stringify({"token" : token}),
 			})
-				.then(response => response.json());
+				.then(response => {
+					if (response.ok)
+						return response.json();
+					else
+						return null;
+				});
 			console.log("data from totp verify : ", data);
+			if (!data)
+				route("/login");
 			route("/home");
 		})
 	}
@@ -258,8 +263,12 @@ async function login(username, password)
 		.then(async data => {
 			console.log("token: ", data.token);
 			console.log("user: ", data.user);
+			console.log("2FA : ", data.user["twoFA"]);
 			setCookie("token", data.token, 1);
-			await route("/home");
+			if (data.user["twoFA"] === true)
+				route("/2FA");
+			else
+				route("/home");
 			return true;
 		})
 		.catch(error => {

@@ -297,8 +297,9 @@ def switch_online(request, username, status):
 		user.online = True
 	else:
 		user.online = False
-	print("User online status: ", user.online)
+		user.valid_twoFA = False
 	user.save()
+	print("User online status: ", user.online)
 	return JsonResponse({'status': 'ok', 'is_online': user.online})
 
 @api_view(['GET'])

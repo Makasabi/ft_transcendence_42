@@ -18,6 +18,7 @@ import { tournamentFinishedView } from "./room/tournamentFinishedView.js";
 
 /*** Views ***/
 var view = null;
+var headerView = null;
 
 const loggedViews = [
 	HomeView,
@@ -33,7 +34,6 @@ const loggedViews = [
 	TournamentView,
 	UninvitedView,
 	EliminatedView,
-	login.FAView,
 	tournamentFinishedView,
 ];
 
@@ -43,6 +43,7 @@ const unloggedViews = [
 	Forty2View,
 	login.GoogleView,
 	login.UsernameView,
+	login.FAView,
 ];
 
 	/*** Utilities ***/
@@ -51,6 +52,7 @@ export async function route(path, event=null)
 	if (event)
 		event.preventDefault();
 	window.history.pushState({}, "", path);
+	console.log("Route to : ", path);
 	await handleLocation();
 }
 
@@ -97,8 +99,6 @@ async function handleLocation()
 
 async function update_header(is_logged)
 {
-	var headerView = null;
-
 	if (headerView)
 		headerView.destroy();
 	headerView = new (is_logged ? LoggedHeaderView : UnloggedHeaderView)();
