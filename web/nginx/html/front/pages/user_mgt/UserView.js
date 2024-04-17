@@ -1,7 +1,8 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
-import { getProfileInfos, getHistoryStats, displayGameBox } from "/front/pages/user_mgt/user_mgt.js";
+import { getProfileInfos, getHistoryStats, displayGameBox } from "/front/pages/user_mgt/userMgtUtils.js";
 import { route } from "/front/pages/spa_router.js";
+import { APIcall } from "./userMgtUtils.js";
 
 export class UserView extends IView {
 	static match_route(route) {
@@ -11,32 +12,24 @@ export class UserView extends IView {
 
 	async render() {
 		// console.log("UserView.render");
-		let call = "/api/user_management/user/username/" + window.location.pathname.split('/')[3];
 
-		//  retrieve current requester
-		let requester = await fetch("/api/user_management/me", {
-			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-		}).then(response => response.json());
-		
-		if (window.location.pathname.split('/')[3] === requester.username)
-		{
+		let requester = await APIcall("/api/user_management/me");
+		if (window.location.pathname.split('/')[3] === requester.username) {
 			route("/me");
 			return;
 		}
+
 		let html = await fetch("/front/pages/user_mgt/user.html").then(response => response.text());
-		let user = await fetch(call, {
-			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-		}).then(response => response.json());
-		if (user.error)
-		{
+		let user = await APIcall("/api/user_management/user/username/" + window.location.pathname.split('/')[3]);
+		if (user.error) {
 			route("/me");
 			return;
 		}
 		
 		// profile-infos
-		html = getProfileInfos(html, user);
+		html = await getProfileInfos(html, user);
 		// history-stats
-		html = getHistoryStats(html, user);
+		html = await getHistoryStats(html, user);
 		
 		document.querySelector("main").innerHTML = html;
 		addFriendButton(requester.username);
@@ -86,15 +79,11 @@ function acceptRequest(username, user_id) {
 async function addFriendButton(username)
 {
 	let button = document.getElementById("add-friend");
+	
 	let user2 = window.location.pathname.split('/')[3];
+	let friend = await APIcall("/api/user_management/user/username/" + user2);
 
-	let friend = await fetch("/api/user_management/user/username/" + user2, {
-		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-	}).then(response => response.json())
-
-	fetch("/api/user_management/friends/" + friend.id, {
-		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-	}).then(response => response.json()).then(response => {
+	await APIcall("/api/user_management/friends/" + friend.id).then(response => {
 		if (response.friends === true)
 			button.textContent = "Remove Friend";
 		else if (response.friends === false)

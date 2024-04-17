@@ -1,4 +1,4 @@
-<div class="room">
+<div id="room">
 	<div class="box_module">
 		<div class="sub_box">
 			<h1>{{roomVisibility}} room</h1>
@@ -16,8 +16,12 @@
 					<h3>Share the room code</h3>
 					<div class="room_code" id="copy_room_code">
 						<p id="this_code">{{roomCode}}</p>
+						<p id="bubble" hidden style="user-select: none;">Copied!</p>
 						<img src="/front/ressources/img/svg/icons/copy.svg" alt="">
 					</div>
+				</div>
+				<div>
+					<button class="cta grey_cta" id="leave">Leave Room</button>
 				</div>
 			</div>
 		</div>
@@ -25,7 +29,7 @@
 			<h2>Players in the room</h2>
 			<div class="playersInTheRoom">
 			</div>
-			<button class="cta purple_cta" id="start">start</button>
+			<button class="cta purple_cta" id="start">Start</button>
 			<p id="unauthorosedToStart">Wait for the game master to launch the game</p>
 	</div>
 </div>

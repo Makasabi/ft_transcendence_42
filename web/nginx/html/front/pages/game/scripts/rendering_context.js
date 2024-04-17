@@ -1,4 +1,4 @@
- import { mat4 } from '/front/gl-matrix/esm/index.js';
+import { mat4 } from '/front/gl-matrix/esm/index.js';
 //const { mat4 } = require('gl-matrix');
 
 const vertexShaderSource = `#version 300 es

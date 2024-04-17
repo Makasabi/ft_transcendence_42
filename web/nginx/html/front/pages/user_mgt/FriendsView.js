@@ -1,6 +1,7 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
+import { APIcall } from "./userMgtUtils.js";
 
 export class FriendsView extends IView {
 	static match_route(route) {
@@ -10,39 +11,28 @@ export class FriendsView extends IView {
 
 	async render() {
 		console.log("FriendsView.render");
-		const friends = await fetch("/api/user_management/get_friends", {
-			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-		}).then(response => response.json());
-		
+
+		let friends = await APIcall("/api/user_management/get_friends");
 		let html = await fetch("/front/pages/user_mgt/friends.html").then(response => response.text());
 		document.querySelector("main").innerHTML = html;
-
-		console.log(friends);
+	
 		const friendsContainer = document.querySelector(".current-friends");
 		friends.forEach(async friend =>{
 			const friendContainer = document.createElement("div");
 			friendContainer.classList.add("friend-container");
 
-			
 			const avatar = document.createElement("img");
 			avatar.src = friend.avatar_file;
 			avatar.alt = friend.username;
-			
-			// api call to /user_management/get_online_status/username
-			// if online, set border to green
-			await fetch(`/api/user_management/get_online_status/${friend.username}`, {
-				headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-			}).then(response => response.json()).then(data => {
+
+			await APIcall(`/api/user_management/get_online_status/${friend.username}`).then(data => {
 				console.log(data);
 				if (data.is_online === true) {
 					avatar.style.border = "var(--online-green) 4px solid";
 				}
 			});
-			
-			// avatar.style.border = "var(--online-green) 4px solid";
 			avatar.classList.add("friend-avatar");
 
-			
 			let friend_profile = "/user/username/" + friend.username;
 			avatar.addEventListener("click", (e) => {
 				e.preventDefault();
@@ -66,7 +56,6 @@ export class FriendsView extends IView {
 		resultsContainer.innerHTML = '';
 
 		let inputValue = '';
-		let suggestions = [];
 		searchInput.addEventListener("keyup", async (e) => {
 			e.preventDefault();
 			const test = new RegExp(/\w+/g);
@@ -75,9 +64,7 @@ export class FriendsView extends IView {
 				resultsContainer.innerHTML = '';
 				resultsContainer.style.display = 'none';
 			} else {
-				suggestions = await fetch('/api/user_management/user/search/' + inputValue, {
-					headers: { 'Authorization': `Token ${Login.getCookie('token')}`}
-				}).then(response => response.json());
+				let suggestions = await APIcall('/api/user_management/user/search/' + inputValue);
 				if (suggestions.length === 0) {
 					resultsContainer.innerHTML = '<ul><li>No Results</li></ul>';
 				} else {
@@ -91,11 +78,9 @@ export class FriendsView extends IView {
 					}
 					resultsContainer.innerHTML = '<ul>' + list + '</ul>';
 					resultsContainer.style.display = 'block';
-					console.log(resultsContainer);
+					// console.log(resultsContainer);
 				}
 			}
 		});
 	}
 }
-
-

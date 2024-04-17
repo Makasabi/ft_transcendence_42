@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
-from rooms.models import Rooms, Tournament, Occupy
+from rooms.models import Rooms, Tournament, Occupy, Round
 import random
 import requests
 import string

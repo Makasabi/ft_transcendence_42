@@ -15,6 +15,11 @@ export async function	addPlayer(data) {
 		},
 	}).then(response => response.json());
 
+	let checkkPlayer = document.getElementById(`player${data.player_id}`);
+	if (checkkPlayer) {
+		return;
+	}
+
 	let playerList = document.querySelector(".playersInTheRoom");
 	let playerDiv = document.createElement("div");
 
@@ -90,7 +95,7 @@ export async function updateStartButton(player_id, is_master) {
 	}).then(response => response.json());
 
 	let Unabled = document.getElementById("unauthorosedToStart");
-	let buttonAbled = document.querySelector(".cta");
+	let buttonAbled = document.getElementById("start");
 	
 	//  TODO: uncomment below for production
 	// if (is_master === true) {

@@ -19,5 +19,8 @@ class PlayerSerializer(serializers.ModelSerializer):
 		password = validated_data.pop('password', None)
 		user = self.Meta.model(**validated_data)
 		user.set_password(password)
-		user.save()
+		try:
+			user.save()
+		except Exception as e:
+			print(e)
 		return user

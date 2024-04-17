@@ -6,7 +6,13 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .serializers import PlayerSerializer
+from django_otp import devices_for_user
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from rest_framework.response import Response
+from rest_framework import status
 import requests
+import qrcode
+import io
 
 ##### Authentication #####
 
@@ -20,6 +26,7 @@ def login(request):
 		if not user.check_password(request.data['password']):
 			return Response({"error" : "Wrong password"}, status=status.HTTP_400_BAD_REQUEST)
 		token, _ = Token.objects.get_or_create(user=user)
+		print("Token : ", token.key)
 		serializer = PlayerSerializer(instance=user)
 
 		return Response({ "token" : token.key, "user" : serializer.data }, status=status.HTTP_200_OK)
@@ -67,7 +74,7 @@ def forty2_auth(request):
 		'client_id': 'u-s4t2ud-778802c450d2090b49c6c92d251ff3d1fbb51b03a9284f8f43f5df0af1dae8fa',
 		'client_secret': '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',
 		'code': request.data['code'],
-		'redirect_uri': 'http://localhost:8000/forty2',
+		'redirect_uri': 'http://proxy/forty2',
 	}
 	print(data)
 	response = requests.post("https://api.intra.42.fr/oauth/token", data=data)
@@ -87,7 +94,7 @@ def google_auth(request):
 		'client_id': '646881961013-bgo5lf3ru7bc1869b12ushtq3q2irgah.apps.googleusercontent.com',
 		'client_secret': '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',
 		'code': request.data['code'],
-		'redirect_uri': 'http://localhost:8000/google',
+		'redirect_uri': 'http://proxy/google',
 	}
 	print(data)
 	response = requests.post("https://oauth2.googleapis.com/token", data=data)
@@ -110,3 +117,59 @@ def is_registered(request):
 	except Player.DoesNotExist as error:
 		print("In is_register", error)
 		return Response({"error" : "User not registered"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+
+def get_user_totp_device(user, confirmed=None):
+	devices = devices_for_user(user, confirmed=confirmed)
+	for device in devices:
+		if isinstance(device, TOTPDevice):
+			return device
+
+@api_view(['GET'])
+def TOTPCreateView(request):
+	print("TOTPCreate !!!!!!!!!!!!!!!")
+	user = request.user
+	device = get_user_totp_device(user)
+	if not device:
+		device = user.totpdevice_set.create(confirmed=False)
+	url = device.config_url
+	print("url:", url)
+	qr = qrcode.QRCode(
+		version=1,
+		error_correction=qrcode.constants.ERROR_CORRECT_L,
+		box_size=10,
+		border=4,
+	)
+	qr.add_data(url)
+	qr.make(fit=True)
+	img = qr.make_image(fill_color="black", back_color="white")
+	img_byte_array = io.BytesIO()
+	img.save(img_byte_array, format='PNG')
+	img_byte_array.seek(0)
+	response = HttpResponse(img_byte_array.getvalue(), content_type='image/png', status=status.HTTP_201_CREATED)
+	response['Content-Disposition'] = 'attachment; filename="qrcode.png"'
+	print("Response: ", response)
+	return response
+
+
+@api_view(['POST'])
+def TOTPVerifyView(request):
+	"""
+	Use this endpoint to verify/enable a TOTP device
+	"""
+	print("TOTPVERIFY TA RACE !!!!!!!!!!!!!!!")
+	print(request.data)
+	if not "token" in request.data:
+		print("No token")
+		return Response(status=status.HTTP_400_BAD_REQUEST)
+	token = request.data["token"]
+	user = request.user
+	device = get_user_totp_device(user)
+	print("device : ", device)
+	if not device == None and device.verify_token(token):
+		if not device.confirmed:
+			device.confirmed = True
+			device.save()
+		return Response(True, status=status.HTTP_200_OK)
+	return Response(status=status.HTTP_400_BAD_REQUEST)

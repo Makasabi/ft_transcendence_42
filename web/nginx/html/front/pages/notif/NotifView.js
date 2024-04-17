@@ -146,7 +146,7 @@ async function displayNotifBox() {
 				headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 			}).then(response => response.json())
 			setNotifSeen();
-			if (notifs.length === 0)
+			if (notifs.length === 0 || notifs.message === 'No notifications')
 				return;
 			event.stopPropagation();
 
@@ -154,7 +154,7 @@ async function displayNotifBox() {
 			const foregroundBox = document.createElement('div');
 			foregroundBox.classList.add('foreground-box');
 			
-			console.log('Notifications box');
+			console.log('Notifications box for:', notifs);
 			
 			const notificationsContainer = document.createElement('div');
 			notificationsContainer.classList.add('notifications-container');

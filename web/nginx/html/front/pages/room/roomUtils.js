@@ -164,13 +164,18 @@ export function copyLink(){
 	copyButton.addEventListener("click", async () => {
 		const roomCode = document.getElementById("this_code");
 		const code = roomCode.textContent;
-		await navigator.clipboard.writeText(code);
-		const bubble = document.createElement("div");
-		bubble.id = "bubble";
-		bubble.textContent = "Copied!";
-		copyButton.appendChild(bubble);
+		const clipboard = navigator.clipboard;
+		if (!clipboard) {
+			return;
+		}
+		await clipboard.writeText(code);
+		const text = document.getElementById("this_code");
+		const bubble = document.getElementById("bubble");
+		text.hidden = true;
+		bubble.hidden = false;
 		setTimeout(() => {
-			copyButton.removeChild(bubble);
+			text.hidden = false;
+			bubble.hidden = true;
 		}, 1000);
 	}
 	);
@@ -184,5 +189,27 @@ TODO: Limit number of players in tournament at MIN 8 & MAX 36
 */
 
 
+export function errorMessage(message) {
+	const insert = document.getElementById("readyToPlay");
+	// create a div and put the error message in it and alight it to the center
+	// do no redisplay the error message if it already exists
+	if (document.getElementById("errorDiv") !== null) {
+		return;
+	}
+	const errorDiv = document.createElement("div");
+	errorDiv.id = "errorDiv";
+	errorDiv.innerHTML = message;
+	errorDiv.style.color = "red";
+	errorDiv.style.textAlign = "center";
+	insert.appendChild(errorDiv);
 
+}
 
+export function leaveRoom() {
+
+	const button = document.getElementById("leave");
+	button.addEventListener("click", (e) => {
+			e.preventDefault();
+			route("/home");
+		});
+}

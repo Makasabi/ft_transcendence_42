@@ -21,15 +21,17 @@ class Occupy(models.Model):
 
 class Tournament(models.Model):
 	room_id = models.ForeignKey(Rooms, on_delete=models.CASCADE)
-	total_rounds = models.IntegerField()
-	current_round = models.IntegerField()
+	total_rounds = models.IntegerField(default=0)
+	current_round = models.IntegerField(default=0)
 
 	def __str__(self):
-		return f"Tournament in Room {self.room_id}, {self.total_rounds} rounds"
+		return f"Tournament {self.id} in {self.room_id}, and total {self.total_rounds} rounds"
 
 class Round(models.Model):
-	Tournament_id = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+	tournament_id = models.ForeignKey(Tournament, on_delete=models.CASCADE)
 	round_number = models.IntegerField()
+	date_start = models.DateTimeField(max_length=100)
+	ready_to_play = models.BooleanField(default=False)
 
 	def __str__(self):
-		return f"Round {self.round_number} in Tournament {self.Tournament_id}"
+		return f"{self.id} is round {self.round_number} in {self.tournament_id}"

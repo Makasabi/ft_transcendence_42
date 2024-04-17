@@ -6,7 +6,7 @@
 
 }
 
-.room {
+#room, #tournament {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-around;
@@ -43,6 +43,7 @@
 	font-weight: 700;
 	text-align: center;
 	color:var(--primary-color);
+	line-height: 1.5;
 }
 
 .sub_box h2 {
@@ -166,4 +167,10 @@
 .room_code:hover {
 	background-color: var(--hover-primary-color);
 	transition: ease-in-out 0.1s;
+}
+
+#leave {
+	display: block;
+	align-self: center;
+	width: fit-content;
 }

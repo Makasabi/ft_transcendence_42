@@ -1,5 +1,6 @@
 import { route } from "../spa_router.js";
 import { IView } from "../IView.js";
+import { APIcall } from "../user_mgt/userMgtUtils.js";
 
 				/*** Cookies ***/
 export function setCookie(name, value, days)
@@ -23,6 +24,43 @@ export function deleteCookie(name)
 }
 
 /*** Render ***/
+export class FAView extends IView {
+	static match_route(route)
+	{
+		return route === "/2FA";
+	}
+	async render()
+	{
+		let html = await fetch("/front/pages/login/2FA.html")
+			.then(response => response.text())
+	//	const secret_code = await APIcall("api/auth/totp_create/");
+		console.log("bebe");
+		var bob = await fetch("api/auth/totp_create/", {
+			headers: { 'Authorization': `Token ${getCookie('token')}`} 
+		})
+			.then(response => response.blob())
+		console.log("bob :", bob);
+		html = html.replace("{{src}}", URL.createObjectURL(bob));
+		document.querySelector("main").innerHTML = html;
+		const submit_button = document.getElementById("submit-secret-code");
+		submit_button.addEventListener("click", async e => {
+			e.preventDefault();
+			const token = document.getElementById("secret_code").value;
+			console.log("2FA token : ", token);
+			const data = await fetch("api/auth/totp_verify/", {
+				method: "POST",
+				headers: { 
+					'Content-type' : 'application/json',
+					'Authorization': `Token ${getCookie('token')}`}, 
+				body: JSON.stringify({"token" : token}),
+			})
+				.then(response => response.json());
+			console.log("data from totp verify : ", data);
+			route("/home");
+		})
+	}
+}
+
 export class UnloggedHeaderView extends IView {
 	async render() {
 		fetch("/front/pages/login/header.html")
@@ -535,10 +573,12 @@ async function getEmailFrom42()
 			return response.json();
 		})
 		.catch(error => {
-			console.error(error);
+			//console.error(error);
 			return null;
 	});
 	console.log("data from 42 :" , data);
+	if (data == null)
+		return null;
 	return data.email;
 }
 

@@ -8,8 +8,12 @@ import { UnloggedHeaderView, LoginView, SignupView, Forty2View } from "./login/l
 import { RoomView } from "./room/RoomView.js";
 import { FullRoomView } from "./room/FullRoomView.js";
 import { UnknownRoomView } from "./room/UnknownRoomView.js";
+import { UninvitedView } from "./room/UninvitedView.js";
 import { CreateRoomView } from "./room/CreateRoomView.js";
 import { TournamentView } from "./room/TournamentView.js";
+import { GameStartedView } from "./room/GameStartedView.js";
+import { EliminatedView } from "./room/EliminatedView.js";
+import { tournamentFinishedView } from "./room/tournamentFinishedView.js";
 
 
 /*** Views ***/
@@ -25,7 +29,12 @@ const loggedViews = [
 	RoomView,
 	UnknownRoomView,
 	FullRoomView,
+	GameStartedView,
 	TournamentView,
+	UninvitedView,
+	EliminatedView,
+	login.FAView,
+	tournamentFinishedView,
 ];
 
 const unloggedViews = [

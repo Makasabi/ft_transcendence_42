@@ -43,12 +43,12 @@ input[type="profile-password" i] {
 .player-item {
 	display: flex;
 	align-items: center;
-	margin-bottom: 10px; /* Add some margin between items */
+	margin-bottom: 10px;
 }
 
 .player-item span,
 .player-item img {
-	margin-right: 10px; /* Add a small margin between elements */
+	margin-right: 10px;
 }
 
 .avatar_img {
@@ -96,7 +96,7 @@ input[type="profile-password" i] {
 	justify-content: start;
 	align-items: center;
 	flex-wrap: wrap;
-	gap: 1em;
+	gap: 2.5em;
 }
 
 .icon_svg {
@@ -116,9 +116,6 @@ input[type="profile-password" i] {
 	border: var(--border-light) 1px solid;
 	backdrop-filter: blur(4px);
 	background-color: var(--transparent-dark);
-
-	/* overflow-wrap: break-word; */
-	/* word-break: break-all; */
 	inline-size: 40vw;
 }
 
@@ -182,17 +179,62 @@ input[type="profile-password" i] {
   }
 
 .stats {
-	display: flex;
-	flex-direction: column;
 	border: var(--border-light) 1px solid;
 	backdrop-filter: blur(4px);
 	background-color: var(--transparent-dark);
 	padding: 2vh;
 	line-height: 2em;
+	display: flex;
+	flex-direction: column;
 }
 
 .stats_table {
-	padding: 0.5vh;
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+}
+
+.bars-container {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.bar {
+	position: relative;
+	width: 20px;
+	height: 100px;
+	background-color: var(--grey);
+	margin-right: 10px;
+}
+
+.win-bar {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+}
+
+.win-bar-games {
+	height: ${gamesWinPercentage}%;
+	background-color: var(--primary-color);
+}
+
+.win-bar-tournament {
+	height: ${tournamentWinPercentage}%;
+	background-color: var(--secondary-color);
+}
+
+.label {
+	margin-top: 5px;
+}
+
+.wins-label {
+	color: var(--primary-color);
+	margin-right: 10px;
 }
 
 .avatar-container {
@@ -211,17 +253,16 @@ input[type="profile-password" i] {
 	align-items: center;
 	color: var(--light);
 	font-size: 1em;
-	/* font-style: italic; */
 	text-decoration: underline;
 	border-radius: 100px;
 	cursor: pointer;
-	pointer-events: none; /* Ensures the overlay doesn't interfere with clicks on the avatar */
+	pointer-events: none;
 	opacity: 0;
 	transition: opacity 0.2s ease-in-out;
 }
 
 .avatar-container.edit-mode .overlay {
-	opacity: 1; /* Show overlay when in edit mode */
+	opacity: 1;
 }
 
 .game-box {
@@ -264,4 +305,64 @@ input[type="profile-password" i] {
 
 .box-title {
 	padding: 1vh;
+}
+
+
+:root{
+	--bg-b: var(--transparent-dark);
+	--bg-icon-off: var(--grey);
+	--bg-icon-on: var(--primary-color);
+	--bg-bar: var(--grey);
+	--bar-size: 0.8rem;
+	--bar-weight: 0.7rem;
+	--icon-size: 0.8rem;
+	--zoom: 1,2;
+}
+
+.switch input { 
+	opacity: 0;
+	width: 0;
+	height: 0;
+	display: none;
+}
+
+.switch {
+	width: var(--bar-size);
+	height: 2rem;
+	cursor: pointer;
+}
+
+.slider{
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	/*position: relative;*/
+}
+
+.slider .bar {
+	width: var(--bar-size);
+	height: var(--bar-weight);
+	border-radius: 360px;
+	background-color: var(--bg-bar);
+	position: absolute;
+}
+
+.slider .icon {
+	content: "";
+	width: var(--icon-size);
+	height: var(--icon-size);
+	border: calc((var(--bar-weight) / 4) * 3) solid var(--bg-icon-off);
+	border-radius: 360px;
+	outline: calc((var(--bar-weight) / 4) * 2.6) solid var(--bg-b);
+	background-color: var(--bg-b);
+	position: absolute;
+	transform: translateX(calc((var(--icon-size) / 4) * -3));
+	transition: .4s;
+}
+
+input:checked + .slider > .icon {
+	border: calc(var(--icon-size) / 1.5) solid var(--bg-icon-on);
+	background-color: var(--bg-icon-on);
+	transform: translateX(calc(var(--bar-size) - (var(--icon-size) / 4)));
 }

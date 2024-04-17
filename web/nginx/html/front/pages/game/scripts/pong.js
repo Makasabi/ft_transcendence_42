@@ -8,8 +8,6 @@ export class GameContext {
 	rendering_context;
 	websocket;
 	arena;
-	ball;
-	player;
 	last_time = performance.now();
 	end = false;
 	ready = false;
@@ -71,6 +69,7 @@ export class GameContext {
 				game.end = true;
 			}
 			else if (type === "end") {
+				game.ranking = data.player_ranking;
 				game.end = true;
 			}
 		};
@@ -127,44 +126,35 @@ export class GameContext {
 	create_static_objects() {
 		let object;
 
-		console.log(this.state);
+		//console.log(this.state);
 		{
 			object = new GameObject(this.models.arena);
 			object.position = [this.state.center_x, 0, this.state.center_y];
 			object.scale = [this.state.width / 2, 1, this.state.height / 2];
 			this.static_objects.push(object);
 		}
-		//{
-		//	object = new GameObject(this.models.pilar);
-		//	object.scale = [1.8, 0.4, 1.8];
-		//	object.rotation = [0, Math.PI / 2, 0];
-		//	this.static_objects.push(object);
-		//}
-		//{
-		//	object = new GameObject(this.models.pilar);
-		//	object.scale = [0.7, 1.2, 0.7];
-		//	object.position = [7.5, 0, 12.9904];
-		//	this.static_objects.push(object);
-		//}
-		const cosPiSur3 = Math.cos(Math.PI / 3)
-		const sinPiSur3 = Math.sin(Math.PI / 3)
-
-		const hexagon_vertices = [
-			[1, 0],
-			[cosPiSur3, sinPiSur3],
-			[-cosPiSur3, sinPiSur3],
-			[-1, 0],
-			[-cosPiSur3, -sinPiSur3],
-			[cosPiSur3, -sinPiSur3],
-		]
 
 		let pilar_size = this.state.pilars[0][0][0] - this.state.pilars[0][3][0];
 		let pilar_height = pilar_size/ 1.5;
-		for (let hexagone_center of hexagon_vertices) {
-			object = new GameObject(this.models.pilar);
-			object.scale = [pilar_size / 2, pilar_height, pilar_size / 2];
-			object.position = [hexagone_center[0] * this.state.width / 2, 0, hexagone_center[1] * this.state.height / 2];
-			this.static_objects.push(object);
+		{
+			const cosPiSur3 = Math.cos(Math.PI / 3)
+			const sinPiSur3 = Math.sin(Math.PI / 3)
+
+			const hexagon_vertices = [
+				[1, 0],
+				[cosPiSur3, sinPiSur3],
+				[-cosPiSur3, sinPiSur3],
+				[-1, 0],
+				[-cosPiSur3, -sinPiSur3],
+				[cosPiSur3, -sinPiSur3],
+			]
+
+			for (let hexagone_center of hexagon_vertices) {
+				object = new GameObject(this.models.pilar);
+				object.scale = [pilar_size / 2, pilar_height, pilar_size / 2];
+				object.position = [hexagone_center[0] * this.state.width / 2, 0, hexagone_center[1] * this.state.height / 2];
+				this.static_objects.push(object);
+			}
 		}
 
 		pilar_size = this.state.middle_pilar[0][0] - this.state.middle_pilar[3][0];
@@ -174,14 +164,14 @@ export class GameContext {
 			object.position = [0, 0, 0];
 			this.static_objects.push(object);
 		}
-
-		for (let wall of this.state.walls) {
-			this.addWall(wall);
-		}
 	}
 
 	game_loop() {
 		let dynamic_objects = [];
+		for (let wall of this.state.walls) {
+			this.addWall(wall);
+		}
+
 		for (let ball of this.state.balls) {
 			let object = new Ball(this.models.puck);
 			object.position = [ball.posx, 0, ball.posy];
@@ -196,7 +186,6 @@ export class GameContext {
 			object.rotation = [0, -Math.atan2(player.right[1] - player.left[1], player.right[0] - player.left[0]), 0];
 			dynamic_objects.push(object);
 		}
-		//console.log(dynamic_objects);
 		return dynamic_objects;
 	}
 
@@ -237,6 +226,12 @@ export class GameContext {
 	}
 
 	async start() {
+		document.getElementById("centered_box").style.display = "flex";
+		const game_status = document.getElementById("game_status");
+		game_status.style.display = "flex";
+		const status_title = document.querySelector("#game_status h2");
+		status_title.textContent = "Loading...";
+
 		await this.load();
 		let count = 0;
 
@@ -250,6 +245,8 @@ export class GameContext {
 		count = 0;
 
 		this.websocket.send("ready");
+
+		status_title.textContent = "Waiting for other players";
 
 		console.log("GameContext.start", this.state);
 		while (this.state === undefined) {
@@ -269,8 +266,13 @@ export class GameContext {
 		this.rendering_context.scale = 1 / this.state.width
 		this.rotate_view_to_me();
 
-		while (this.state.status !== "ongoing") {
-			console.log("wait for ongoing");
+		while (this.state.status === "waiting_for_players") {
+			let dots = "";
+			for (let i = 0; i < count % 4; i++)
+				dots += ".";
+			status_title.textContent = "Waiting for other players" + dots;
+			document.querySelector("#game_status h2").textContent = this.state.timeout + "s before force start";
+			this.update_players();
 			if (this.end)
 				return;
 			count++;
@@ -284,9 +286,37 @@ export class GameContext {
 
 		this.create_static_objects();
 
+		game_status.style.display = "none";
+		this.start_timer();
 		this.run();
+		console.log("Game LOOOOOOOOOP started");
 		while (!this.end)
 			await new Promise(resolve => setTimeout(resolve, 300));
+		console.log("Game ended");
+	}
+
+	async update_players() {
+		const players = document.getElementById("players");
+		players.innerHTML = "";
+		for (let player of this.state.players) {
+			let li = document.createElement("li");
+			li.textContent = player.username;
+			li.style.color = player.ready ? "green" : "red";
+			players.appendChild(li);
+		}
+	}
+
+	async start_timer() {
+		if (this.state.start_time === undefined || this.state.start_time === 0)
+			return;
+		let timer = document.getElementById("timer");
+		timer.hidden = false;
+		while (this.state.start_time !== undefined && this.state.start_time !== 0) {
+			timer.textContent = this.state.start_time;
+			await new Promise(resolve => setTimeout(resolve, 100));
+		}
+		timer.hidden = true;
+		document.getElementById("centered_box").style.display = "none";
 	}
 
 	addWall(wall) {

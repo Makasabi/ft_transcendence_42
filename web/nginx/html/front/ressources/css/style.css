@@ -11,6 +11,7 @@
 	--dark: #1f1f1f; 					/* hex: #1f1f1f rgb(31, 31, 31)*/
 	--transparent-dark:  #1f1f1f66; 	/* hex: #1f1f1f66 rgba(31, 31, 31, 0.4)*/
 	--transparent-darker:  #1f1f1fee; 	/* hex: #1f1f1f66 rgba(31, 31, 31, 0.4)*/
+	--contrast: #f5c60e;		/* rgb(245, 198, 14); */
 }
 
 *{

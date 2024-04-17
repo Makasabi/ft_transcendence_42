@@ -20,7 +20,7 @@ class NotificationConsumer(WebsocketConsumer):
 		)
 		self.accept()
 		# call api to switch user online status
-		url = f"http://localhost:8000/api/user_management/switch_online/{self.user}/online"
+		url = f"http://proxy/api/user_management/switch_online/{self.user}/online"
 		requests.get(url)
 
 		print(f'User {self.user} connected to group {self.group_name}')
@@ -30,7 +30,7 @@ class NotificationConsumer(WebsocketConsumer):
 			self.group_name,
 			self.channel_name
 		)
-		url = f"http://localhost:8000/api/user_management/switch_online/{self.user}/offline"
+		url = f"http://proxy/api/user_management/switch_online/{self.user}/offline"
 		requests.get(url)
 		print('NotificationConsumer disconnected')
 

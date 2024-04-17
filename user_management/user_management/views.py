@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from user_management.models import Player, BeFriends
-#from game.models import Play
 from rest_framework.decorators import api_view
 from django.conf import settings
 import os
@@ -48,12 +47,13 @@ def profile_serializer(request, user):
 
 	# @TODO : change localhost for scalable solution
 	user_id = user.id
-	#url = f"http://localhost:8000/api/game/get_history/{user_id}"
+	#url = f"http://proxy/api/game/get_history/{user_id}"
 	url = f"http://proxy/api/game/get_history/{user_id}"
 	token = f"Token {request.auth}"
 	headers = {'Authorization': token}
 	game_history = requests.get(url, headers=headers)
 
+	print(game_history.json())
 	for game in game_history.json():
 		user_data["game_history"].append(game)
 	higher_scores = Player.objects.filter(global_score__gt=user.global_score).count()
@@ -309,3 +309,22 @@ def get_online_status(request, username):
 	"""
 	user = Player.objects.filter(username=username).first()
 	return JsonResponse({'is_online': user.online})
+
+@api_view(['GET'])
+def twoFA(request):
+	"""
+	Return the two factor authentication status of a user
+	"""
+	return JsonResponse({'twoFA': request.user.twoFA})
+
+@api_view(['POST'])
+def switch_twoFA(request):
+	"""
+	Switch user two factor authentication status
+	"""
+	if request.user.twoFA:
+		request.user.twoFA = False
+	else:
+		request.user.twoFA = True
+	request.user.save()
+	return JsonResponse({'twoFA': request.user.twoFA})

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
-from rooms.models import Rooms, Tournament, Occupy
+from rooms.models import Rooms, Tournament, Occupy, Round
 import random
 import requests
 import string
@@ -221,7 +221,7 @@ def distribute_contestants(request, contestants, repartition):
 		places = pool_data.get("places", 0)
 		players = contestants_list[:places]
 		for player in players:
-			url = f"http://localhost:8000/api/user_management/user/id/{player.player_id}"
+			url = f"http://proxy/api/user_management/user/id/{player.player_id}"
 			token = f"Token {request.auth}"
 			headers = {'Authorization': token}
 			data = requests.get(url, headers=headers)

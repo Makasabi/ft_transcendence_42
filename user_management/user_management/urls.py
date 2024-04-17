@@ -1,7 +1,5 @@
 from django.urls import path
 from . import views
-from django.conf import settings
-from django.conf.urls.static import static
 
 urlpatterns = [
 	path('me', views.me, name='me'),
@@ -19,5 +17,7 @@ urlpatterns = [
 	path("find_match/<str:username>", views.find_match, name="find_match"),
 	path("switch_online/<str:username>/<str:status>", views.switch_online, name="switch_online"),
 	path("get_online_status/<str:username>", views.get_online_status, name="get_online_status"),
+	path("twoFA", views.twoFA, name="twoFA"),
+	path("switch_twoFA", views.switch_twoFA, name="twoFA"),
 	path('', views.me, name='me'),
 ]

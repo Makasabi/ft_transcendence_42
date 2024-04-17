@@ -53,6 +53,8 @@ INSTALLED_APPS = [
 	'game',
 	'rooms',
 	'notification',
+	'django_otp',
+	'django_otp.plugins.otp_totp',
 ]
 
 CHANNEL_LAYERS = {
@@ -69,7 +71,7 @@ REST_FRAMEWORK = {
 		'rest_framework.authentication.TokenAuthentication',
 	],
 	'DEFAULT_PERMISSION_CLASSES': [
-		'rest_framework.permissions.IsAuthenticated',
+		'srcs.permissions.IsAuthenticatedOrApp',
 	]
 }
 
@@ -79,6 +81,8 @@ MIDDLEWARE = [
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
+	# container auth
+	'django_otp.middleware.OTPMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]

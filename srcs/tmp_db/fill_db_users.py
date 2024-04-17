@@ -14,7 +14,6 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'srcs.settings')
 django.setup()
 
 # from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
 from user_management.models import Player, BeFriends
 
 def import_users(csv_file):
