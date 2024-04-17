@@ -308,3 +308,22 @@ def get_online_status(request, username):
 	"""
 	user = Player.objects.filter(username=username).first()
 	return JsonResponse({'is_online': user.online})
+
+@api_view(['GET'])
+def twoFA(request):
+	"""
+	Return the two factor authentication status of a user
+	"""
+	return JsonResponse({'twoFA': request.user.twoFA})
+
+@api_view(['POST'])
+def switch_twoFA(request):
+	"""
+	Switch user two factor authentication status
+	"""
+	if request.user.twoFA:
+		request.user.twoFA = False
+	else:
+		request.user.twoFA = True
+	request.user.save()
+	return JsonResponse({'twoFA': request.user.twoFA})

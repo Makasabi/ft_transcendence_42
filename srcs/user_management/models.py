@@ -13,7 +13,7 @@ class Player(AbstractUser):
 	avatar_file = models.CharField(max_length=255, blank=True, null=True)
 	global_score = models.IntegerField(default=0)
 	online = models.BooleanField(default=False)
-	doubleFA = models.BooleanField(default=False)
+	twoFA = models.BooleanField(default=False)
 
 	otpauth_url = models.CharField(max_length=225, blank=True, null=True)
 	otp_base32 = models.CharField(max_length=255, null=True)

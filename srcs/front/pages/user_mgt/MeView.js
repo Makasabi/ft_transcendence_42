@@ -17,7 +17,9 @@ export class MeView extends IView {
 		// history-stats
 		html = await getHistoryStats(html, user);
 		
+		
 		document.querySelector("main").innerHTML = html;
+		html = await switch2FA(html);
 		editProfileButton();
 		displayGameBox(user);
 		avatarUpload();
@@ -145,5 +147,22 @@ function avatarUpload() {
 		} catch (error) {
 			console.error("Error uploading avatar:", error);
 		}
+	});
+}
+
+async function switch2FA(html) {
+	const switchElement = document.getElementById('2fa-switch');
+	const twoFA = await APIcall("/api/user_management/twoFA");
+	console.log(twoFA.twoFA);
+	if (twoFA.twoFA === true)
+		switchElement.checked = true;
+	else
+		switchElement.checked = false;
+	document.getElementById('2fa-switch').addEventListener('change', async function() {
+		await fetch('api/user_management/switch_twoFA', {
+			method: 'POST',
+			headers: {'Authorization': `Token ${Login.getCookie('token')}`},
+			body: JSON.stringify({ 'username' : username, 'password' : password}),
+		}).then(response => response.json());
 	});
 }
