@@ -58,7 +58,6 @@ class TournamentConsumer(WebsocketConsumer):
 			if response.status_code != 200:
 				self.close(3011)
 				return
-
 			async_to_sync(self.channel_layer.group_send)(
 				self.tournament_group_name,
 				{
@@ -68,6 +67,10 @@ class TournamentConsumer(WebsocketConsumer):
 			)
 		elif data['type'] == 'ping':
 			update_tournament(self.tournament_id)
+		elif data['type'] == 'eliminated':
+			player_id = data['player_id']
+			if self.user.id == player_id:
+				slef.close(3011)
 
 	def ready_to_play(self, event):
 		print("Ready to play")
