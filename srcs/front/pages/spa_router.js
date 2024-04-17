@@ -32,6 +32,7 @@ const loggedViews = [
 	TournamentView,
 	UninvitedView,
 	EliminatedView,
+	login.FAView,
 ];
 
 const unloggedViews = [

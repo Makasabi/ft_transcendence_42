@@ -10,5 +10,5 @@ urlpatterns = [
 	path("google_auth/", views.google_auth, name="google_auth"),
 	path("is_registered/", views.is_registered, name="is_registered"),
 	path("totp_create/", views.TOTPCreateView, name='totp-create'),
-	path("totp_login/", views.TOTPVerifyView, name='totp-login'),
+	path("totp_verify/", views.TOTPVerifyView, name='totp-verify'),
 ]

@@ -6,7 +6,13 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .serializers import PlayerSerializer
+from django_otp import devices_for_user
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from rest_framework.response import Response
+from rest_framework import status
 import requests
+import qrcode
+import io
 
 ##### Authentication #####
 
@@ -113,10 +119,6 @@ def is_registered(request):
 		return Response({"error" : "User not registered"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-from django_otp import devices_for_user
-from django_otp.plugins.otp_totp.models import TOTPDevice
-from rest_framework.response import Response
-from rest_framework import status
 
 def get_user_totp_device(user, confirmed=None):
 	devices = devices_for_user(user, confirmed=confirmed)
@@ -133,7 +135,22 @@ def TOTPCreateView(request):
 		device = user.totpdevice_set.create(confirmed=False)
 	url = device.config_url
 	print("url:", url)
-	return Response(url, status=status.HTTP_201_CREATED)
+	qr = qrcode.QRCode(
+		version=1,
+		error_correction=qrcode.constants.ERROR_CORRECT_L,
+		box_size=10,
+		border=4,
+	)
+	qr.add_data(url)
+	qr.make(fit=True)
+	img = qr.make_image(fill_color="black", back_color="white")
+	img_byte_array = io.BytesIO()
+	img.save(img_byte_array, format='PNG')
+	img_byte_array.seek(0)
+	response = HttpResponse(img_byte_array.getvalue(), content_type='image/png', status=status.HTTP_201_CREATED)
+	response['Content-Disposition'] = 'attachment; filename="qrcode.png"'
+	print("Response: ", response)
+	return response
 
 
 @api_view(['POST'])
