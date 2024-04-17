@@ -239,6 +239,7 @@ def getWinnerId(tournament_id):
 def roundCreate(tournament_id):
 	tournament = Tournament.objects.get(id=tournament_id)
 	tournament.current_round += 1
+	print("Current round", tournament)
 	if (tournament.current_round > tournament.total_rounds):
 		winner = getWinnerId(tournament_id)
 		channel_layer = get_channel_layer()

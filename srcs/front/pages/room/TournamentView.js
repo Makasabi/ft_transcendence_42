@@ -111,7 +111,7 @@ export class TournamentView extends IView {
 		let currentTime = new Date();
 		let timeRemaining = startTime - currentTime;
 
-		if (timeRemaining <= 0) {
+		if (timeRemaining <= 0 && this.TournamentSocket.readyState === WebSocket.OPEN) {
 			const to_send = JSON.stringify({
 				"type" : "ready_to_play",
 				"message" : "ready to play",
@@ -207,7 +207,7 @@ export function createTournamentSocket(tournament_id) {
 				break;
 			case "round_created":
 				console.log("Round created:", data);
-				route(`/tournament/${data.code}`);
+				route(`/tournament/${data.tournament_code}`);
 				break;
 			case "tournament_finished":
 				console.log("tournament_finished:", data);
@@ -218,9 +218,7 @@ export function createTournamentSocket(tournament_id) {
 				break;
 		}
 	};
-
 	return TournamentSocket;
-
 }
 
 
