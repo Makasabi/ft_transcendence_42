@@ -277,6 +277,7 @@ def roundCreate(tournament_id):
 			f"tournament_{tournament_id}",
 			{
 				"type": "round_created",
+				"code": tournament.room_id.code
 			})
 	print("Round created")
 

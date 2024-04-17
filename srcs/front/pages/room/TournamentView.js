@@ -207,7 +207,7 @@ export function createTournamentSocket(tournament_id) {
 				break;
 			case "round_created":
 				console.log("Round created:", data);
-				route(`/tournament/${this.code}`);
+				route(`/tournament/${data.code}`);
 				break;
 			case "tournament_finished":
 				console.log("tournament_finished:", data);

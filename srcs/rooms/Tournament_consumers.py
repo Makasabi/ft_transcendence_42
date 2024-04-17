@@ -95,6 +95,7 @@ class TournamentConsumer(WebsocketConsumer):
 	def round_created(self, event):
 		self.send(text_data=json.dumps({
 			"type": "round_created",
+			"tournament_code": event['code'],
 		}))
 
 	def send_tournament_finished(self, event):
