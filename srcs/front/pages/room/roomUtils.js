@@ -205,3 +205,11 @@ export function errorMessage(message) {
 
 }
 
+export function leaveRoom() {
+
+	const button = document.getElementById("leave");
+	button.addEventListener("click", (e) => {
+			e.preventDefault();
+			route("/home");
+		});
+}

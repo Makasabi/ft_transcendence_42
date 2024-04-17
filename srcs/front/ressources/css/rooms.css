@@ -168,3 +168,9 @@
 	background-color: var(--hover-primary-color);
 	transition: ease-in-out 0.1s;
 }
+
+#leave {
+	display: block;
+	align-self: center;
+	width: fit-content;
+}

@@ -51,8 +51,13 @@ form button:hover {
 }
 
 .grey_cta {
-	background-color: var(--grey);
-	cursor: not-allowed;
+	background-color: var(--transparent-dark);
+	border: var(--border-light) 1px solid;
+	cursor: pointer;
+}
+.grey_cta:hover {
+	background-color: var(--transparent-primary);
+	transition: ease-in-out 0.1s;
 }
 
 
@@ -294,4 +299,8 @@ select {
 
 option { 
 	background-color: var(--transparent-dark);
+}
+
+#start {
+	width: fit-content
 }
