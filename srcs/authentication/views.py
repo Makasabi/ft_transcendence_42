@@ -20,6 +20,7 @@ def login(request):
 		if not user.check_password(request.data['password']):
 			return Response({"error" : "Wrong password"}, status=status.HTTP_400_BAD_REQUEST)
 		token, _ = Token.objects.get_or_create(user=user)
+		print("Token : ", token.key)
 		serializer = PlayerSerializer(instance=user)
 
 		return Response({ "token" : token.key, "user" : serializer.data }, status=status.HTTP_200_OK)
@@ -110,3 +111,48 @@ def is_registered(request):
 	except Player.DoesNotExist as error:
 		print("In is_register", error)
 		return Response({"error" : "User not registered"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+from django_otp import devices_for_user
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from rest_framework.response import Response
+from rest_framework import status
+
+def get_user_totp_device(user, confirmed=None):
+	devices = devices_for_user(user, confirmed=confirmed)
+	for device in devices:
+		if isinstance(device, TOTPDevice):
+			return device
+
+@api_view(['GET'])
+def TOTPCreateView(request):
+	print("TOTPCreate !!!!!!!!!!!!!!!")
+	user = request.user
+	device = get_user_totp_device(user)
+	if not device:
+		device = user.totpdevice_set.create(confirmed=False)
+	url = device.config_url
+	print("url:", url)
+	return Response(url, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+def TOTPVerifyView(request):
+	"""
+	Use this endpoint to verify/enable a TOTP device
+	"""
+	print("TOTPVERIFY TA RACE !!!!!!!!!!!!!!!")
+	print(request.data)
+	if not "token" in request.data:
+		print("No token")
+		return Response(status=status.HTTP_400_BAD_REQUEST)
+	token = request.data["token"]
+	user = request.user
+	device = get_user_totp_device(user)
+	print("device : ", device)
+	if not device == None and device.verify_token(token):
+		if not device.confirmed:
+			device.confirmed = True
+			device.save()
+		return Response(True, status=status.HTTP_200_OK)
+	return Response(status=status.HTTP_400_BAD_REQUEST)
