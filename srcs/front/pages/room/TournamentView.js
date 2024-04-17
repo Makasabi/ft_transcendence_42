@@ -45,14 +45,34 @@ export class TournamentView extends IView {
 		}
 
 		this.roomInfo = await getRoomInfo(this.code)
+		if (this.roomInfo === undefined) {
+			console.error("Room not found")
+			route("/unknown");
+			return;
+		}
 
 		// check if user can access the tournament
 
-		this.tournament = await getTournamentInfo(this.roomInfo.room_id)
-		if (this.tournament === undefined) {
+		let tournament_info = await getTournamentInfo(this.roomInfo.room_id)
+		if (tournament_info === undefined) {
 			console.error("Tournament not found")
 			route("/unknown");
+			return;
 		}
+		const access = tournament_info.access;
+		switch (access) {
+			case "Loosed":
+				route("/playerEliminated");
+				return;
+			case "Uninvited":
+				route("/uninvited");
+				return;
+			case false:
+				route("/unknown");
+				return;
+			}
+
+		this.tournament = tournament_info.tournament;
 		this.TournamentSocket = createTournamentSocket(this.tournament.id);
 
 		/**
@@ -88,7 +108,10 @@ export class TournamentView extends IView {
 		this.updateNextRoundTimer();
 		this.start_time = await getRoundStartTime(this.tournament.id, this.tournament.current_round);
 		if (!this.start_time) {
-			document.getElementById("next_round_timer").innerText = "No upcoming round";
+			const next_round_timer = document.getElementById("next_round_timer");
+			if (next_round_timer === null)
+				return;
+			next_round_timer.innerText = "No upcoming round";
 			return;
 		}
 	}
@@ -117,7 +140,10 @@ export class TournamentView extends IView {
 				"message" : "ready to play",
 			})
 			this.TournamentSocket.send(to_send)
-			document.getElementById("next_round_timer").innerText = "Round has started";
+			const next_round_timer = document.getElementById("next_round_timer");
+			if (next_round_timer === null)
+				return;
+			next_round_timer.innerText = "Round has started";
 			return;
 		}
 
@@ -125,7 +151,10 @@ export class TournamentView extends IView {
 		let seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
 
 		let formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-		document.getElementById("next_round_timer").innerText = `Next round starting in ${formattedTime}`;
+		const next_round_timer = document.getElementById("next_round_timer");
+		if (next_round_timer === null)
+			return;
+		next_round_timer.innerText = `Next round starting in ${formattedTime}`;
 		setTimeout(this.updateNextRoundTimer.bind(this), 100);
 	}
 	
@@ -134,6 +163,9 @@ export class TournamentView extends IView {
 		if (this.TournamentSocket.readyState === WebSocket.CLOSED
 			|| this.TournamentSocket.readyState === WebSocket.CLOSING)
 			return;
+		while (this.TournamentSocket.readyState === WebSocket.CONNECTING) {
+			await new Promise(resolve => setTimeout(resolve, 100));
+		}
 		this.TournamentSocket.send(JSON.stringify({
 			"type": "ping",
 		}));

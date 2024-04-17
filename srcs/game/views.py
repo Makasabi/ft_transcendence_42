@@ -350,3 +350,23 @@ def get_results(request, game_id):
 			"score": play.score
 		})
 	return JsonResponse(results_json, safe=False)
+
+@api_view(["GET"])
+def has_played(request, round_id, user_id):
+	"""
+	Return whether the user with the given user_id has played in the round with the given round_id
+
+	json response format:
+	{
+		has_played: has_played
+	}
+	"""
+	plays = Play.objects.filter(game__parent_id=round_id, user_id=user_id)
+	if plays:
+		return JsonResponse({
+			"has_played": True
+		})
+	else:
+		return JsonResponse({
+			"has_played": False
+	})

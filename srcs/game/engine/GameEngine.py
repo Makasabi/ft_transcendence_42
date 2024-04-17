@@ -139,7 +139,7 @@ class GameEngine(threading.Thread):
 		for player in self.players.values():
 			player.update(timestamp)
 		for ball in self.balls:
-			ball.update(1 / 60, self.players, self.collisions_walls, self.middle_pilar, self.balls)
+			ball.update(timestamp, self.players, self.collisions_walls, self.middle_pilar, self.balls)
 		for player in self.players.values():
 			if player.HP <= 0:
 				self.death_order.append(player.player_id)

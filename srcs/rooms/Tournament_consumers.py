@@ -6,9 +6,11 @@ from rooms.models import Rooms, Occupy, Tournament, Round
 import json
 import requests
 from decouple import config
+from threading import Lock
 
-from .views_tournament import update_tournament
+from .views_tournament import update_tournament, CheckPlayerAccess
 
+tournament_lock = Lock()
 
 class TournamentConsumer(WebsocketConsumer):
 	def connect(self):
@@ -21,7 +23,14 @@ class TournamentConsumer(WebsocketConsumer):
 			self.channel_name
 		)
 		self.user = self.scope['user']
-		if self.user.is_anonymous or CheckPlayerAccess(self.user, self.tournament_id) == False:
+		testAccess = CheckPlayerAccess(self.user.id, self.tournament_id)
+		if self.user.is_anonymous or testAccess == "Uninvited":
+			self.accept()
+			self.close(3010)
+		elif testAccess == "Loosed":
+			self.accept()
+			self.close(3011)
+		elif testAccess == False:
 			self.accept()
 			self.close(3010)
 		else:
@@ -43,11 +52,17 @@ class TournamentConsumer(WebsocketConsumer):
 		data = json.loads(text_data)
 		print("Received : ", data)
 		if data['type'] == 'ready_to_play':
-			round = Round.objects.get(tournament_id=self.tournament_id, round_number=self.current_round)
-			if round.ready_to_play == True:
-				return
-			round.ready_to_play = True
-			round.save()
+			with tournament_lock:
+				try:
+					round = Round.objects.get(tournament_id=self.tournament_id, round_number=self.current_round)
+				except Round.DoesNotExist:
+					print("Round does not exist")
+					self.close(3010)
+					return
+				if round.ready_to_play == True:
+					return
+				round.ready_to_play = True
+				round.save()
 
 			url = f"http://localhost:8000/api/game/start_round/{round.id}"
 			headers = {
@@ -112,13 +127,3 @@ class TournamentConsumer(WebsocketConsumer):
 			"type": "tournament_finished",
 			"winner": event['winner'],
 		}))
-
-# Database Functions #
-def CheckPlayerAccess(user, tournament):
-	try:
-		room_id = Tournament.objects.get(id=tournament).room_id
-		if Occupy.objects.filter(player_id=user.id, room_id=room_id).exists():
-			return True
-		return False
-	except Tournament.DoesNotExist:
-		return False

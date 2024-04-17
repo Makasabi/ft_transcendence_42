@@ -110,18 +110,6 @@ def update_tournament(tournament_id):
 		tournament = Tournament.objects.get(id=tournament_id)
 		if (tournament.current_round == 0):
 			roundCreate(tournament_id)
-		# elif (tournament.current_round > tournament.total_rounds):
-		# 	print("tournament", tournament)
-		# 	print("tournament finished")
-		# 	winner = getWinnerId(tournament_id)
-		# 	channel_layer = get_channel_layer()
-		# 	async_to_sync(channel_layer.group_send)(
-		# 		f"tournament_{tournament_id}",
-		# 		{
-		# 			"type": "tournament_finished",
-		# 			"winner": winner,
-		# 		})
-		# 	return
 		else:
 			round = Round.objects.get(tournament_id=tournament, round_number=tournament.current_round)
 			url = f"http://localhost:8000/api/game/retrieve_round/{round.id}"
@@ -150,6 +138,7 @@ def eliminations(round: Round, pools: dict):
 		elim_per_pool = first_round_elimination(len(Occupy.objects.filter(room_id=room)), len(pools))
 	else:
 		elim_per_pool = other_round_eliminations(len(pools))
+	print("❌ Elim per pool", elim_per_pool)
 	for i, pool in enumerate(pools.values()):
 		url = f"http://localhost:8000/api/game/get_results/{pool['game_id']}"
 		headers = {
@@ -237,6 +226,7 @@ def getWinnerId(tournament_id):
 
 
 def roundCreate(tournament_id):
+	print(f"🌀 Create round for tournament with id {tournament_id}")
 	tournament = Tournament.objects.get(id=tournament_id)
 	tournament.current_round += 1
 	print("Current round", tournament)
@@ -252,15 +242,14 @@ def roundCreate(tournament_id):
 		return
 	tournament.save()
 
-	print("Create round")
 	if not Round.objects.filter(tournament_id=tournament, round_number=tournament.current_round).exists():
-		print("Create round2")
 		start_time = datetime.now() + timedelta(minutes=0.1)
-  
+
 		round = Round.objects.create(tournament_id=tournament, round_number=tournament.current_round, date_start=start_time)
 		contestants = Occupy.objects.filter(room_id=tournament.room_id)
 		repartition = compute_repartition(len(contestants))
-		
+		print("🎼 Repartition", repartition)
+
 		distribution = distribute_contestants(contestants, repartition)
 		for value in distribution.values():
 			url = f"http://localhost:8000/api/game/create_pool/{round.id}"
@@ -305,3 +294,47 @@ def get_round_code(request, round_id):
 	return JsonResponse({
 		"room_code": code
 	})
+
+@api_view(['GET'])
+def tournament_access(request, tournament_id, user_id):
+	"""
+	Check if the user has access to the tournament
+	
+	Args:
+	- request: Request object
+	- tournament_id: Tournament ID
+
+	Returns:
+	- JsonResponse: Response object
+	"""
+	res = {
+		'access': CheckPlayerAccess(user_id, tournament_id)
+	}
+
+	return JsonResponse(res)
+
+
+# Database Functions #
+def CheckPlayerAccess(user_id, tournament_id):
+	try:
+		tournament = Tournament.objects.get(id=tournament_id)
+		round = Round.objects.get(tournament_id=tournament, round_number=1)
+		url = "http://localhost:8000/api/game/has_played/" + str(round.id) + "/" + str(user_id)
+		headers = {
+			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+		}
+		response = requests.get(url, headers=headers)
+		if response.json()['has_played'] == True:
+			room_id = tournament.room_id
+			if Occupy.objects.filter(player_id=user_id, room_id=room_id).exists():
+				return True
+			else:
+				return "Loosed"
+		else:
+			return "Uninvited"
+	except Round.DoesNotExist:
+		print("Round does not exist")
+		return False
+	except Tournament.DoesNotExist:
+		print("Tournament does not exist")
+		return False

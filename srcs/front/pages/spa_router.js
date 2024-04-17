@@ -18,6 +18,7 @@ import { tournamentFinishedView } from "./room/tournamentFinishedView.js";
 
 /*** Views ***/
 var view = null;
+var is_rendering = false;
 
 const loggedViews = [
 	HomeView,
@@ -67,10 +68,16 @@ async function handleLocationViews(views, defaultRoute)
 		return;
 	}
 	console.log("this is the current view:", view);
+	while (is_rendering)
+		await new Promise(resolve => setTimeout(resolve, 100));
+	is_rendering = true;
 	if (view)
 		view.destroy();
 	view = new match[0]();
+	console.log("rendering view");
 	await view.render();
+	console.log("view rendered");
+	is_rendering = false;
 }
 
 async function handleLocation()

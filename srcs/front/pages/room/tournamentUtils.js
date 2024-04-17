@@ -33,14 +33,6 @@ export async function createTournament(roomSocket, room_id, roomCode) {
 			}
 			console.log("Tournament created:", data);
 
-			// let roundInfo = await fetch(`/api/rooms/create_round/${data.id}/${data.current_round}`, {
-			// 	method: "POST",
-			// 	headers: {
-			// 		'Authorization': `Token ${Login.getCookie('token')}`,
-			// 	}
-			// }).then(response => response.json());
-			// console.log(`Round ${data.current_round} created: `, roundInfo);
-
 			const to_send = JSON.stringify({
 				"type": "tournament_start",
 				"message": "Tournament starting",
@@ -62,11 +54,11 @@ export async function getRoomInfo(code) {
 		}}).then(response => response.json());
 	console.log("room:", roomInfo);
 	// redirect user to uninvited if roomInfo Allowed is false
-	if (roomInfo.allowed === false) {
-		console.error("User not allowed in room");
-		route("/uninvited");
-		return;
-	}
+	// if (roomInfo.allowed === false) {
+	// 	console.error("User not allowed in room");
+	// 	route("/uninvited");
+	// 	return;
+	// }
 	return roomInfo;
 }
 
@@ -85,8 +77,32 @@ export async function getTournamentInfo(room_id) {
 			console.log("res:", res);
 			return res;
 		});
-	console.log("tournament:", tournament);
-	return tournament;
+
+	if (tournament === undefined) {
+		console.error("Tournament not found");
+		return;
+	}
+
+	// check user access to tournament
+
+	let me = await fetch(`/api/user_management/me_id`, {
+		method: "GET",
+		headers: {
+			'Content-Type': 'application:json',
+			'Authorization': `Token ${Login.getCookie('token')}`,
+		},
+	}).then(response => response.json());
+
+	let access = await fetch(`/api/rooms/tournament_access/${tournament.id}/${me.id}`, {
+		headers: {
+			'Authorization': `Token ${Login.getCookie('token')}`,
+		}
+	}).then(response => response.json());
+	
+	return {
+		"tournament": tournament,
+		"access": access.access,
+	};
 }
 
 export async function getRoundInfo(tournament_id, round_number) {
@@ -220,6 +236,9 @@ export async function displayMyPool(pools) {
 	let myPool = await findPoolByUserId(pools);
 
 	let myPoolImg = document.getElementById(myPool);
+	if (myPoolImg === null) {
+		return;
+	}
 	myPoolImg.style.filter = "opacity(100%) invert(40%) sepia(73%) saturate(1183%) hue-rotate(218deg) brightness(104%) contrast(101%)";
 
 	APool(pools, myPool);

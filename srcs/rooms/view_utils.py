@@ -18,6 +18,7 @@ def compute_repartition(occupancy):
 	Returns:
 	- repartition: List of players in each pool
 	"""
+	print("Occupancy: ", occupancy)
 	res = occupancy % 6
 	if (res != 0):
 		nb_pools = occupancy // 6 + 1
@@ -112,10 +113,9 @@ def other_round_eliminations(nb_pool):
 	- nb to eliminate in each pool
 	"""
 	elim_per_pool = []
-	elim = nb_pool // 6
-	rest = nb_pool % 6
+	elim = 6 // nb_pool
+	rest = 6 % nb_pool
 	for i in range(nb_pool):
 		elim_per_pool.append({'elim': elim + int(rest > 0)})
-		if rest > 0:
-			rest -= 1
+		rest -= 1
 	return elim_per_pool
