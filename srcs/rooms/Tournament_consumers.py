@@ -70,7 +70,15 @@ class TournamentConsumer(WebsocketConsumer):
 		elif data['type'] == 'eliminated':
 			player_id = data['player_id']
 			if self.user.id == player_id:
-				slef.close(3011)
+				self.close(3011)
+		elif data['type'] == "tournament_finished":
+			async_to_sync(self.channel_layer.group_send)(
+				self.tournament_group_name,
+				{
+					'type': 'send_tournament_finished',
+					'winner': data['winner'],
+				}
+			)
 
 	def ready_to_play(self, event):
 		print("Ready to play")
@@ -87,6 +95,21 @@ class TournamentConsumer(WebsocketConsumer):
 	def round_created(self, event):
 		self.send(text_data=json.dumps({
 			"type": "round_created",
+		}))
+
+	def send_tournament_finished(self, event):
+		winner = event['winner']
+		self.send(text_data=json.dumps({
+			"type": "tournament_finished",
+			"winner": winner,
+		}))
+
+# resend event #
+
+	def tournament_finished(self, event):
+		self.send(text_data=json.dumps({
+			"type": "tournament_finished",
+			"winner": event['winner'],
 		}))
 
 # Database Functions #

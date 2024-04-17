@@ -118,7 +118,7 @@ def create_pool(request, round_id):
 	body = request.data
 	players = body['players']
 
-	game = Game.objects.create(parent_id=round_id, mode="Tournament")
+	game = Game.objects.create(parent_id=round_id, mode="Tournament", visibility="private")
 	game.save()
 
 	for player in players:

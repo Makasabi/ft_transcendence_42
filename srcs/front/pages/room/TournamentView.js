@@ -45,7 +45,7 @@ export class TournamentView extends IView {
 		}
 
 		this.roomInfo = await getRoomInfo(this.code)
-		
+
 		// check if user can access the tournament
 
 		this.tournament = await getTournamentInfo(this.roomInfo.room_id)
@@ -208,6 +208,10 @@ export function createTournamentSocket(tournament_id) {
 			case "round_created":
 				console.log("Round created:", data);
 				route(`/tournament/${this.code}`);
+				break;
+			case "tournament_finished":
+				console.log("tournament_finished:", data);
+				route(`/tournamentFinished/${data.winner}`)
 				break;
 			default:
 				console.error("Unknown message type:", data.type);
