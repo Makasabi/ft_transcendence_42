@@ -6,6 +6,7 @@ from asgiref.sync import async_to_sync
 from django.http import JsonResponse
 from notification.models import Notification, UserNotifies, IsNotified, RoomNotifies
 import requests
+from notification.TokenAuthenticationMiddleware import get_user
  
 
 @api_view(['POST'])
@@ -18,15 +19,20 @@ def create_notif(request, type, target):
 	- target: Target user id
 
 	"""
-	user1 = request.user
-	# @TODO : change localhost for scalable solution
-	url = f"http://proxy/api/user_management/user/username/{target}"
+	print("create_notif request", request)
+	# user1 = request.user
 	token = request.COOKIES.get('token')
+	user1 = get_user(token)
+	if not user1:
+		return JsonResponse({'message': 'User not found'}, status=404)
+		
+	print("user1", user1["user"])
+	url = f"http://proxy/api/user_management/user/username/{target}"
 	headers = {'Authorization': "Token " + token}
 	target = requests.get(url, headers=headers)
 
 
-	create_send_notification(user1, target.json(), type, request)
+	create_send_notification(user1["user"], target.json(), type, request)
 	return JsonResponse({'message': 'Notification sent'})
 
 
@@ -35,7 +41,11 @@ def get_notifs(request, type):
 	"""
 	Return notifications for the user, either all or unseen
 	"""
-	user_id = request.user.id
+	token = request.COOKIES.get('token')
+	user1 = get_user(token)
+	if not user1:
+		return JsonResponse({'message': 'User not found'}, status=404)
+	user_id = user1['user']['id']
 	notif_json = []
 	if (type == 'unseen'):
 		notifs = Notification.objects.filter(isnotified__user_id=user_id, isnotified__notif__is_seen=False)
@@ -57,7 +67,7 @@ def create_send_notification(user, target, type, request):
 	"""
 	Create a new notification for a user
 	"""
-	message = build_message(user.username, type, request.data)
+	message = build_message(user["user"], type, request.data)
 	notif = Notification.objects.create(type=type, message=message)
 
 	roomCode = ""
@@ -65,7 +75,7 @@ def create_send_notification(user, target, type, request):
 		roomCode = request.data.get('room_code')
 		RoomNotifies.objects.create(room_code=roomCode, notif=notif)
 	else :
-		UserNotifies.objects.create(user_id=user.id, notif=notif)
+		UserNotifies.objects.create(user_id=user["id"], notif=notif)
 	IsNotified.objects.create(user_id=target['id'], notif=notif)
 
 	# print(f'Notification created: {message}')
@@ -119,7 +129,11 @@ def set_seen(request):
 	"""
 	Set all notifications as seen
 	"""
-	notifs = IsNotified.objects.filter(user_id=request.user.id)
+	token = request.COOKIES.get('token')
+	user1 = get_user(token)
+	if not user1:
+		return JsonResponse({'message': 'User not found'}, status=404)
+	notifs = IsNotified.objects.filter(user_id=user1['user']['id'])
 	for notif in notifs:
 		notif.notif.is_seen = True
 		notif.notif.save()

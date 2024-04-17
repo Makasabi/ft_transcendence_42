@@ -109,9 +109,9 @@ export function createRoomSocket(roomid) {
 	try {
 		console.log('Creating socket for room:', roomid);
 		const roomSocket = new WebSocket(
-			'ws://'
+			'wss://'
 			+ window.location.host
-			+ '/ws/room/'
+			+ '/ws/rooms/'
 			+ roomid,
 		);
 

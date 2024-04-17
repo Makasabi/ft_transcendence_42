@@ -13,8 +13,11 @@ class RoomConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
+		print('User de la socket room : ', self.scope['user'])
 		self.user = self.scope['user']
-		if self.user.is_anonymous:
+		print(self.user)
+		print(type(self.user))
+		if not self.user:
 			self.accept()
 			self.close(3002)
 		elif (checkRoomAvailabilityDB(self.room_id) == False):
@@ -22,8 +25,8 @@ class RoomConsumer(WebsocketConsumer):
 			self.close(3001)
 			print(f'Room {self.room_id} is full')
 		else:
-			addPlayerToRoomDB(self.room_id, self.user.id)
-			assignMasterDB(self.room_id, self.user.id)
+			addPlayerToRoomDB(self.room_id, self.user["id"])
+			assignMasterDB(self.room_id, self.user["id"])
 			self.accept()
 			self.sendAddPlayer()
 
@@ -33,7 +36,7 @@ class RoomConsumer(WebsocketConsumer):
 			self.channel_name
 		)
 		if close_code != 3003:
-			removePlayerFromRoomDB(self.room_id, self.user.id)
+			removePlayerFromRoomDB(self.room_id, self.user["id"])
 			new_master = reassignMasterDB(self.room_id)
 			self.sendUpdatePlayer(new_master)
 			self.sendRemovePlayer()
@@ -71,13 +74,13 @@ class RoomConsumer(WebsocketConsumer):
 			self.room_group_name,
 			{
 				'type': 'new_player',
-				'player_id': self.user.id,
-				'is_master': Occupy.objects.get(player_id=self.user.id, room_id=self.room_id).is_master
+				'player_id': self.user["id"],
+				'is_master': Occupy.objects.get(player_id=self.user["id"], room_id=self.room_id).is_master
 			}
 		)
 		occupy = Occupy.objects.filter(room_id=self.room_id)
 		for player in occupy:
-			if player.player_id != self.user.id:
+			if player.player_id != self.user["id"]:
 				self.send(text_data=json.dumps({
 					'type': 'new_player',
 					'player_id': player.player_id,
@@ -99,7 +102,7 @@ class RoomConsumer(WebsocketConsumer):
 			self.room_group_name,
 			{
 				'type': 'remove_player',
-				'player_id': self.user.id
+				'player_id': self.user["id"]
 			}
 		)
 

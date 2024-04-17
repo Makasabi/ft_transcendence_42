@@ -39,7 +39,13 @@ def check_token(request):
 	"""
 	Communication endpoint to check if a token is valid for other services
 	"""
-	return Response({"message": "Token is valid"}, status=status.HTTP_200_OK)
+	user_id = request.user.id
+	username = request.user.username
+	dico = {
+		"id" : user_id,
+		"user" : username,
+	}
+	return Response({"message": "Token is valid", "user" : dico}, status=status.HTTP_200_OK)
 
 ##### Registration #####
 
@@ -117,8 +123,6 @@ def is_registered(request):
 	except Player.DoesNotExist as error:
 		print("In is_register", error)
 		return Response({"error" : "User not registered"}, status=status.HTTP_401_UNAUTHORIZED)
-
-
 
 def get_user_totp_device(user, confirmed=None):
 	devices = devices_for_user(user, confirmed=confirmed)

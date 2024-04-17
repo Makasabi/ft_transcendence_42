@@ -145,7 +145,7 @@ export class TournamentView extends IView {
 export function createTournamentSocket(tournament_id) {
 	console.log("Creating tournament socket for tournament: ", tournament_id);
 	const TournamentSocket = new WebSocket(
-		'ws://'
+		'wss://'
 		+ window.location.host
 		+ '/ws/tournament/'
 		+ tournament_id,

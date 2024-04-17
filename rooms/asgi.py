@@ -23,7 +23,7 @@ application = ProtocolTypeRouter({
 	"websocket": TokenAuthMiddleware(
 		AllowedHostsOriginValidator(
 			URLRouter([
-				path('ws/room/<int:room_id>', RoomConsumer.as_asgi()),
+				path('ws/rooms/<int:room_id>', RoomConsumer.as_asgi()),
 			])
 		)
 	),

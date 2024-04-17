@@ -33,7 +33,7 @@ export class GameContext {
 	attribute_websocket(game_id) {
 		let game = this;
 		this.websocket = new WebSocket(
-			'ws://'
+			'wss://'
 			+ window.location.host
 			+ '/ws/game/'
 			+ game_id,
