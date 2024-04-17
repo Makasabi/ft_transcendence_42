@@ -93,3 +93,11 @@
 	filter: none;
 	border-radius: 50px;
 }
+
+#winner img { 
+	width: 9vw;
+	max-width: 12vh;
+	min-width: 5vh;
+	border-radius: 100px;
+	filter: none;
+}

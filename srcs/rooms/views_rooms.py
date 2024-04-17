@@ -95,14 +95,20 @@ def roomInfo(request, roomCode):
 		"date": "",
 		"roomMode": "",
 		"visibility": "",
-		"code": code
+		"code": code, 
+		"allowed": False,
 	}
 
 	if Rooms.objects.filter(code=code).exists():
-		room_data['room_id'] = Rooms.objects.get(code=code).room_id
-		room_data['date'] = Rooms.objects.get(code=code).date
-		room_data['roomMode'] = Rooms.objects.get(code=code).roomMode
-		room_data['visibility'] = Rooms.objects.get(code=code).visibility
+		room = Rooms.objects.get(code=code)
+		room_data['room_id'] = room.room_id
+		room_data['date'] = room.date
+		room_data['roomMode'] = room.roomMode
+		room_data['visibility'] = room.visibility
+	
+	# check if the user is in the occuypy table
+	if Occupy.objects.filter(room_id=room.room_id, player_id=request.user.id).exists():
+		room_data['allowed'] = True
 
 	return JsonResponse(room_data)
 

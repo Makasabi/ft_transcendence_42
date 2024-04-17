@@ -1,6 +1,8 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { errorMessage } from "/front/pages/room/roomUtils.js";
+import { route } from "/front/pages/spa_router.js"
+
 
 /**
  * send a POST request to back to create the tournament record in DB
@@ -58,7 +60,13 @@ export async function getRoomInfo(code) {
 		headers: {
 			'Authorization': `Token ${Login.getCookie('token')}`,
 		}}).then(response => response.json());
-	// console.log("room:", roomInfo);
+	console.log("room:", roomInfo);
+	// redirect user to uninvited if roomInfo Allowed is false
+	if (roomInfo.allowed === false) {
+		console.error("User not allowed in room");
+		route("/uninvited");
+		return;
+	}
 	return roomInfo;
 }
 
