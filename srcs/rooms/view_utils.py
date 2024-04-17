@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
-from rooms.models import Rooms, Tournament, Occupy
 import random
 import requests
 import string
+from decouple import config
+
+from rooms.models import Rooms, Tournament, Occupy
 
 def compute_repartition(occupancy):
 	"""
@@ -22,8 +24,6 @@ def compute_repartition(occupancy):
 	else:
 		nb_pools = occupancy // 6
 
-	first_round_elimination(occupancy, nb_pools)
-
 	repartition = []
 	extra = occupancy % nb_pools
 	for i in range(nb_pools):
@@ -34,7 +34,7 @@ def compute_repartition(occupancy):
 		repartition.append({"places": places, "players": []})
 	return repartition
 
-def distribute_contestants(request, contestants, repartition):
+def distribute_contestants(contestants, repartition):
 	"""
 	Distribute randomly the players in the pools
 
@@ -58,8 +58,9 @@ def distribute_contestants(request, contestants, repartition):
 		players = contestants_list[:places]
 		for player in players:
 			url = f"http://localhost:8000/api/user_management/user/id/{player.player_id}"
-			token = f"Token {request.auth}"
-			headers = {'Authorization': token}
+			headers = {
+				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+			}
 			data = requests.get(url, headers=headers)
 			pool_data["players"].append(data.json())
 		contestants_list = contestants_list[places:]
@@ -98,5 +99,23 @@ def first_round_elimination(occupancy, nb_pool):
 			elim += 1
 			extra_elim -= 1
 		elim_per_pool.append({'elim': elim})
-	# print("\n".join([f"Pool {i}: {elim_per_pool[i]}" for i in range(nb_pool)]))
+	return elim_per_pool
+
+def other_round_eliminations(nb_pool):
+	"""
+	Compute the number of players to eliminate in the other rounds
+
+	Args:
+	- nb_pool: Number of pools
+
+	Returns:
+	- nb to eliminate in each pool
+	"""
+	elim_per_pool = []
+	elim = nb_pool // 6
+	rest = nb_pool % 6
+	for i in range(nb_pool):
+		elim_per_pool.append({'elim': elim + int(rest > 0)})
+		if rest > 0:
+			rest -= 1
 	return elim_per_pool

@@ -535,10 +535,12 @@ async function getEmailFrom42()
 			return response.json();
 		})
 		.catch(error => {
-			console.error(error);
+			//console.error(error);
 			return null;
 	});
 	console.log("data from 42 :" , data);
+	if (data == null)
+		return null;
 	return data.email;
 }
 

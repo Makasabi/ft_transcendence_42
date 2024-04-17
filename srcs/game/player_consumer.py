@@ -40,8 +40,10 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 		self.close(4000)
 
 	async def game_end(self, event):
-		await self.send(json.dumps({"type": "end"}))
-		self.close()
+		await self.send(json.dumps({
+				"type": "end",
+				"player_ranking": event["player_ranking"],
+		}))
 
 	async def receive(self, text_data=None, bytes_data=None):
 		if text_data is None:

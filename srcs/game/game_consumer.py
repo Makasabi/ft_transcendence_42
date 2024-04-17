@@ -44,11 +44,12 @@ class GameConsumer(AsyncConsumer):
 
 	async def game_end(self, event):
 		game_id = event["game_id"]
-		await self.channel_layer.group_send(f"game_{game_id}", {
-			"type": "game.end"
-		})
 		del self.engines[game_id]
 		player_ranking = event["player_ranking"]
+		await self.channel_layer.group_send(f"game_{game_id}", {
+			"type": "game.end",
+			"player_ranking": player_ranking
+		})
 		await database_sync_to_async(create_history)(game_id, player_ranking)
 
 
@@ -68,6 +69,7 @@ def create_history(game_id, player_ranking):
 	game = Game.objects.get(game_id=game_id)
 	game.date_end = timezone.now()
 	game.end_status = "success"
+	game.ongoing = False
 
 	for i, player_id in enumerate(player_ranking):
 		play = Play.objects.update_or_create(
@@ -76,8 +78,7 @@ def create_history(game_id, player_ranking):
 			defaults={"score":i},
 		)[0]
 		play.save()
-		if game.visibility == "public": # @TODO PLAYER model can't be accessed here
-			player = Player.objects.get(id=player_id)
-			player.global_score += play.score
-			player.save()
+		player = Player.objects.get(id=player_id) # @TODO PLAYER model can't be accessed here
+		player.global_score += play.score
+		player.save()
 	game.save()

@@ -3,10 +3,11 @@ from django.http import JsonResponse
 from channels.layers import get_channel_layer
 from rest_framework.decorators import api_view
 from asgiref.sync import async_to_sync
-from game.models import Game, Play
 import requests
+from decouple import config
+
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from game.models import Game
+from game.models import Game, Play
 
 # Create your views here.
 def index(request):
@@ -21,6 +22,43 @@ def index(request):
 	return JsonResponse({
 		"game": "game"
 	})
+
+@api_view(["GET"])
+def start_round(request, round_id):
+	"""
+	Start the game with the given room_id
+
+	json response format:
+	{
+		game: "game",
+		game_id: game_id
+	}
+	"""
+	print("Game Start Pool")
+	try:
+		games = Game.objects.filter(parent_id=round_id, mode="Tournament")
+		for game in games:
+			game.ongoing = True
+			game.save()
+			plays = Play.objects.filter(game_id=game.game_id)
+			players = []
+			for play in plays:
+				players.append(play.user_id)
+			async_to_sync(get_channel_layer().send)(
+				"game_consumer",
+				{
+					"type": "game.start",
+					"game_id": game.game_id,
+					"players": players
+				}
+			)
+		return JsonResponse({
+			"game": "game"
+		})
+	except Game.DoesNotExist:
+		return JsonResponse({
+			"game" : "error"
+		}, status=404)
 
 
 @api_view(["POST"])
@@ -74,6 +112,7 @@ def start(request, room_id):
 		"game_id": game.game_id
 	})
 
+
 @api_view(["POST"])
 def create_pool(request, round_id):
 	body = request.data
@@ -111,13 +150,15 @@ def retrieve_round(request, round_id):
 		players = []
 		for play in plays:
 			url = f"http://localhost:8000/api/user_management/user/id/{play.user_id}"
-			token = f"Token {request.auth}"
-			headers = {'Authorization': token}
+			headers = {
+				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+			}
 			data = requests.get(url, headers=headers)
 			players.append(data.json())
 		res[f"pool_{game.game_id}"] = {
 			"game_id": game.game_id,
-			"players": players
+			"players": players,
+			"end_status": game.end_status
 		}
 
 	return JsonResponse(res)
@@ -133,13 +174,47 @@ def get_roomcode(request, game_id):
 	}
 	"""
 	game = Game.objects.get(game_id=game_id)
-	url = f"http://localhost:8000/api/rooms/get_code/{game.room_id}"
+	url = f"http://localhost:8000/api/rooms/get_code/{game.parent_id}"
 	headers = {
 		"Authorization": f"Token {request.COOKIES.get('token')}"
 	}
 	room_code = requests.get(url, headers=headers)
 	return JsonResponse({
 		"room_code": room_code.json()['room_code']
+	})
+
+@api_view(["GET"])
+def get_redirect(request, game_id):
+	"""
+	Return the redirect url of the game end
+
+	json response format:
+	{
+		redirect_route: "redirect_route"
+	}
+	"""
+	game = Game.objects.get(game_id=game_id)
+
+	if game.mode == "Tournament":
+		url = f"http://localhost:8000/api/rooms/get_round_code/{game.parent_id}"
+		headers = {
+			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+		}
+		response = requests.get(url, headers=headers)
+		response = response.json()
+		room_code = response['room_code']
+		redirect = "/tournament/" + room_code
+	else:
+		url = f"http://localhost:8000/api/rooms/get_code/{game.parent_id}"
+		headers = {
+			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+		}
+		response = requests.get(url, headers=headers)
+		response = response.json()
+		room_code = response['room_code']
+		redirect = "/room/" + room_code
+	return JsonResponse({
+		"redirect_route": redirect
 	})
 
 @api_view(["GET"])
@@ -229,3 +304,49 @@ def get_game_started(request, room_id):
 		return JsonResponse({
 			"game_started": False
 	})
+
+@api_view(["GET"])
+def get_pool(request, round_id, user_id):
+	"""
+	Returns the game id of the user in the pool with the given round_id
+	"""
+	games = Game.objects.filter(parent_id=round_id, mode="Tournament")
+	for game in games:
+		plays = Play.objects.filter(game_id=game.game_id)
+		for play in plays:
+			if play.user_id == user_id:
+				return JsonResponse({
+					"game_id": game.game_id
+				})
+
+	return JsonResponse({
+		"error": "User not found in pool"
+	})
+
+@api_view(["GET"])
+def get_results(request, game_id):
+	"""
+	Return the sorted results of the game with the given game_id
+
+	json response format:
+	{
+		results: [
+			{
+				user_id: user_id,
+				score: score
+			},
+			...
+		]
+	}
+	"""
+	game = Game.objects.get(game_id=game_id)
+	plays = Play.objects.filter(game=game).order_by('score')
+
+	results_json = []
+
+	for i, play in enumerate(plays, 1):
+		results_json.append({
+			"user_id": play.user_id,
+			"score": play.score
+		})
+	return JsonResponse(results_json, safe=False)

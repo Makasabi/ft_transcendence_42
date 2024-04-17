@@ -138,7 +138,12 @@ def get_code(request, room_id):
 		room_code: "room_code"
 	}
 	"""
-	room = Rooms.objects.get(room_id=room_id)
+	try:
+		room = Rooms.objects.get(room_id=room_id)
+	except Rooms.DoesNotExist:
+		return JsonResponse({
+			"error": "Room not found"
+		}, status=404)
 
 	return JsonResponse({
 		"room_code": room.code

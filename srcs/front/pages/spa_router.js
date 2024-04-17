@@ -12,6 +12,7 @@ import { UninvitedView } from "./room/UninvitedView.js";
 import { CreateRoomView } from "./room/CreateRoomView.js";
 import { TournamentView } from "./room/TournamentView.js";
 import { GameStartedView } from "./room/GameStartedView.js";
+import { EliminatedView } from "./room/EliminatedView.js";
 
 
 /*** Views ***/
@@ -30,6 +31,7 @@ const loggedViews = [
 	GameStartedView,
 	TournamentView,
 	UninvitedView,
+	EliminatedView,
 ];
 
 const unloggedViews = [
