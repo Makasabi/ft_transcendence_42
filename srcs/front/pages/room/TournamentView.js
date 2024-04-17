@@ -1,5 +1,5 @@
 /**
- * 
+ *
  * TODO:
  * Implement end of tournament
  * Implement - touirnament access
@@ -7,11 +7,11 @@
  * Leave button
  * Display lives and usernames in game
  * optimize game when multiple games are running
- * 
+ *
  * Migration to deploy version
- * 
+ *
  * TESTING
- * 
+ *
  *
  * Only first round should accept less than 6 players
  *
@@ -61,10 +61,10 @@ export class TournamentView extends IView {
 		}
 		const access = tournament_info.access;
 		const status = tournament_info.Tournament_Finished;
-		console.log("tournament status: ", status)
-		
-		if (status === "finished"){
-			route(`/tournamentFinished/${tournament_info.finished.winner}`)
+		const winner = tournament_info.winner;
+
+		if (status === "finished" && winner !== null){
+			route(`/tournamentFinished/${winner}`)
 			return;
 		}
 		switch (access) {
@@ -147,7 +147,7 @@ export class TournamentView extends IView {
 		next_round_timer.innerText = `Next round starting in ${formattedTime}`;
 		setTimeout(this.updateNextRoundTimer.bind(this), 100);
 	}
-	
+
 	async ping() {
 		console.log("Pinging tournament socket");
 		if (this.TournamentSocket.readyState === WebSocket.CLOSED
