@@ -2,6 +2,7 @@
  * 
  * TODO:
  * Implement end of tournament
+ * Implement - touirnament access
  * Improve display of rounds
  * Leave button
  * Display lives and usernames in game
@@ -42,7 +43,11 @@ export class TournamentView extends IView {
 			route("/unknown");
 			return;
 		}
+
 		this.roomInfo = await getRoomInfo(this.code)
+		
+		// check if user can access the tournament
+
 		this.tournament = await getTournamentInfo(this.roomInfo.room_id)
 		if (this.tournament === undefined) {
 			console.error("Tournament not found")
