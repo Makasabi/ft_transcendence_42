@@ -82,16 +82,16 @@ export class TournamentView extends IView {
 		this.tournament = tournament_info.tournament;
 		this.TournamentSocket = createTournamentSocket(this.tournament.id);
 
-		console.log("tournament current round: ", this.tournament.current_round)
 		let roundInfo = await getRoundInfo(this.tournament.id, this.tournament.current_round)
-		console.log("round information", roundInfo);
+		let first_round = await getRoundInfo(this.tournament.id, 1)
+		let first_pools = await renamePools(first_round.distribution);
 
 		let html = await fetch("/front/pages/room/tournament.html").then(response => response.text());
 		document.querySelector("main").innerHTML = html;
 
 		let pools = await renamePools(roundInfo.distribution);
-		fillRoundMap(this.tournament, pools);
-		displayMyPool(pools);
+		fillRoundMap(this.tournament, first_pools);
+		displayMyPool(pools, this.tournament.current_round);
 		displayAPool(pools);
 
 		this.ping();

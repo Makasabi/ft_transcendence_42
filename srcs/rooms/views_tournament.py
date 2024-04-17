@@ -88,7 +88,7 @@ def tournamentInfo(request, room_id):
 	Args:
 	- request: Request object
 	- code: Room code
-	
+
 	Returns:
 		json response containing tournament data
 	"""
@@ -243,7 +243,7 @@ def roundCreate(tournament_id):
 	tournament.save()
 
 	if not Round.objects.filter(tournament_id=tournament, round_number=tournament.current_round).exists():
-		start_time = datetime.now() + timedelta(minutes=0.1)
+		start_time = datetime.now() + timedelta(minutes=0.3)
 
 		round = Round.objects.create(tournament_id=tournament, round_number=tournament.current_round, date_start=start_time)
 		contestants = Occupy.objects.filter(room_id=tournament.room_id)
@@ -299,7 +299,7 @@ def get_round_code(request, round_id):
 def tournament_access(request, tournament_id, user_id):
 	"""
 	Check if the user has access to the tournament
-	
+
 	Args:
 	- request: Request object
 	- tournament_id: Tournament ID
@@ -338,7 +338,7 @@ def CheckPlayerAccess(user_id, tournament_id):
 	except Tournament.DoesNotExist:
 		print("Tournament does not exist")
 		return False
-	
+
 
 @api_view(['GET'])
 def check_tournament_status(request, tournament_id):
