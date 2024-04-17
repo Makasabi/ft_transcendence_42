@@ -60,6 +60,13 @@ export class TournamentView extends IView {
 			return;
 		}
 		const access = tournament_info.access;
+		const status = tournament_info.Tournament_Finished;
+		console.log("tournament status: ", status)
+		
+		if (status === "finished"){
+			route(`/tournamentFinished/${tournament_info.finished.winner}`)
+			return;
+		}
 		switch (access) {
 			case "Loosed":
 				route("/playerEliminated");
@@ -74,23 +81,6 @@ export class TournamentView extends IView {
 
 		this.tournament = tournament_info.tournament;
 		this.TournamentSocket = createTournamentSocket(this.tournament.id);
-
-		/**
-		 * ✅ check tournament code
-		 * ✅ open websocket
-		 * ✅ get room info
-		 * get tournament info
-		 * 		call the upddate function(back)
-		 * 		returns tournament info + occupancy
-		 * ✅ get round info
-		 * ✅ display tournament page
-		 * timer function
-		 * 		start game
-		 * call ping function (10s loop)
-		 * 		websocket ping
-		 * 		calls the update function in back
-		 * 		websocket triggers update in front
-		 */
 
 		console.log("tournament current round: ", this.tournament.current_round)
 		let roundInfo = await getRoundInfo(this.tournament.id, this.tournament.current_round)
@@ -220,19 +210,6 @@ export function createTournamentSocket(tournament_id) {
 		const data = JSON.parse(e.data);
 		const type = data.type;
 		switch (type) {
-			// case "player_eliminated":
-			// 	console.log("Player eliminated:", data);
-			// 	playerEliminated(data);
-			// 	break;
-			// case "round_start":
-			// 	console.log("Round starting:", data);
-			// 	break;
-			// case "round_end":
-			// 	console.log("Round ending:", data);
-			// 	break;
-			// case "tournament_end":
-			// 	console.log("Tournament ending:", data);
-			// 	break;
 			case "ready_to_play":
 				console.log(`Entering pool : ${data.game_id}`);
 				route(`/game/${data.game_id}`);

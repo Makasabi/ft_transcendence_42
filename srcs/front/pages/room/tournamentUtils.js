@@ -98,10 +98,23 @@ export async function getTournamentInfo(room_id) {
 			'Authorization': `Token ${Login.getCookie('token')}`,
 		}
 	}).then(response => response.json());
+
+	// check if tournament is finished
+
+	let tournament_finished = await fetch(`/api/rooms/check_tournament_status/${tournament.id}`, {
+		headers:
+		{
+			'Content-Type': 'application:json',
+			'Authorization': `Token ${Login.getCookie('token')}`,
+		}
+	}).then(response => response.json());
+	console.log("tournament_finished:", tournament_finished);
 	
 	return {
 		"tournament": tournament,
 		"access": access.access,
+		"Tournament_Finished": tournament_finished["status"],
+		"winner": tournament_finished["winner"]
 	};
 }
 
