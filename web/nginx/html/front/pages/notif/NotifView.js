@@ -154,8 +154,10 @@ async function displayNotifBox() {
 			notifs.forEach(notification => {
 				const notificationElement = document.createElement('div');
 				notificationElement.classList.add('notification');
-				notificationElement.textContent = notification.message;
+				let notificationMessage = document.createElement('p');
+				notificationMessage.textContent = notification.message;
 				notificationElement.id = notification.notif_id;
+				notificationElement.appendChild(notificationMessage);
 				notificationsContainer.appendChild(notificationElement);
 				renderNotifIcons(notification, notificationElement, notifs.length);
 			});
@@ -166,6 +168,13 @@ async function displayNotifBox() {
 				if (!foregroundBox.contains(event.target)) {
 					foregroundBox.remove();
 					document.removeEventListener('click', closeForegroundBox);
+
+					let newUrl = document.URL.split('#')[0];
+					let state = 0;
+					let title = "Transcendence";
+					window.history.pushState(state, title, newUrl);
+					window.history.replaceState(state, title, newUrl);
+			
 				}
 			}
 			document.addEventListener('click', closeForegroundBox);
