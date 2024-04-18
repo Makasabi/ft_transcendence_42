@@ -16,8 +16,8 @@ export class MeView extends IView {
 		html = await getProfileInfos(html, user);
 		// history-stats
 		html = await getHistoryStats(html, user);
-		
-		
+
+
 		document.querySelector("main").innerHTML = html;
 		html = await switch2FA(html);
 		editProfileButton();
@@ -43,7 +43,7 @@ async function editProfile() {
 		return;
 	}
 
-	const responseUsername = await APIcall('api/user_management/find_match/' + username);
+	const responseUsername = await APIcall('/api/user_management/find_match/' + username);
 	if (responseUsername.status === "error") {
 		// display error message
 		const error_username = document.getElementById("error_username");
@@ -55,8 +55,8 @@ async function editProfile() {
 		}, 2000);
 		return;
 	}
-	
-	await fetch('api/user_management/edit_profile', {
+
+	await fetch('/api/user_management/edit_profile', {
 		method: 'POST',
 		headers: {
 			'Content-type' : 'application/json',
@@ -158,7 +158,7 @@ async function switch2FA(html) {
 	else
 		switchElement.checked = false;
 	document.getElementById('2fa-switch').addEventListener('change', async function() {
-		await fetch('api/user_management/switch_twoFA', {
+		await fetch('/api/user_management/switch_twoFA', {
 			method: 'POST',
 			headers: {'Authorization': `Token ${Login.getCookie('token')}`},
 			body: JSON.stringify({ 'username' : username, 'password' : password}),

@@ -185,7 +185,7 @@ def check_tournament_status(request, tournament_id):
 	tournament = Tournament.objects.get(id=tournament_id)
 	if (tournament.current_round == tournament.total_rounds):
 		round = Round.objects.get(tournament_id=tournament, round_number=tournament.current_round)
-		url = f"http://localhost:8000/api/game/retrieve_round/{round.id}"
+		url = f"http://proxy/api/game/retrieve_round/{round.id}"
 		headers = {
 				"Content-Type": "application/json",
 				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"

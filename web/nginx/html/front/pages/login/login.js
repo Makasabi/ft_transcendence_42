@@ -32,8 +32,8 @@ export class FAView extends IView {
 	{
 		let html = await fetch("/front/pages/login/2FA.html")
 			.then(response => response.text())
-		var bob = await fetch("api/auth/totp_create/", {
-			headers: { 'Authorization': `Token ${getCookie('token')}`} 
+		var bob = await fetch("/api/auth/totp_create/", {
+			headers: { 'Authorization': `Token ${getCookie('token')}`}
 		})
 			.then(response => response.blob())
 		html = html.replace("{{src}}", URL.createObjectURL(bob));
@@ -44,11 +44,11 @@ export class FAView extends IView {
 		submit_button.addEventListener("click", async e => {
 			e.preventDefault();
 			const token = document.getElementById("secret_code").value;
-			const data = await fetch("api/auth/totp_verify/", {
+			const data = await fetch("/api/auth/totp_verify/", {
 				method: "POST",
-				headers: { 
+				headers: {
 					'Content-type' : 'application/json',
-					'Authorization': `Token ${getCookie('token')}`}, 
+					'Authorization': `Token ${getCookie('token')}`},
 				body: JSON.stringify({"token" : token}),
 			})
 				.then(response => {
@@ -228,7 +228,7 @@ export async function is_logged()
 	if (!token)
 		return false;
 	// @TODO test with a bad token
-	const ret = fetch('api/auth/', {
+	const ret = fetch('/api/auth/', {
 		method: 'GET',
 		headers: { 'Authorization': `Token ${token}` }
 	}).then(response => {
@@ -244,7 +244,7 @@ export async function is_logged()
 
 async function login(username, password)
 {
-	const result = await fetch('api/auth/login/', {
+	const result = await fetch('/api/auth/login/', {
 			method: 'POST',
 			headers: {
 				'Content-type' : 'application/json',
@@ -366,7 +366,7 @@ export async function google_authentication()
 	}
 	try
 	{
-		const data = await fetch("api/auth/google_auth/", {
+		const data = await fetch("/api/auth/google_auth/", {
 			method : "POST",
 			headers: {'Content-type' : 'application/json'},
 			body: JSON.stringify({
@@ -436,7 +436,7 @@ export async function forty2_authentication()
 	}
 	try
 	{
-		const data = await fetch("api/auth/forty2_auth/", {
+		const data = await fetch("/api/auth/forty2_auth/", {
 			method : "POST",
 			headers: {'Content-type' : 'application/json'},
 			body: JSON.stringify({
@@ -528,7 +528,7 @@ export async function username_event(e)
 				/*** Utilities ***/
 export async function is_registered(email)
 {
-	const result = await fetch('api/auth/is_registered/', {
+	const result = await fetch('/api/auth/is_registered/', {
 		method: 'POST',
 		headers: {	'Content-type' : 'application/json'},
 		body: JSON.stringify({ 'email' : email }),
