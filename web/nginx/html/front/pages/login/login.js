@@ -343,10 +343,18 @@ export async function google_callback()
 	try
 	{
 		const reg = await is_registered(email);
-		if (!reg)
-			route("/username/google");
-		else
-			route("/home");
+		switch (reg)
+		{
+			case 1:
+				route("/2FA");
+				break;
+			case 2:
+				route("/home");
+				break;
+			case 3:
+				route("/username/forty2");
+				break;
+		}
 	}
 	catch(error)
 	{
@@ -413,10 +421,18 @@ export async function forty2_callback()
 	try
 	{
 		const reg = await is_registered(email);
-		if (!reg)
-			route("/username/forty2");
-		else
-			route("/home");
+		switch (reg)
+		{
+			case 1:
+				route("/2FA");
+				break;
+			case 2:
+				route("/home");
+				break;
+			case 3:
+				route("/username/forty2");
+				break;
+		}
 	}
 	catch(error)
 	{
@@ -545,21 +561,23 @@ export async function is_registered(email)
 		if (response.ok)
 			return (response.json().then(data => {
 				setCookie("token", data['token'], 1);
-				console.log("User registered : ", data['token']);
-				return true;
+				console.log('user from is reg : ', data['user']);
+				if (data['user']['twoFA'] === true)
+					return 1
+				return 2;
 			}));
 		else if (response.status === 401)
 		{
 			return response.json().then(data => {
 				console.log("Not registered");
-				return false;
+				return 3;
 			});
 		}
 		throw new Error("Error in registration");
 	})
 	.catch(error => {
 		throw new Error(error);
-		return false;
+		return 3;
 	})
 	return result;
 }
