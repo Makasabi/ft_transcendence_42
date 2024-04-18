@@ -153,7 +153,6 @@ function avatarUpload() {
 async function switch2FA(html) {
 	const switchElement = document.getElementById('2fa-switch');
 	const twoFA = await APIcall("/api/user_management/twoFA");
-	console.log(twoFA.twoFA);
 	if (twoFA.twoFA === true)
 		switchElement.checked = true;
 	else

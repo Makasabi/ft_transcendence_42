@@ -38,7 +38,6 @@ export class UserView extends IView {
 }
 
 function addFriend(username, user_id) {
-	console.log("Add friend request + notif");
 	fetch("/api/user_management/add_friend/" + user_id, {
 		method: 'POST',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
@@ -51,7 +50,6 @@ function addFriend(username, user_id) {
 }
 
 function removeFriend(username, user_id) {
-	console.log("Remove friend request + notif");
 	fetch("/api/user_management/remove_friend/" + user_id, {
 		method: 'DELETE',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
@@ -64,7 +62,6 @@ function removeFriend(username, user_id) {
 }
 
 function acceptRequest(username, user_id) {
-	console.log("Accept friend request + notif");
 	fetch("/api/user_management/add_friend/" + user_id, {
 		method: 'POST',
 		headers: { 'Authorization': `Token ${Login.getCookie('token')}` }

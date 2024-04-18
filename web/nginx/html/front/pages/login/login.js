@@ -14,7 +14,6 @@ export function getCookie(name)
 {
 	const cookies = document.cookie.split(';');
 	const cookie = cookies.find(cookie => cookie.trim().startsWith(name + '='));
-	//console.log("token : ", cookie ? cookie.split('=')[1] : null);
 	return cookie ? cookie.split('=')[1] : null;
 }
 
@@ -58,7 +57,6 @@ export class FAView extends IView {
 					else
 						return null;
 				});
-			console.log("data from totp verify : ", data);
 			if (!data)
 				route("/login");
 			route("/home");
@@ -310,9 +308,9 @@ async function signup(username, password, email)
 				return ;
 			else
 			{
-				console.log("Registration successfull!");
-				console.log("token : ", data.token);
- 				console.log("user : ", data.user);
+				console.log("Registration successful!");
+				// console.log("token : ", data.token);
+ 				// console.log("user : ", data.user);
 				setCookie("token", data.token, 1);
 				await route("/home");
 			}

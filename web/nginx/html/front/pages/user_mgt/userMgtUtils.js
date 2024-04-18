@@ -43,9 +43,6 @@ async function displayStatsBars(html, user) {
 	
 	let gamesWinPercentage = gamesPlayed === 0 ? 0 : ((gamesWon / gamesPlayed) * 100).toFixed(2);
 	let tournamentWinPercentage = tournamentsPlayed === 0 ? 0 : ((tournamentWins / tournamentsPlayed) * 100).toFixed(2);
-	
-	console.log("gamesWinPercentage", gamesWinPercentage);
-	console.log("tournamentWinPercentage", tournamentWinPercentage);
 
 	let gamesBarHTML = `<div class="win-bar" style="height: ${gamesWinPercentage}%; background-color: var(--primary-color);"></div>`;
 	let tournamentBarHTML = `<div class="win-bar" style="height: ${tournamentWinPercentage}%; background-color: var(--primary-color);"></div>`;

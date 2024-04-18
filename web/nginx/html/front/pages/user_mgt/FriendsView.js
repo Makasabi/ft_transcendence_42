@@ -10,7 +10,7 @@ export class FriendsView extends IView {
 	}
 
 	async render() {
-		console.log("FriendsView.render");
+		// console.log("FriendsView.render");
 
 		let friends = await APIcall("/api/user_management/get_friends");
 		let html = await fetch("/front/pages/user_mgt/friends.html").then(response => response.text());
@@ -26,10 +26,8 @@ export class FriendsView extends IView {
 			avatar.alt = friend.username;
 
 			await APIcall(`/api/user_management/get_online_status/${friend.username}`).then(data => {
-				console.log(data);
-				if (data.is_online === true) {
+				if (data.is_online === true)
 					avatar.style.border = "var(--online-green) 4px solid";
-				}
 			});
 			avatar.classList.add("friend-avatar");
 
@@ -68,7 +66,6 @@ export class FriendsView extends IView {
 				if (suggestions.length === 0) {
 					resultsContainer.innerHTML = '<ul><li>No Results</li></ul>';
 				} else {
-					console.log("Suggestions" + suggestions);
 					let list = '';
 					if (suggestions.length > 5) {
 						suggestions = suggestions.slice(0, 5);

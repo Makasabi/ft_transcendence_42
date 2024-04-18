@@ -10,16 +10,13 @@ export class NotifView extends IView {
 
 	async render() {
 		// console.log("NotifView.render");
-		// HomeView.render();
 		handleNotificationDot();
 		displayNotifications();
 	}
 }
 
 
-// create Notification socket for the user
 export function createNotificationSocket(username) {
-	// console.log('Creating socket for:', username);
 	const notifySocket = new WebSocket(
 		'wss://'
 		+ window.location.host
@@ -53,10 +50,8 @@ export function createNotificationSocket(username) {
 	notifySocket.onmessage = function (e) {
 		const data = JSON.parse(e.data);
 		const message = data.message;
-		if (data.user === username) {
+		if (data.user === username)
 			displayNotifDot(message);
-			// console.log('Message is for ', username);
-		}
 	};
 	return notifySocket;
 }
@@ -110,8 +105,6 @@ function renderDeclineIcon(notifsLength) {
 	declineIcon.textContent = 'X';
 	declineIcon.classList.add('action-icon');
 	declineIcon.addEventListener('click', (event) => {
-		console.log('Notification deleted');
-		// api call to delete notification from DB
 		const notificationElement = event.target.closest('.notification');
 		fetch("/api/notif/delete_notif/" + notificationElement.id, {
 			method: 'DELETE',
@@ -153,9 +146,7 @@ async function displayNotifBox() {
 			// Create and display the foreground box
 			const foregroundBox = document.createElement('div');
 			foregroundBox.classList.add('foreground-box');
-			
-			console.log('Notifications box for:', notifs);
-			
+						
 			const notificationsContainer = document.createElement('div');
 			notificationsContainer.classList.add('notifications-container');
 			foregroundBox.appendChild(notificationsContainer);
@@ -168,7 +159,6 @@ async function displayNotifBox() {
 				notificationsContainer.appendChild(notificationElement);
 				renderNotifIcons(notification, notificationElement, notifs.length);
 			});
-			console.log('Notifications loaded');
 			
 			document.body.appendChild(foregroundBox);
 
