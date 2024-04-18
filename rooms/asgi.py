@@ -14,7 +14,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter, ChannelNameRouter
 from rooms.TokenAuthenticationMiddleware import TokenAuthMiddleware
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.urls import path
-from rooms.consumers import RoomConsumer
+from rooms.Room_consumers import RoomConsumer
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
 

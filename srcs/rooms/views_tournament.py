@@ -7,6 +7,26 @@ from decouple import config
 from rooms.models import Rooms, Tournament, Occupy, Round
 from .view_utils import CheckPlayerAccess, getWinnerId, update_tournament
 
+def tournament_serializer(tournament, occupancy):
+	"""
+	Serialize a tournament object
+
+	Args:
+	- tournament: Tournament object
+
+	Returns:
+	- tournament_data: Dictionary containing tournament data :
+		room_id
+		total_rounds
+		current_round
+	"""
+	tournament_data = {
+		"id": tournament.id,
+		"total_rounds": tournament.total_rounds,
+		"current_round": tournament.current_round,
+		"occupancy": occupancy,
+	}
+	return tournament_data
 
 @api_view(['POST'])
 def create_tournament(request, roomId):
@@ -70,13 +90,7 @@ def tournamentInfo(request, room_id):
 		tournament = Tournament.objects.get(room_id=room)
 		update_tournament(tournament.id)
 		tournament = Tournament.objects.get(room_id=room)
-		tournament_data = {
-			"id": tournament.id,
-			"total_rounds": tournament.total_rounds,
-			"current_round": tournament.current_round,
-			"occupancy": occupancy,
-		}
-		return JsonResponse(tournament_data)
+		return JsonResponse(tournament_serializer(tournament, occupancy))
 	else:
 		return JsonResponse({"error": "No tournament or too many tournaments found for this room"}, status=404)
 

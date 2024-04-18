@@ -24,7 +24,6 @@ def compute_repartition(occupancy):
 	Returns:
 	- repartition: List of players in each pool
 	"""
-	print("Occupancy: ", occupancy)
 	res = occupancy % 6
 	if (res != 0):
 		nb_pools = occupancy // 6 + 1
@@ -66,7 +65,7 @@ def distribute_contestants(contestants, repartition):
 			pool_data["players"].append(data.json())
 		contestants_list = contestants_list[places:]
 		distributed_contestants[f"pool_{i}"] = pool_data
-	
+
 	return distributed_contestants
 
 def first_round_elimination(occupancy, nb_pool):
@@ -127,7 +126,7 @@ def CheckPlayerAccess(user_id, tournament_id):
 	try:
 		tournament = Tournament.objects.get(id=tournament_id)
 		round = Round.objects.get(tournament_id=tournament, round_number=1)
-		url = "http://localhost:8000/api/game/has_played/" + str(round.id) + "/" + str(user_id)
+		url = "http://proxy/api/game/has_played/" + str(round.id) + "/" + str(user_id)
 		headers = {
 			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
 		}
@@ -146,13 +145,13 @@ def CheckPlayerAccess(user_id, tournament_id):
 	except Tournament.DoesNotExist:
 		print("Tournament does not exist")
 		return False
-	
+
 def roundCreate(tournament_id):
 	"""
 	Create a new round for the tournament
-	
+
 	Args:
-	- tournament_id: Tournament ID	
+	- tournament_id: Tournament ID
 	"""
 	print(f"🌀 Create round for tournament with id {tournament_id}")
 	tournament = Tournament.objects.get(id=tournament_id)
@@ -180,7 +179,7 @@ def roundCreate(tournament_id):
 
 		distribution = distribute_contestants(contestants, repartition)
 		for value in distribution.values():
-			url = f"http://localhost:8000/api/game/create_pool/{round.id}"
+			url = f"http://proxy/api/game/create_pool/{round.id}"
 			headers = {
 				"Content-Type": "application/json",
 				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
@@ -211,7 +210,7 @@ def getWinnerId(tournament_id):
 	"""
 	tournament = Tournament.objects.get(id=tournament_id)
 	final_round = Round.objects.get(tournament_id=tournament, round_number=tournament.total_rounds)
-	url = f"http://localhost:8000/api/game/retrieve_round/{final_round.id}"
+	url = f"http://proxy/api/game/retrieve_round/{final_round.id}"
 	headers = {
 				"Content-Type": "application/json",
 				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
@@ -219,7 +218,7 @@ def getWinnerId(tournament_id):
 	rounds = requests.get(url, headers=headers)
 	finalpool = rounds.json()
 	for pool in finalpool.values():
-		url = f"http://localhost:8000/api/game/get_results/{pool['game_id']}"
+		url = f"http://proxy/api/game/get_results/{pool['game_id']}"
 		headers = {
 			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
 		}
@@ -232,7 +231,7 @@ def getWinnerId(tournament_id):
 def eliminations(round: Round, pools: dict):
 	"""
 	Eliminate players from the tournament
-	
+
 	Args:
 	- round: Round object
 	- pools: Dictionary of pools with their data
@@ -245,7 +244,7 @@ def eliminations(round: Round, pools: dict):
 		elim_per_pool = other_round_eliminations(len(pools))
 	print("❌ Elim per pool", elim_per_pool)
 	for i, pool in enumerate(pools.values()):
-		url = f"http://localhost:8000/api/game/get_results/{pool['game_id']}"
+		url = f"http://proxy/api/game/get_results/{pool['game_id']}"
 		headers = {
 			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
 		}
@@ -278,7 +277,7 @@ def update_tournament(tournament_id):
 			roundCreate(tournament_id)
 		else:
 			round = Round.objects.get(tournament_id=tournament, round_number=tournament.current_round)
-			url = f"http://localhost:8000/api/game/retrieve_round/{round.id}"
+			url = f"http://proxy/api/game/retrieve_round/{round.id}"
 			headers = {
 				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
 			}

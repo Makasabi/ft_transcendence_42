@@ -79,7 +79,7 @@ def tournamentInfo(request, room_id):
 	Args:
 	- request: Request object
 	- code: Room code
-	
+
 	Returns:
 		json response containing tournament data
 	"""
@@ -90,7 +90,6 @@ def tournamentInfo(request, room_id):
 		tournament = Tournament.objects.get(room_id=room)
 		update_tournament(tournament.id)
 		tournament = Tournament.objects.get(room_id=room)
-		print(tournament_serializer(tournament, occupancy))
 		return JsonResponse(tournament_serializer(tournament, occupancy))
 	else:
 		return JsonResponse({"error": "No tournament or too many tournaments found for this room"}, status=404)
@@ -139,28 +138,6 @@ def roundInfo(request, tournament_id, round_number):
 
 	return JsonResponse(res)
 
-def getWinnerId(tournament_id):
-	tournament = Tournament.objects.get(id=tournament_id)
-	final_round = Round.objects.get(tournament_id=tournament, round_number=tournament.total_rounds)
-	url = f"http://proxy/api/game/retrieve_round/{final_round.id}"
-	headers = {
-				"Content-Type": "application/json",
-				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
-			}
-	rounds = requests.get(url, headers=headers)
-	finalpool = rounds.json()
-	for pool in finalpool.values():
-		url = f"http://proxy/api/game/get_results/{pool['game_id']}"
-		headers = {
-			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
-		}
-		game_results = requests.get(url, headers=headers)
-		game_results = game_results.json()
-		len = game_results.__len__()
-		winner = game_results[len-1]
-	return winner['user_id']
-
-
 @api_view(['GET'])
 def round_start_time(request, tournament_id, round_number):
 	tournament = Tournament.objects.get(id=tournament_id)
@@ -184,3 +161,44 @@ def get_round_code(request, round_id):
 	return JsonResponse({
 		"room_code": code
 	})
+
+@api_view(['GET'])
+def tournament_access(request, tournament_id, user_id):
+	"""
+	Check if the user has access to the tournament
+
+	Args:
+	- request: Request object
+	- tournament_id: Tournament ID
+
+	Returns:
+	- JsonResponse: Response object
+	"""
+	res = {
+		'access': CheckPlayerAccess(user_id, tournament_id)
+	}
+
+	return JsonResponse(res)
+
+@api_view(['GET'])
+def check_tournament_status(request, tournament_id):
+	tournament = Tournament.objects.get(id=tournament_id)
+	if (tournament.current_round == tournament.total_rounds):
+		round = Round.objects.get(tournament_id=tournament, round_number=tournament.current_round)
+		url = f"http://localhost:8000/api/game/retrieve_round/{round.id}"
+		headers = {
+				"Content-Type": "application/json",
+				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+		}
+		rounds = requests.get(url, headers=headers)
+
+		for game in rounds.json().values():
+			if game['end_status'] == None:
+				return JsonResponse({"status": "ongoing"})
+		winner = getWinnerId(tournament_id)
+		return JsonResponse({
+			"status": "finished",
+			"winner": winner,
+			})
+	else:
+		return JsonResponse({"status": "ongoing"})

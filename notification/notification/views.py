@@ -4,10 +4,10 @@ from rest_framework.decorators import api_view
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.http import JsonResponse
-from notification.models import Notification, UserNotifies, IsNotified, RoomNotifies
 import requests
+
+from notification.models import Notification, UserNotifies, IsNotified, RoomNotifies
 from notification.TokenAuthenticationMiddleware import get_user
- 
 
 @api_view(['POST'])
 def create_notif(request, type, target):
@@ -25,7 +25,7 @@ def create_notif(request, type, target):
 	user1 = get_user(token)
 	if not user1:
 		return JsonResponse({'message': 'User not found'}, status=404)
-		
+
 	# print("user1", user1["user"])
 	url = f"http://proxy/api/user_management/user/username/{target}"
 	headers = {'Authorization': "Token " + token}
@@ -61,8 +61,6 @@ def get_notifs(request, type):
 	except IndexError:
 		return JsonResponse({'message': 'No notifications'}, safe=False)
 
-
-
 def create_send_notification(user, target, type, request):
 	"""
 	Create a new notification for a user
@@ -93,7 +91,7 @@ def create_send_notification(user, target, type, request):
 def build_message(user, type, data):
 	"""
 	Build the message of the notification
-	
+
 	Args:
 	- user: User that triggered the notification
 	- type: Type of notification

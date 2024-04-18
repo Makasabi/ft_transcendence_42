@@ -24,7 +24,6 @@ def compute_repartition(occupancy):
 	Returns:
 	- repartition: List of players in each pool
 	"""
-	# print("Occupancy: ", occupancy)
 	res = occupancy % 6
 	if (res != 0):
 		nb_pools = occupancy // 6 + 1
@@ -66,7 +65,7 @@ def distribute_contestants(contestants, repartition):
 			pool_data["players"].append(data.json())
 		contestants_list = contestants_list[places:]
 		distributed_contestants[f"pool_{i}"] = pool_data
-	
+
 	return distributed_contestants
 
 def first_round_elimination(occupancy, nb_pool):
@@ -112,7 +111,6 @@ def other_round_eliminations(nb_pool):
 		rest -= 1
 	return elim_per_pool
 
-
 def CheckPlayerAccess(user_id, tournament_id):
 	"""
 	Check if the player has access to the tournament
@@ -147,14 +145,13 @@ def CheckPlayerAccess(user_id, tournament_id):
 	except Tournament.DoesNotExist:
 		print("Tournament does not exist")
 		return False
-	
-		
+
 def roundCreate(tournament_id):
 	"""
 	Create a new round for the tournament
-	
+
 	Args:
-	- tournament_id: Tournament ID	
+	- tournament_id: Tournament ID
 	"""
 	print(f"🌀 Create round for tournament with id {tournament_id}")
 	tournament = Tournament.objects.get(id=tournament_id)
@@ -201,7 +198,6 @@ def roundCreate(tournament_id):
 			})
 	print("Round created")
 
-
 def getWinnerId(tournament_id):
 	"""
 	Get the winner of the tournament
@@ -232,11 +228,10 @@ def getWinnerId(tournament_id):
 		winner = game_results[len-1]
 	return winner['user_id']
 
-
 def eliminations(round: Round, pools: dict):
 	"""
 	Eliminate players from the tournament
-	
+
 	Args:
 	- round: Round object
 	- pools: Dictionary of pools with their data
@@ -267,7 +262,6 @@ def eliminations(round: Round, pools: dict):
 					"type": "eliminated",
 					"player_id": player['user_id']
 				})
-
 
 def update_tournament(tournament_id):
 	"""

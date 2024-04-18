@@ -19,7 +19,7 @@ class TournamentConsumer(WebsocketConsumer):
 		self.tournament_group_name = f'tournament_{self.tournament_id}'
 		self.current_round = Tournament.objects.get(id=self.tournament_id).current_round
 		self.round_info = Round.objects.get(tournament_id=self.tournament_id, round_number=self.current_round)
-		
+
 		# Adding user to group #
 		async_to_sync(self.channel_layer.group_add)(
 			self.tournament_group_name,

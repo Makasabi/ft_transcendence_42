@@ -206,7 +206,7 @@ def is_master(room_id, user_id):
 		return True
 	else:
 		return False
-	
+
 # check if game already started
 def checkGameStarted(room_id):
 	url = f"http://proxy/api/game/get_game_started/{room_id}"

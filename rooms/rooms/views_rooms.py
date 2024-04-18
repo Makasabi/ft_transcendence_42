@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
-from rooms.models import Rooms, Tournament, Occupy
 import random
 import string
+
+from rooms.models import Rooms, Tournament, Occupy
 from rooms.TokenAuthenticationMiddleware import get_user
 
 @api_view(['POST'])
@@ -22,7 +23,8 @@ def create_room(request):
 		visibility
 		code
 	"""
-
+	if 'roomMode' not in request.data or 'visibility' not in request.data:
+		return JsonResponse({"error": "Missing data"}, status=400)
 	room_data = {
 		"room_id": 0,
 		"date": "",
@@ -95,7 +97,7 @@ def roomInfo(request, roomCode):
 		"date": "",
 		"roomMode": "",
 		"visibility": "",
-		"code": code, 
+		"code": code,
 		"allowed": False,
 	}
 
@@ -105,7 +107,7 @@ def roomInfo(request, roomCode):
 		room_data['date'] = room.date
 		room_data['roomMode'] = room.roomMode
 		room_data['visibility'] = room.visibility
-	
+
 	token = request.COOKIES.get('token')
 	user = get_user(token)
 	if not user:
@@ -148,15 +150,12 @@ def get_code(request, room_id):
 		room_code: "room_code"
 	}
 	"""
-	print("GET CODE FOR ROOM", room_id)
 	try:
 		room = Rooms.objects.get(room_id=room_id)
 	except Rooms.DoesNotExist:
-		print("Room not found")
 		return JsonResponse({
 			"error": "Room not found"
 		}, status=404)
-	print("Room found : ", room.code)
 	return JsonResponse({
 		"room_code": room.code
 	})

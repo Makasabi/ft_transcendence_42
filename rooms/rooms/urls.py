@@ -14,5 +14,6 @@ urlpatterns = [
 	path("api/rooms/info_tournament/<int:room_id>", views_tournament.tournamentInfo, name="info_tournament"),
 	path("api/rooms/info_round/<int:tournament_id>/<int:round_number>", views_tournament.roundInfo, name="info_round"),
 	path("api/rooms/round_start_time/<int:tournament_id>/<int:round_number>", views_tournament.round_start_time, name="round_start_time"),
-	# path("create_round/<int:tournament_id>/<int:round_number>", views_tournament.roundCreate, name="create_round"),
+	path("api/rooms/tournament_access/<int:tournament_id>/<int:user_id>", views_tournament.tournament_access, name="tournament_access"),
+	path("api/rooms/check_tournament_status/<int:tournament_id>", views_tournament.check_tournament_status, name="check_tournament_status"),
 ]

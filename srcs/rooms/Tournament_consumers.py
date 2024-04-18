@@ -1,8 +1,7 @@
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from time import sleep
-from channels.exceptions import StopConsumer
-from rooms.models import Rooms, Occupy, Tournament, Round
+from rooms.models import Tournament, Round
 import json
 import requests
 from decouple import config
@@ -20,7 +19,7 @@ class TournamentConsumer(WebsocketConsumer):
 		self.tournament_group_name = f'tournament_{self.tournament_id}'
 		self.current_round = Tournament.objects.get(id=self.tournament_id).current_round
 		self.round_info = Round.objects.get(tournament_id=self.tournament_id, round_number=self.current_round)
-		
+
 		# Adding user to group #
 		async_to_sync(self.channel_layer.group_add)(
 			self.tournament_group_name,
@@ -29,7 +28,7 @@ class TournamentConsumer(WebsocketConsumer):
 		self.user = self.scope['user']
 
 		# Testing user privileges on tournament #
-		testAccess = CheckPlayerAccess(self.user.id, self.tournament_id)
+		testAccess = CheckPlayerAccess(self.user.user['id'], self.tournament_id)
 		if self.user.is_anonymous or testAccess == "Uninvited":
 			print("💀 Uninvited or Anonymous user")
 			self.accept()
@@ -45,7 +44,7 @@ class TournamentConsumer(WebsocketConsumer):
 		else:
 			print("🛎️ Accepted")
 			self.accept()
-			url = f"http://proxy/api/game/get_pool/{self.round_info.id}/{self.user.id}"
+			url = f"http://proxy/api/game/get_pool/{self.round_info.id}/{self.user.user['id']}"
 			token = f"Token {self.scope['user'].auth_token}"
 			headers = {'Authorization': token}
 			response = requests.get(url, headers=headers)
@@ -78,7 +77,7 @@ class TournamentConsumer(WebsocketConsumer):
 	def eliminated(self, event):
 		print("🚨 Eliminated 🚨")
 		player_id = event['player_id']
-		if self.user.id == player_id:
+		if self.user.user['id'] == player_id:
 			self.close(3011)
 
 	def round_created(self, event):
@@ -122,6 +121,6 @@ class TournamentConsumer(WebsocketConsumer):
 			self.tournament_group_name,
 			{
 				'type': 'ready_to_play',
-				'user_id': self.user.id
+				'user_id': self.user.user['id']
 			}
 		)
