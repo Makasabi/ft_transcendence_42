@@ -83,26 +83,6 @@ export class GameContext {
 	events(game) {
 		window.addEventListener("resize", resize_canvas);
 
-		let x_rotate_slider = document.querySelector("#x_rotation");
-		let y_rotate_slider = document.querySelector("#y_rotation");
-		let z_rotate_slider = document.querySelector("#z_rotation");
-		let reset_rotation_button = document.querySelector("#reset_rotation");
-
-		function rotate_view(game) {
-			game.rendering_context.rotate_view([x_rotate_slider.value * Math.PI / 180., y_rotate_slider.value * Math.PI / 180., z_rotate_slider.value * Math.PI / 180.]);
-		}
-
-		x_rotate_slider.addEventListener("input", rotate_view.bind(null, game));
-		y_rotate_slider.addEventListener("input", rotate_view.bind(null, game));
-		z_rotate_slider.addEventListener("input", rotate_view.bind(null, game));
-
-		reset_rotation_button.addEventListener("click", function() {
-			x_rotate_slider.value = 180;
-			y_rotate_slider.value = 180;
-			z_rotate_slider.value = 180;
-			rotate_view(game);
-		});
-
 		document.game_socket = this.websocket;
 		document.addEventListener("keydown", keydown_event);
 		document.addEventListener("keyup", keyup_event);

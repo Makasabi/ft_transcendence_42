@@ -25,7 +25,7 @@ class TokenAuthMiddleware:
 			user = await database_sync_to_async(get_user)(token_key)
 			if not user:
 				return await self.app(scope, receive, send)
-			scope['user'] = user
+			scope['user'] = user["user"]
 			close_old_connections()
 		return await self.app(scope, receive, send)
 
