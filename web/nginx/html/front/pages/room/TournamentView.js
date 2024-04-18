@@ -1,5 +1,5 @@
 /**
- * 
+ *
  * TODO:
  * Implement end of tournament
  * Implement - touirnament access
@@ -7,11 +7,11 @@
  * Leave button
  * Display lives and usernames in game
  * optimize game when multiple games are running
- * 
+ *
  * Migration to deploy version
- * 
+ *
  * TESTING
- * 
+ *
  *
  * Only first round should accept less than 6 players
  *
@@ -45,50 +45,63 @@ export class TournamentView extends IView {
 		}
 
 		this.roomInfo = await getRoomInfo(this.code)
+		if (this.roomInfo === undefined) {
+			console.error("Room not found")
+			route("/unknown");
+			return;
+		}
 
 		// check if user can access the tournament
 
-		this.tournament = await getTournamentInfo(this.roomInfo.room_id)
-		if (this.tournament === undefined) {
+		let tournament_info = await getTournamentInfo(this.roomInfo.room_id)
+		if (tournament_info === undefined) {
 			console.error("Tournament not found")
 			route("/unknown");
+			return;
 		}
+		const access = tournament_info.access;
+		const status = tournament_info.Tournament_Finished;
+		const winner = tournament_info.winner;
+
+		if (status === "finished" && winner !== null){
+			route(`/tournamentFinished/${winner}`)
+			return;
+		}
+		switch (access) {
+			case "Loosed":
+				route("/playerEliminated");
+				return;
+			case "Uninvited":
+				route("/uninvited");
+				return;
+			case false:
+				route("/unknown");
+				return;
+			}
+
+		this.tournament = tournament_info.tournament;
 		this.TournamentSocket = createTournamentSocket(this.tournament.id);
 
-		/**
-		 * ✅ check tournament code
-		 * ✅ open websocket
-		 * ✅ get room info
-		 * get tournament info
-		 * 		call the upddate function(back)
-		 * 		returns tournament info + occupancy
-		 * ✅ get round info
-		 * ✅ display tournament page
-		 * timer function
-		 * 		start game
-		 * call ping function (10s loop)
-		 * 		websocket ping
-		 * 		calls the update function in back
-		 * 		websocket triggers update in front
-		 */
-
-		console.log("tournament current round: ", this.tournament.current_round)
 		let roundInfo = await getRoundInfo(this.tournament.id, this.tournament.current_round)
-		console.log("round information", roundInfo);
+		let first_round = await getRoundInfo(this.tournament.id, 1)
+		let first_pools = await renamePools(first_round.distribution);
 
 		let html = await fetch("/front/pages/room/tournament.html").then(response => response.text());
 		document.querySelector("main").innerHTML = html;
 
 		let pools = await renamePools(roundInfo.distribution);
-		fillRoundMap(this.tournament, pools);
-		displayMyPool(pools);
+		fillRoundMap(this.tournament, first_pools);
+		displayMyPool(pools, this.tournament.current_round);
 		displayAPool(pools);
 
 		this.ping();
 		this.updateNextRoundTimer();
 		this.start_time = await getRoundStartTime(this.tournament.id, this.tournament.current_round);
 		if (!this.start_time) {
-			document.getElementById("next_round_timer").innerText = "No upcoming round";
+			const next_round_timer = document.getElementById("next_round_timer");
+			if (next_round_timer === null)
+				return;
+			next_round_timer.innerText = "No upcoming round";
 			return;
 		}
 	}
@@ -102,22 +115,20 @@ export class TournamentView extends IView {
 
 	async updateNextRoundTimer() {
 
-		// let start_time = await getRoundStartTime(this.tournament.id, this.tournament.current_round);
-		// if (!start_time) {
-		// 	document.getElementById("next_round_timer").innerText = "No upcoming round";
-		// 	return;
-		// }
 		let startTime = new Date(this.start_time);
 		let currentTime = new Date();
 		let timeRemaining = startTime - currentTime;
 
-		if (timeRemaining <= 0) {
+		if (timeRemaining <= 0 && this.TournamentSocket.readyState === WebSocket.OPEN) {
 			const to_send = JSON.stringify({
 				"type" : "ready_to_play",
 				"message" : "ready to play",
 			})
 			this.TournamentSocket.send(to_send)
-			document.getElementById("next_round_timer").innerText = "Round has started";
+			const next_round_timer = document.getElementById("next_round_timer");
+			if (next_round_timer === null)
+				return;
+			next_round_timer.innerText = "Round has started";
 			return;
 		}
 
@@ -125,15 +136,21 @@ export class TournamentView extends IView {
 		let seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
 
 		let formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-		document.getElementById("next_round_timer").innerText = `Next round starting in ${formattedTime}`;
+		const next_round_timer = document.getElementById("next_round_timer");
+		if (next_round_timer === null)
+			return;
+		next_round_timer.innerText = `Next round starting in ${formattedTime}`;
 		setTimeout(this.updateNextRoundTimer.bind(this), 100);
 	}
-	
+
 	async ping() {
 		console.log("Pinging tournament socket");
 		if (this.TournamentSocket.readyState === WebSocket.CLOSED
 			|| this.TournamentSocket.readyState === WebSocket.CLOSING)
 			return;
+		while (this.TournamentSocket.readyState === WebSocket.CONNECTING) {
+			await new Promise(resolve => setTimeout(resolve, 100));
+		}
 		this.TournamentSocket.send(JSON.stringify({
 			"type": "ping",
 		}));
@@ -143,22 +160,21 @@ export class TournamentView extends IView {
 
 
 export function createTournamentSocket(tournament_id) {
-	console.log("Creating tournament socket for tournament: ", tournament_id);
+	console.log(`💥 Creating tournament socket for tournament: ${tournament_id}💥`);
 	const TournamentSocket = new WebSocket(
 		'wss://'
 		+ window.location.host
 		+ '/ws/tournament/'
 		+ tournament_id,
 	);
-	// console.log(TournamentSocket);
 
 	TournamentSocket.onerror = function (e) {
-		console.log('Tournament - Socket error', e);
-		// route('/home');
+		console.log(`💔 Tournament - Socket error ${e} 💔`);
+		route('/home');
 	};
 
 	TournamentSocket.onopen = function (e) {
-		// console.log('Tournament - Socket successfully connected: ', e);
+		console.log(`💜 Tournament - Socket successfully connected: ${e} 💜`);
 
 	};
 
@@ -168,18 +184,18 @@ export function createTournamentSocket(tournament_id) {
 		const reason = e.reason;
 		switch (code) {
 			case 1000:
-				console.log('Tournament - Socket closed normally.');
+				console.log('🪓 Tournament - Socket closed normally.');
 				break;
 			case 3010:
-				console.log('Tournament - Player not invited to tournament');
+				console.log('💀 Tournament - Player not invited to tournament');
 				route('/uninvited');
 				break;
 			case 3011:
-				console.log('Tournament - Player was eliminated');
+				console.log('🚨 Tournament - Player was eliminated');
 				route('/playerEliminated');
 				break;
 			default:
-				console.log('Tournament - Socket closed unexpectedly:', code, reason);
+				console.log('🚩 Tournament - Socket closed unexpectedly:', code, reason);
 		}
 	};
 
@@ -188,39 +204,24 @@ export function createTournamentSocket(tournament_id) {
 		const data = JSON.parse(e.data);
 		const type = data.type;
 		switch (type) {
-			// case "player_eliminated":
-			// 	console.log("Player eliminated:", data);
-			// 	playerEliminated(data);
-			// 	break;
-			// case "round_start":
-			// 	console.log("Round starting:", data);
-			// 	break;
-			// case "round_end":
-			// 	console.log("Round ending:", data);
-			// 	break;
-			// case "tournament_end":
-			// 	console.log("Tournament ending:", data);
-			// 	break;
 			case "ready_to_play":
-				console.log(`Entering pool : ${data.game_id}`);
+				console.log(`🎉 Ready to play 🎉\n⚽ Entering pool : ${data.game_id}`);
 				route(`/game/${data.game_id}`);
 				break;
 			case "round_created":
-				console.log("Round created:", data);
-				route(`/tournament/${data.code}`);
+				console.log("🏅 Round created:🏅 ", data);
+				route(`/tournament/${data.tournament_code}`);
 				break;
 			case "tournament_finished":
-				console.log("tournament_finished:", data);
+				console.log("🏆 tournament_finished: 🏆", data);
 				route(`/tournamentFinished/${data.winner}`)
 				break;
 			default:
-				console.error("Unknown message type:", data.type);
+				console.error("❔ Unknown message type: ❔", data.type);
 				break;
 		}
 	};
-
 	return TournamentSocket;
-
 }
 
 

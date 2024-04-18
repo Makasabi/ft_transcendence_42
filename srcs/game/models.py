@@ -14,7 +14,7 @@ class Game(models.Model):
 	ongoing = models.BooleanField(default=False)
 
 	def __str__(self):
-		return f"{self.game_id}"
+		return f"Id {self.game_id} is a {self.mode} game started by {self.parent_id}"
 
 class Play(models.Model):
 	game = models.ForeignKey(Game, on_delete=models.CASCADE)  # Add the game field

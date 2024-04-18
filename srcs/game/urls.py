@@ -14,4 +14,5 @@ urlpatterns = [
 	path('get_pool/<int:round_id>/<int:user_id>', views.get_pool, name='get_pool'),
 	path('get_results/<int:game_id>', views.get_results, name='get_results'),
 	path('get_redirect/<int:game_id>', views.get_redirect, name='get_redirect'),
+	path('has_played/<int:round_id>/<int:user_id>', views.has_played, name='has_played'),
 ]

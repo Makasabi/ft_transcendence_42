@@ -33,14 +33,6 @@ export async function createTournament(roomSocket, room_id, roomCode) {
 			}
 			console.log("Tournament created:", data);
 
-			// let roundInfo = await fetch(`/api/rooms/create_round/${data.id}/${data.current_round}`, {
-			// 	method: "POST",
-			// 	headers: {
-			// 		'Authorization': `Token ${Login.getCookie('token')}`,
-			// 	}
-			// }).then(response => response.json());
-			// console.log(`Round ${data.current_round} created: `, roundInfo);
-
 			const to_send = JSON.stringify({
 				"type": "tournament_start",
 				"message": "Tournament starting",
@@ -60,13 +52,6 @@ export async function getRoomInfo(code) {
 		headers: {
 			'Authorization': `Token ${Login.getCookie('token')}`,
 		}}).then(response => response.json());
-	console.log("room:", roomInfo);
-	// redirect user to uninvited if roomInfo Allowed is false
-	if (roomInfo.allowed === false) {
-		console.error("User not allowed in room");
-		route("/uninvited");
-		return;
-	}
 	return roomInfo;
 }
 
@@ -76,17 +61,52 @@ export async function getTournamentInfo(room_id) {
 			'Authorization': `Token ${Login.getCookie('token')}`,
 		}
 		}).then((response) => {
-			console.log("response:", response);
 			if (!response.ok) {
 				console.error("Error fetching tournament info:", response);
 				return;
 			}
 			const res = response.json();
-			console.log("res:", res);
 			return res;
 		});
-	console.log("tournament:", tournament);
-	return tournament;
+
+	if (tournament === undefined) {
+		console.error("Tournament not found");
+		return;
+	}
+
+	// check user access to tournament
+
+	let me = await fetch(`/api/user_management/me_id`, {
+		method: "GET",
+		headers: {
+			'Content-Type': 'application:json',
+			'Authorization': `Token ${Login.getCookie('token')}`,
+		},
+	}).then(response => response.json());
+
+	let access = await fetch(`/api/rooms/tournament_access/${tournament.id}/${me.id}`, {
+		headers: {
+			'Authorization': `Token ${Login.getCookie('token')}`,
+		}
+	}).then(response => response.json());
+
+	// check if tournament is finished
+
+	let tournament_finished = await fetch(`/api/rooms/check_tournament_status/${tournament.id}`, {
+		headers:
+		{
+			'Content-Type': 'application:json',
+			'Authorization': `Token ${Login.getCookie('token')}`,
+		}
+	}).then(response => response.json());
+	console.log("tournament_finished:", tournament_finished);
+
+	return {
+		"tournament": tournament,
+		"access": access.access,
+		"Tournament_Finished": tournament_finished["status"],
+		"winner": tournament_finished["winner"]
+	};
 }
 
 export async function getRoundInfo(tournament_id, round_number) {
@@ -95,11 +115,10 @@ export async function getRoundInfo(tournament_id, round_number) {
 			'Authorization': `Token ${Login.getCookie('token')}`,
 		}
 	}).then(response => response.json());
-	// console.log("roundInfo:", roundInfo);
 	return roundInfo;
 }
 
-export function fillRoundMap(tournament, pools){
+export function fillRoundMap(tournament, first_pools){
 	let round_map = document.getElementById("round_map");
 	let round_header = document.getElementById("round_headers");
 
@@ -110,15 +129,16 @@ export function fillRoundMap(tournament, pools){
 		header.classList.add("header");
 		round.classList.add("round");
 		round.id = `round${i}`;
+
 		if (i === tournament.current_round) {
 			round.classList.add("current_round");
 			header.style.color = "var(--contrast)"
 		}
 		if (i === 1) {
-			for (let j = 1; j <= Object.keys(pools).length; j++) {
+			for (let j = 1; j <= Object.keys(first_pools).length; j++) {
 				let pool = document.createElement("img");
 				pool.src = "/front/ressources/img/svg/hexagon.svg";
-				pool.id = `pool${j}`;
+				pool.id = `round${i}_pool${j}`;
 				round.appendChild(pool);
 			}
 		}
@@ -127,7 +147,7 @@ export function fillRoundMap(tournament, pools){
 			for (let j = 1; j <= nu_pools; j++) {
 				let pool = document.createElement("img");
 				pool.src = "/front/ressources/img/svg/hexagon.svg";
-				pool.id = `pool${j}`;
+				pool.id = `round${i}_pool${j}`;
 				round.appendChild(pool);
 			}
 		}
@@ -144,7 +164,6 @@ export function renamePools(pools) {
 		return acc;
 	}, {});
 	pools = numberedPools;
-	// console.log(pools);
 	return pools;
 }
 
@@ -207,19 +226,22 @@ export async function displayAPool(pools) {
 		if (pool === "undefined") {
 			return;
 		}
-		let pool_number = pool.split("pool")[1];
+		let pool_number = pool.split("_")[1];
 		if (pool_number === undefined) {
 			return;
 		}
-		APool(pools, pool);
+		APool(pools, pool_number);
 	});
 }
 
-export async function displayMyPool(pools) {
+export async function displayMyPool(pools, current_round) {
 
 	let myPool = await findPoolByUserId(pools);
 
-	let myPoolImg = document.getElementById(myPool);
+	let myPoolImg = document.getElementById(`round${current_round}_${myPool}`);
+	if (myPoolImg === null) {
+		return;
+	}
 	myPoolImg.style.filter = "opacity(100%) invert(40%) sepia(73%) saturate(1183%) hue-rotate(218deg) brightness(104%) contrast(101%)";
 
 	APool(pools, myPool);
@@ -231,6 +253,5 @@ export async function getRoundStartTime(tournament_id, round_number) {
 			'Authorization': `Token ${Login.getCookie('token')}`,
 		}
 	}).then(response => response.json());
-	// console.log("start_time:", start_time);
 	return start_time.start_time;
 }

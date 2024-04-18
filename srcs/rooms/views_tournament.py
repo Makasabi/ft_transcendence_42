@@ -1,41 +1,12 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
-import json
-import random
 import requests
-import string
 from decouple import config
-from datetime import datetime, timedelta
-from asgiref.sync import async_to_sync, sync_to_async
-from channels.layers import get_channel_layer
-from threading import Lock
 
 from rooms.models import Rooms, Tournament, Occupy, Round
-from .view_utils import compute_repartition, distribute_contestants, first_round_elimination, other_round_eliminations
+from .view_utils import CheckPlayerAccess, getWinnerId, update_tournament
 
-lock = Lock()
-
-def tournament_serializer(tournament, occupancy):
-	"""
-	Serialize a tournament object
-
-	Args:
-	- tournament: Tournament object
-
-	Returns:
-	- tournament_data: Dictionary containing tournament data :
-		room_id
-		total_rounds
-		current_round
-	"""
-	tournament_data = {
-		"id": tournament.id,
-		"total_rounds": tournament.total_rounds,
-		"current_round": tournament.current_round,
-		"occupancy": occupancy,
-	}
-	return tournament_data
 
 @api_view(['POST'])
 def create_tournament(request, roomId):
@@ -88,7 +59,7 @@ def tournamentInfo(request, room_id):
 	Args:
 	- request: Request object
 	- code: Room code
-	
+
 	Returns:
 		json response containing tournament data
 	"""
@@ -99,76 +70,15 @@ def tournamentInfo(request, room_id):
 		tournament = Tournament.objects.get(room_id=room)
 		update_tournament(tournament.id)
 		tournament = Tournament.objects.get(room_id=room)
-		print(tournament_serializer(tournament, occupancy))
-		return JsonResponse(tournament_serializer(tournament, occupancy))
+		tournament_data = {
+			"id": tournament.id,
+			"total_rounds": tournament.total_rounds,
+			"current_round": tournament.current_round,
+			"occupancy": occupancy,
+		}
+		return JsonResponse(tournament_data)
 	else:
 		return JsonResponse({"error": "No tournament or too many tournaments found for this room"}, status=404)
-
-def update_tournament(tournament_id):
-	lock.acquire()
-	try:
-		tournament = Tournament.objects.get(id=tournament_id)
-		if (tournament.current_round == 0):
-			roundCreate(tournament_id)
-		# elif (tournament.current_round > tournament.total_rounds):
-		# 	print("tournament", tournament)
-		# 	print("tournament finished")
-		# 	winner = getWinnerId(tournament_id)
-		# 	channel_layer = get_channel_layer()
-		# 	async_to_sync(channel_layer.group_send)(
-		# 		f"tournament_{tournament_id}",
-		# 		{
-		# 			"type": "tournament_finished",
-		# 			"winner": winner,
-		# 		})
-		# 	return
-		else:
-			round = Round.objects.get(tournament_id=tournament, round_number=tournament.current_round)
-			url = f"http://proxy/api/game/retrieve_round/{round.id}"
-			headers = {
-				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
-			}
-			response = requests.get(url, headers=headers)
-			if len(response.json()) == 0:
-				print("No games in round")
-				return
-			if all([game['end_status'] != None for game in response.json().values()]):
-				print("All games are finished")
-				print([game['end_status'] != "none" for game in response.json().values()])
-				print(*[game for game in response.json().values()], sep="\n\n")
-				# kick out losers
-				eliminations(round, response.json())
-				roundCreate(tournament_id)
-	finally:
-		print("Tournament updated")
-		lock.release()
-
-def eliminations(round: Round, pools: dict):
-	print("Eliminations")
-	room = round.tournament_id.room_id
-	if round.round_number == 1:
-		elim_per_pool = first_round_elimination(len(Occupy.objects.filter(room_id=room)), len(pools))
-	else:
-		elim_per_pool = other_round_eliminations(len(pools))
-	for i, pool in enumerate(pools.values()):
-		url = f"http://proxy/api/game/get_results/{pool['game_id']}"
-		headers = {
-			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
-		}
-		game_results = requests.get(url, headers=headers)
-		game_results = game_results.json()
-		eliminated = game_results[:elim_per_pool[i]['elim']]
-		print("Eliminated", eliminated)
-		for player in eliminated:
-			print("Player", player)
-			Occupy.objects.filter(room_id=room, player_id=player['user_id']).delete()
-			channel_layer = get_channel_layer()
-			async_to_sync(channel_layer.group_send)(
-				f"tournament_{round.tournament_id.id}",
-				{
-					"type": "eliminated",
-					"player_id": player['user_id']
-				})
 
 @api_view(['GET'])
 def roundInfo(request, tournament_id, round_number):
@@ -214,73 +124,6 @@ def roundInfo(request, tournament_id, round_number):
 
 	return JsonResponse(res)
 
-def getWinnerId(tournament_id):
-	tournament = Tournament.objects.get(id=tournament_id)
-	final_round = Round.objects.get(tournament_id=tournament, round_number=tournament.total_rounds)
-	url = f"http://proxy/api/game/retrieve_round/{final_round.id}"
-	headers = {
-				"Content-Type": "application/json",
-				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
-			}
-	rounds = requests.get(url, headers=headers)
-	finalpool = rounds.json()
-	for pool in finalpool.values():
-		url = f"http://proxy/api/game/get_results/{pool['game_id']}"
-		headers = {
-			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
-		}
-		game_results = requests.get(url, headers=headers)
-		game_results = game_results.json()
-		len = game_results.__len__()
-		winner = game_results[len-1]
-	return winner['user_id']
-
-
-def roundCreate(tournament_id):
-	tournament = Tournament.objects.get(id=tournament_id)
-	tournament.current_round += 1
-	if (tournament.current_round > tournament.total_rounds):
-		winner = getWinnerId(tournament_id)
-		channel_layer = get_channel_layer()
-		async_to_sync(channel_layer.group_send)(
-			f"tournament_{tournament_id}",
-			{
-				"type": "tournament_finished",
-				"winner": winner,
-			})
-		return
-	tournament.save()
-
-	print("Create round")
-	if not Round.objects.filter(tournament_id=tournament, round_number=tournament.current_round).exists():
-		print("Create round2")
-		start_time = datetime.now() + timedelta(minutes=0.1)
-  
-		round = Round.objects.create(tournament_id=tournament, round_number=tournament.current_round, date_start=start_time)
-		contestants = Occupy.objects.filter(room_id=tournament.room_id)
-		repartition = compute_repartition(len(contestants))
-		
-		distribution = distribute_contestants(contestants, repartition)
-		for value in distribution.values():
-			url = f"http://proxy/api/game/create_pool/{round.id}"
-			headers = {
-				"Content-Type": "application/json",
-				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
-			}
-			data = {
-				"players": value.get("players")
-			}
-			data = json.dumps(data)
-			requests.post(url, headers=headers, data=data)
-		channel_layer = get_channel_layer()
-		async_to_sync(channel_layer.group_send)(
-			f"tournament_{tournament_id}",
-			{
-				"type": "round_created",
-				"code": tournament.room_id.code
-			})
-	print("Round created")
-
 @api_view(['GET'])
 def round_start_time(request, tournament_id, round_number):
 	tournament = Tournament.objects.get(id=tournament_id)
@@ -304,3 +147,44 @@ def get_round_code(request, round_id):
 	return JsonResponse({
 		"room_code": code
 	})
+
+@api_view(['GET'])
+def tournament_access(request, tournament_id, user_id):
+	"""
+	Check if the user has access to the tournament
+
+	Args:
+	- request: Request object
+	- tournament_id: Tournament ID
+
+	Returns:
+	- JsonResponse: Response object
+	"""
+	res = {
+		'access': CheckPlayerAccess(user_id, tournament_id)
+	}
+
+	return JsonResponse(res)
+
+@api_view(['GET'])
+def check_tournament_status(request, tournament_id):
+	tournament = Tournament.objects.get(id=tournament_id)
+	if (tournament.current_round == tournament.total_rounds):
+		round = Round.objects.get(tournament_id=tournament, round_number=tournament.current_round)
+		url = f"http://localhost:8000/api/game/retrieve_round/{round.id}"
+		headers = {
+				"Content-Type": "application/json",
+				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+		}
+		rounds = requests.get(url, headers=headers)
+
+		for game in rounds.json().values():
+			if game['end_status'] == None:
+				return JsonResponse({"status": "ongoing"})
+		winner = getWinnerId(tournament_id)
+		return JsonResponse({
+			"status": "finished",
+			"winner": winner,
+			})
+	else:
+		return JsonResponse({"status": "ongoing"})

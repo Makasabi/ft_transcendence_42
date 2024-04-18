@@ -22,17 +22,23 @@ export class tournamentFinishedView extends IView {
 		}).then(response => response.json());
 		console.log(winner);
 
+		let newUrl = "/GoodGame/";
+		let state = { 'code': winner.code };
+		let title = "Good Game";
+		window.history.pushState(state, title, newUrl);
+		window.history.replaceState(state, title, newUrl);
+
 		let html = await fetch("/front/pages/room/tournamentFinished.html").then(response => response.text());
 		html = html.replace("{{winner}}", winner.username);
 		document.querySelector("main").innerHTML = html;
 
-		
-
 		let winner_avatar = await document.getElementById("winner");
 		let winner_img = document.createElement("img");
+		let winner_link = document.createElement("a");
+		winner_link.href = `/user/username/${winner.username}`;
 		winner_img.src = winner.avatar_file;
-		winner_avatar.appendChild(winner_img);
-
+		winner_link.appendChild(winner_img);
+		winner_avatar.appendChild(winner_link);
 
 
 		let backToHome = document.getElementById("backHomeTournamentFinished");
