@@ -16,5 +16,4 @@ urlpatterns = [
 	path("round_start_time/<int:tournament_id>/<int:round_number>", views_tournament.round_start_time, name="round_start_time"),
 	path("tournament_access/<int:tournament_id>/<int:user_id>", views_tournament.tournament_access, name="tournament_access"),
 	path("check_tournament_status/<int:tournament_id>", views_tournament.check_tournament_status, name="check_tournament_status"),
-	# path("create_round/<int:tournament_id>/<int:round_number>", views_tournament.roundCreate, name="create_round"),
 ]
