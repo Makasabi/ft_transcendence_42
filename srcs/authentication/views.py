@@ -27,13 +27,10 @@ def login(request):
 			return Response({"error" : "Wrong password"}, status=status.HTTP_400_BAD_REQUEST)
 		token, _ = Token.objects.get_or_create(user=user)
 		print("Token : ", token.key)
-
 		serializer = PlayerSerializer(instance=user)
-
 		return Response({ "token" : token.key, "user" : serializer.data }, status=status.HTTP_200_OK)
 	except Player.DoesNotExist:
 		return Response({ "error" : "User does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(['GET'])
 def check_token(request):
@@ -61,7 +58,7 @@ def signup(request):
 	serializer.save()
 	user = Player.objects.get(username=request.data["username"])
 	# random avatar file from /front/ressources/img/png/avatar_XXX.png
-	avatar_file = "/front/ressources/img/png/avatar_0" + str(random.randint(0, 3)) + ".png"
+	avatar_file = "/front/ressources/upload/avatar_0" + str(random.randint(0, 3)) + ".png"
 	user.avatar_file = avatar_file
 	user.save()
 	token = Token.objects.create(user=user)
@@ -121,8 +118,6 @@ def is_registered(request):
 		print("In is_register", error)
 		return Response({"error" : "User not registered"}, status=status.HTTP_401_UNAUTHORIZED)
 
-
-
 def get_user_totp_device(user, confirmed=None):
 	devices = devices_for_user(user, confirmed=confirmed)
 	for device in devices:
@@ -154,7 +149,6 @@ def TOTPCreateView(request):
 	response['Content-Disposition'] = 'attachment; filename="qrcode.png"'
 	print("Response: ", response)
 	return response
-
 
 @api_view(['POST'])
 def TOTPVerifyView(request):
