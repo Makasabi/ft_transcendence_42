@@ -36,7 +36,6 @@ const loggedViews = [
 	UninvitedView,
 	EliminatedView,
 	tournamentFinishedView,
-	login.FAView,
 ];
 
 const unloggedViews = [
@@ -45,6 +44,7 @@ const unloggedViews = [
 	Forty2View,
 	login.GoogleView,
 	login.UsernameView,
+	login.FAView,
 ];
 
 	/*** Utilities ***/

@@ -124,7 +124,6 @@ def google_auth(request):
 @permission_classes([])
 def is_registered(request):
 	try:
-		print("IS REGISTERED : " , request.data['email'])
 		user = Player.objects.get(email=request.data['email'])
 		token, created = Token.objects.get_or_create(user=user)
 		serializer = PlayerSerializer(instance=user)
@@ -141,7 +140,6 @@ def get_user_totp_device(user, confirmed=None):
 
 @api_view(['GET'])
 def TOTPCreateView(request):
-	print("TOTPCreate !!!!!!!!!!!!!!!")
 	user = request.user
 	device = get_user_totp_device(user)
 	if not device:
