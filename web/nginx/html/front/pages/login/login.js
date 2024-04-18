@@ -387,7 +387,7 @@ export async function google_callback()
 				route("/home");
 				break;
 			case 3:
-				route("/username/forty2");
+				route("/username/google");
 				break;
 		}
 	}
