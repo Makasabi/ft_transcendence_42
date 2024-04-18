@@ -15,12 +15,9 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 			return
 		self.group_name = f"game_{self.game_id}"
 		self.group_send = f"game_consumer"
-		# @TODO : anonymous ?
 		self.user = self.scope["user"]
-		print("User from scope: ", self.user)
-		# if self.user['user'].is_anonymous:
-		# 	print("PlayerConsumer.connect: Anonymous user")
-		# 	return
+		if self.user.get("id") is None or self.user.get("user") is None:
+			return
 		# @TODO: Verify the player is in the game
 
 		# Join room group

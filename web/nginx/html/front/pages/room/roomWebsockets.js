@@ -4,7 +4,7 @@ import { applyPlayerBorder} from "/front/pages/room/roomUtils.js";
 
 /**
  * Add a player to the view when player joins the room
- * @param {*} data 
+ * @param {*} data
  */
 export async function	addPlayer(data) {
 
@@ -28,7 +28,7 @@ export async function	addPlayer(data) {
 	if (data.is_master === true) {
 		playerDiv.innerHTML = `<img src="${player.avatar_file}" id="imgPlayer${data.player_id}" class="room_avatar" alt"${player.username} avatar">`
 		+ `<div id="master">`
-		+ `<img id="crown" src="/front/ressources/img/svg/icons/crown.svg" alt="Room Master">` 
+		+ `<img id="crown" src="/front/ressources/img/svg/icons/crown.svg" alt="Room Master">`
 		+ `<p> ${player.username}</p>`
 		+ `</div>`;
 	}
@@ -42,7 +42,7 @@ export async function	addPlayer(data) {
 
 /**
  * Remove a player from the view when player leaves the room
- * @param {*} data 
+ * @param {*} data
  */
 export async function removePlayer(data) {
 	let playerList = document.querySelector(".playersInTheRoom");
@@ -52,8 +52,8 @@ export async function removePlayer(data) {
 
 /**
  * Update the view when a player is updated (new master)
- * @param {*} data 
- * 
+ * @param {*} data
+ *
  */
 export async function updatePlayer(data) {
 	updateStartButton(data.player_id, data.is_master);
@@ -72,7 +72,7 @@ export async function updatePlayer(data) {
 	newMaster.id = `player${data.player_id}`;
 	newMaster.innerHTML = `<img src="${player.avatar_file}" id="imgPlayer${data.player_id}" class="room_avatar" alt"${player.username} avatar">`
 	+ `<div id="master">`
-	+ `<img id="crown" src="/front/ressources/img/svg/icons/crown.svg" alt="Room Master">` 
+	+ `<img id="crown" src="/front/ressources/img/svg/icons/crown.svg" alt="Room Master">`
 	+ `<p> ${player.username}</p>`
 	+ `</div>`;
 	playerList.replaceChild(newMaster, oldMaster);
@@ -82,8 +82,8 @@ export async function updatePlayer(data) {
 
 /**
  * Update the start button view when the master changes
- * @param {*} player_id 
- * @param {*} is_master 
+ * @param {*} player_id
+ * @param {*} is_master
  */
 export async function updateStartButton(player_id, is_master) {
 	let me = await fetch(`/api/user_management/me_id`, {
@@ -96,17 +96,15 @@ export async function updateStartButton(player_id, is_master) {
 
 	let Unabled = document.getElementById("unauthorosedToStart");
 	let buttonAbled = document.getElementById("start");
-	
-	//  TODO: uncomment below for production
-	// if (is_master === true) {
-		// if (player_id === me.id) {
-		// if (player_id != me.id) {
+
+	if (is_master === true) {
+		if (player_id != me.id) {
+			Unabled.style.display = "block";
+			buttonAbled.style.display = "none";
+		}
+		else {
 			Unabled.style.display = "none";
 			buttonAbled.style.display = "block";
-		// }
-		// else {
-			// Unabled.style.display = "block";
-			// buttonAbled.style.display = "none";
-		// }
-	// }
+		}
+	}
 }

@@ -14,7 +14,8 @@ class RoomConsumer(WebsocketConsumer):
 			self.channel_name
 		)
 		self.user = self.scope['user']
-		if self.user.is_anonymous:
+		if self.user.get('id') == None or self.user.get('user') == None:
+			self.user = None
 			self.accept()
 			self.close(3002)
 		elif (checkRoomAvailabilityDB(self.room_id) == False):
@@ -25,8 +26,8 @@ class RoomConsumer(WebsocketConsumer):
 			self.accept()
 			self.close(3004)
 		else:
-			addPlayerToRoomDB(self.room_id, self.user.id)
-			assignMasterDB(self.room_id, self.user.id)
+			addPlayerToRoomDB(self.room_id, self.user['id'])
+			assignMasterDB(self.room_id, self.user['id'])
 			self.accept()
 			self.sendAddPlayer()
 
@@ -35,20 +36,23 @@ class RoomConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
-		if close_code != 3003:
-			removePlayerFromRoomDB(self.room_id, self.user.id)
+		if close_code != 3003 and close_code != 3002:
+			removePlayerFromRoomDB(self.room_id, self.user['id'])
 			new_master = reassignMasterDB(self.room_id)
 			self.sendUpdatePlayer(new_master)
 			self.sendRemovePlayer()
 		self.close(close_code)
 
 	def receive(self, text_data):
-		data = json.loads(text_data)
+		try:
+			data = json.loads(text_data)
+		except json.JSONDecodeError:
+			print('Invalid JSON')
+			return
 		if data['type'] == 'start' or data['type'] == 'tournament_start':
-			# TODO: uncomment below for production
-			# if not (is_master(self.room_id, self.user.id)):
-				# return
-			# else:
+			if not (is_master(self.room_id, self.user['id'])):
+				return
+			else:
 				if data['type'] == 'start':
 					async_to_sync(self.channel_layer.group_send)(
 						self.room_group_name,
@@ -75,13 +79,13 @@ class RoomConsumer(WebsocketConsumer):
 			self.room_group_name,
 			{
 				'type': 'new_player',
-				'player_id': self.user.id,
-				'is_master': Occupy.objects.get(player_id=self.user.id, room_id=self.room_id).is_master
+				'player_id': self.user['id'],
+				'is_master': Occupy.objects.get(player_id=self.user['id'], room_id=self.room_id).is_master
 			}
 		)
 		occupy = Occupy.objects.filter(room_id=self.room_id)
 		for player in occupy:
-			if player.player_id != self.user.id:
+			if player.player_id != self.user['id']:
 				self.send(text_data=json.dumps({
 					'type': 'new_player',
 					'player_id': player.player_id,
@@ -103,7 +107,7 @@ class RoomConsumer(WebsocketConsumer):
 			self.room_group_name,
 			{
 				'type': 'remove_player',
-				'player_id': self.user.id
+				'player_id': self.user['id']
 			}
 		)
 

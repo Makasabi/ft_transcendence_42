@@ -41,6 +41,10 @@ class NotificationConsumer(WebsocketConsumer):
 			self.send(text_data=json.dumps(event))
 
 	def receive(self, text_data):
-		text_data_json = json.loads(text_data)
+		try:
+			text_data_json = json.loads(text_data)
+		except json.JSONDecodeError:
+			print('Invalid JSON')
+			return
 		message = text_data_json['message']
 		print(f'received message: {message}')

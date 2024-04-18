@@ -1,10 +1,6 @@
 import * as Login from "/front/pages/login/login.js";
 import { route } from "/front/pages/spa_router.js";
 
-/*
-TODO: When last player leaves room --> define what to do with room record.
-*/
-
 /**
  * Collects response from the radio buttons and creates a room accordingly
  * @returns {void} routes to the selected room creation mode
@@ -180,13 +176,6 @@ export function copyLink(){
 	}
 	);
 }
-
-
-/*
-TODO: When last player leaves room --> define what to do with room record.
-TODO: add Leave Room button
-TODO: Limit number of players in tournament at MIN 8 & MAX 36
-*/
 
 
 export function errorMessage(message) {

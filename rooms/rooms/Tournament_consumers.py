@@ -28,9 +28,10 @@ class TournamentConsumer(WebsocketConsumer):
 		self.user = self.scope['user']
 
 		# Testing user privileges on tournament #
-		testAccess = CheckPlayerAccess(self.user.user['id'], self.tournament_id)
-		if self.user.is_anonymous or testAccess == "Uninvited":
+		testAccess = CheckPlayerAccess(self.user['user']['id'], self.tournament_id)
+		if (self.user.get('id') == None or self.user.get('user') == None) or testAccess == "Uninvited":
 			print("💀 Uninvited or Anonymous user")
+			self.user = None
 			self.accept()
 			self.close(3010)
 		elif testAccess == "Loosed":
@@ -44,7 +45,7 @@ class TournamentConsumer(WebsocketConsumer):
 		else:
 			print("🛎️ Accepted")
 			self.accept()
-			url = f"http://proxy/api/game/get_pool/{self.round_info.id}/{self.user.user['id']}"
+			url = f"http://proxy/api/game/get_pool/{self.round_info.id}/{self.user['user']['id']}"
 			token = f"Token {self.scope['user'].auth_token}"
 			headers = {'Authorization': token}
 			response = requests.get(url, headers=headers)
@@ -59,7 +60,11 @@ class TournamentConsumer(WebsocketConsumer):
 		self.close(close_code)
 
 	def receive(self, text_data):
-		data = json.loads(text_data)
+		try:
+			data = json.loads(text_data)
+		except json.JSONDecodeError:
+			print("Invalid JSON")
+			return
 		print("Received : ", data)
 		if data['type'] == 'ready_to_play':
 			self.ready_to_play_receiver()
@@ -77,7 +82,7 @@ class TournamentConsumer(WebsocketConsumer):
 	def eliminated(self, event):
 		print("🚨 Eliminated 🚨")
 		player_id = event['player_id']
-		if self.user.user['id'] == player_id:
+		if self.user['user']['id'] == player_id:
 			self.close(3011)
 
 	def round_created(self, event):
@@ -121,6 +126,6 @@ class TournamentConsumer(WebsocketConsumer):
 			self.tournament_group_name,
 			{
 				'type': 'ready_to_play',
-				'user_id': self.user.user['id']
+				'user_id': self.user['user']['id']
 			}
 		)

@@ -37,9 +37,13 @@ def check_token(request):
 	"""
 	Communication endpoint to check if a token is valid for other services
 	"""
+	dico = {
+		"id" : request.user.id,
+		"user" : request.user.username,
+	}
 	if request.user.twoFA == True and request.user.valid_twoFA == False:
 		return Response({"error" : "2FA not valid"}, status=status.HTTP_400_BAD_REQUEST)
-	return Response({"message": "Token is valid"}, status=status.HTTP_200_OK)
+	return Response({"message": "Token is valid", "user" : dico}, status=status.HTTP_200_OK)
 
 ##### Registration #####
 

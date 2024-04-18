@@ -1,25 +1,3 @@
-/**
- *
- * TODO:
- * Implement end of tournament
- * Implement - touirnament access
- * Improve display of rounds
- * Leave button
- * Display lives and usernames in game
- * optimize game when multiple games are running
- *
- * Migration to deploy version
- *
- * TESTING
- *
- *
- * Only first round should accept less than 6 players
- *
- * Minimum 1 player shouild be eliminated in each game
- *
- *
- */
-
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
