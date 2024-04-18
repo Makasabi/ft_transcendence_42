@@ -129,7 +129,9 @@ document.addEventListener("DOMContentLoaded", function () {
 	handleLocation();
 	let tag = this.querySelector("header");
 	let parent = tag.parentNode;
-	parent.insertBefore(document.getElementsByClassName("particles-js-canvas-el")[0], tag);
+	let particles = document.getElementsByClassName("particles-js-canvas-el");
+	if (particles.length > 0)
+		parent.insertBefore(particles[0], tag);
 });
 
 document.route = route;

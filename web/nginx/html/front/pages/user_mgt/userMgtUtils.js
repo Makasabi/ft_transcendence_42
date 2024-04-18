@@ -84,6 +84,8 @@ async function displayGamePlayers (players, playersList) {
 
 export function displayGameBox(user) {
 	const historyTableBody = document.getElementById('history_table_body');
+	if (historyTableBody === null)
+		return;
 
 	historyTableBody.addEventListener("click", async (event) => {
 

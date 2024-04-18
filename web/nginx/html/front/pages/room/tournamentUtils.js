@@ -122,6 +122,10 @@ export function fillRoundMap(tournament, first_pools){
 	let round_map = document.getElementById("round_map");
 	let round_header = document.getElementById("round_headers");
 
+	if (round_map === null || round_header === null) {
+		return;
+	}
+
 	for (let i = 1; i <= tournament.total_rounds; i++) {
 		let round = document.createElement("div");
 		let header = document.createElement("h3");
@@ -192,6 +196,9 @@ async function findPoolByUserId(pools) {
 export async function APool(pools, pool_number) {
 
 	let header = document.getElementById("pool_header");
+	if (header === null) {
+		return;
+	}
 	header.innerHTML = `Pool ${pool_number.split("pool")[1]}`;
 
 	const playersInPool = pools[pool_number].players;

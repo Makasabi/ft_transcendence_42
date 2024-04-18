@@ -14,10 +14,6 @@ export class GameView extends IView {
 		let main = document.querySelector("main");
 		let main_set = false;
 
-		//let particule = document.getElementsByClassName("particles-js-canvas-el");
-		//if (particule.length > 0)
-		//	particule[0].remove();
-
 		this.footer = document.querySelector("footer");
 		if (this.footer !== null)
 			this.footer.remove();
@@ -96,6 +92,8 @@ export class GameView extends IView {
 		this.game.destroy();
 		document.head.removeChild(this.stylesheet);
 		const main = document.querySelector("main");
+		if (main === null)
+			return;
 		main.insertAdjacentHTML("afterend", this.footer.outerHTML);
 	}
 

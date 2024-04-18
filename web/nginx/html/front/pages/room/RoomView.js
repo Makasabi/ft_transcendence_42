@@ -56,12 +56,18 @@ export class RoomView extends IView {
 		this.roomSocket = createRoomSocket(roomInfo.room_id);
 
 		if (roomInfo.roomMode === "Tournament") {
-			await document.getElementById("start").addEventListener("click", async () => {
+			let startButton = document.getElementById("start");
+			if (startButton === null)
+				return;
+			await startButton.addEventListener("click", async () => {
 				createTournament(this.roomSocket ,roomInfo.room_id, roomInfo.code);
 			});
 		}
 		else {
-			await document.getElementById("start").addEventListener("click", () => {
+			let startButton = document.getElementById("start");
+			if (startButton === null)
+				return;
+			await startButton.addEventListener("click", () => {
 				console.log("Starting game");
 				fetch(`/api/game/start/${roomInfo.room_id}`, {
 					method: "POST",

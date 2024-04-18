@@ -33,6 +33,8 @@ export class tournamentFinishedView extends IView {
 		document.querySelector("main").innerHTML = html;
 
 		let winner_avatar = await document.getElementById("winner");
+		if (winner_avatar === null)
+			return;
 		let winner_img = document.createElement("img");
 		let winner_link = document.createElement("a");
 		winner_link.href = `/user/username/${winner.username}`;
@@ -42,6 +44,8 @@ export class tournamentFinishedView extends IView {
 
 
 		let backToHome = document.getElementById("backHomeTournamentFinished");
+		if (backToHome === null)
+			return;
 		backToHome.addEventListener("click", (e) => {
 			e.preventDefault();
 			route("/home");

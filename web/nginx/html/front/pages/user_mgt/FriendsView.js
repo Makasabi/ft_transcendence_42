@@ -50,6 +50,8 @@ export class FriendsView extends IView {
 		// Autocomplete functionality
 		const searchInput = document.getElementById("search-friends");
 		let resultsContainer = document.getElementById("friends_results");
+		if (resultsContainer === null || searchInput === null)
+			return;
 		resultsContainer.style.display = 'none';
 		resultsContainer.innerHTML = '';
 

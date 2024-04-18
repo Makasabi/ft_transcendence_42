@@ -42,10 +42,14 @@ export class FAView extends IView {
 		document.querySelector("main").innerHTML = html;
 
 		const submit_button = document.getElementById("submit-secret-code");
+		if (submit_button === null)
+			return ;
 
 		submit_button.addEventListener("click", async e => {
 			e.preventDefault();
 			const token = document.getElementById("secret_code").value;
+			if (token === "")
+				return ;
 			const data = await fetch("/api/auth/totp_verify/", {
 				method: "POST",
 				headers: {
@@ -123,9 +127,15 @@ export class LoginView extends IView
 
 		const input_username = document.getElementById("login_username");
 		const input_password = document.getElementById("login_password");
+		if (input_username === null)
+			return ;
+		if (input_password === null)
+			return ;
 		input_username.focus();
 
 		const log_button = document.getElementById("submit-login");
+		if (log_button === null)
+			return ;
 		log_button.addEventListener("click", login_event);
 
 		input_username.onkeydown = function(e) {
@@ -150,12 +160,16 @@ export class LoginView extends IView
 		};
 
 		const google_button = document.getElementById("google-auth-btn");
+		if (google_button === null)
+			return ;
 		google_button.addEventListener("click", (e) => {
 			e.preventDefault();
 			google_signup_event(e);
 		});
 
 		const forty2_button = document.getElementById("forty2-auth-btn");
+		if (forty2_button === null)
+			return ;
 		forty2_button.addEventListener("click", forty2_signup_event);
 	}
 }
@@ -172,12 +186,18 @@ export class SignupView extends IView
 			.then(html => document.querySelector("main").innerHTML = html);
 
 		const input_email = document.getElementById("signup_email");
+		if (input_email === null)
+			return ;
 		input_email.focus();
 
 		const signup_button = document.getElementById("submit-signup");
+		if (signup_button === null)
+			return ;
 		signup_button.addEventListener("click", signup_event);
 
 		const not_registered = document.getElementById("not-registered");
+		if (not_registered === null)
+			return ;
 		not_registered.addEventListener("click", (e) => {
 			e.preventDefault();
 			route("/login");
@@ -211,6 +231,8 @@ export class UsernameView extends IView
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
 		const username_button = document.getElementById("submit-username");
+		if (username_button === null)
+			return ;
 		username_button.dataset.auth = match[1];
 		username_button.addEventListener("click", username_event);
 	}
@@ -274,8 +296,16 @@ async function login(username, password)
 		})
 		.catch(error => {
 			//console.error(error);
-			document.getElementById("login_error").hidden = false;
-			document.getElementById("login_password").value = "";
+			let login_error = document.getElementById("login_error");
+			let login_password = document.getElementById("login_password");
+
+			if (login_error === null)
+				return false;
+			if (login_password === null)
+				return false;
+
+			login_error.hidden = false;
+			login_password.value = "";
 			return false;
 		});
 	return result;
@@ -299,6 +329,8 @@ async function signup(username, password, email)
 				return response.json().then(data => {
 					console.error("Signup:", data.error);
 					const error_field = document.getElementById("signup_error");
+					if (error_field === null)
+						return ;
 					error_field.textContent = data.error;
 					error_field.hidden = false;
 					throw new Error('Wrong registration');
@@ -491,6 +523,8 @@ export async function login_event(e)
 {
 	e.preventDefault();
 	const form = document.getElementById("login-form");
+	if (form === null)
+		return ;
 	const username = form.elements.login_username.value;
 	const password = form.elements.login_password.value;
 
@@ -509,6 +543,8 @@ export async function signup_event(e)
 	const username = form.elements.signup_username.value;
 	const password = form.elements.signup_password.value;
 	const email = form.elements.signup_email.value;
+	if (username === "" || password === "" || email === "")
+		return ;
 	signup(username, password, email);
 }
 
@@ -516,8 +552,12 @@ export async function username_event(e)
 {
 	e.preventDefault();
 	const form = document.getElementById("username-form");
+	if (!form.checkValidity())
+		return ;
 	const username = form.elements.signup_username.value;
 	const username_button = document.getElementById("submit-username");
+	if (username_button === null)
+		return ;
 	let email = null;
 	if (username_button.dataset.auth === "google")
 		email = await getEmailFromGoogle();

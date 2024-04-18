@@ -134,52 +134,54 @@ function renderNotifIcons(notification, notificationElement, notifsLength) {
 
 async function displayNotifBox() {
 	const notificationsLink = document.getElementById('notif-box');
-		notificationsLink.addEventListener("click", async (event) => {
-			let notifs = await fetch('/api/notif/get_notifs/all', {
-				headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
-			}).then(response => response.json())
-			setNotifSeen();
-			if (notifs.length === 0 || notifs.message === 'No notifications')
-				return;
-			event.stopPropagation();
+	if (notificationsLink === null)
+		return;
+	notificationsLink.addEventListener("click", async (event) => {
+		let notifs = await fetch('/api/notif/get_notifs/all', {
+			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
+		}).then(response => response.json())
+		setNotifSeen();
+		if (notifs.length === 0 || notifs.message === 'No notifications')
+			return;
+		event.stopPropagation();
 
-			// Create and display the foreground box
-			const foregroundBox = document.createElement('div');
-			foregroundBox.classList.add('foreground-box');
-						
-			const notificationsContainer = document.createElement('div');
-			notificationsContainer.classList.add('notifications-container');
-			foregroundBox.appendChild(notificationsContainer);
-			
-			notifs.forEach(notification => {
-				const notificationElement = document.createElement('div');
-				notificationElement.classList.add('notification');
-				let notificationMessage = document.createElement('p');
-				notificationMessage.textContent = notification.message;
-				notificationElement.id = notification.notif_id;
-				notificationElement.appendChild(notificationMessage);
-				notificationsContainer.appendChild(notificationElement);
-				renderNotifIcons(notification, notificationElement, notifs.length);
-			});
-			
-			document.body.appendChild(foregroundBox);
-
-			const closeForegroundBox = function(event) {
-				if (!foregroundBox.contains(event.target)) {
-					foregroundBox.remove();
-					document.removeEventListener('click', closeForegroundBox);
-
-					let newUrl = document.URL.split('#')[0];
-					let state = 0;
-					let title = "Transcendence";
-					window.history.pushState(state, title, newUrl);
-					window.history.replaceState(state, title, newUrl);
-			
-				}
-			}
-			document.addEventListener('click', closeForegroundBox);
-			event.stopPropagation();
+		// Create and display the foreground box
+		const foregroundBox = document.createElement('div');
+		foregroundBox.classList.add('foreground-box');
+					
+		const notificationsContainer = document.createElement('div');
+		notificationsContainer.classList.add('notifications-container');
+		foregroundBox.appendChild(notificationsContainer);
+		
+		notifs.forEach(notification => {
+			const notificationElement = document.createElement('div');
+			notificationElement.classList.add('notification');
+			let notificationMessage = document.createElement('p');
+			notificationMessage.textContent = notification.message;
+			notificationElement.id = notification.notif_id;
+			notificationElement.appendChild(notificationMessage);
+			notificationsContainer.appendChild(notificationElement);
+			renderNotifIcons(notification, notificationElement, notifs.length);
 		});
+		
+		document.body.appendChild(foregroundBox);
+
+		const closeForegroundBox = function(event) {
+			if (!foregroundBox.contains(event.target)) {
+				foregroundBox.remove();
+				document.removeEventListener('click', closeForegroundBox);
+
+				let newUrl = document.URL.split('#')[0];
+				let state = 0;
+				let title = "Transcendence";
+				window.history.pushState(state, title, newUrl);
+				window.history.replaceState(state, title, newUrl);
+		
+			}
+		}
+		document.addEventListener('click', closeForegroundBox);
+		event.stopPropagation();
+	});
 }
 
 function setNotifSeen() {
@@ -195,7 +197,10 @@ async function displayNotifications () {
 
 // display new notification red dot
 function displayNotifDot() {
-	document.getElementById('notificationDot').style.display = 'inline-block';
+	let notifDot = document.getElementById('notificationDot');
+	if (notifDot === null)
+		return
+	notifDot.style.display = 'inline-block';
 }
 
 // Handle red dot for Notifications
