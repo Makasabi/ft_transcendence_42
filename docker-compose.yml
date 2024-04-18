@@ -9,6 +9,7 @@ volumes:
   notif_postgres_data:
   rooms_postgres_data:
   game_postgres_data:
+  upload_data:
 
 services:
         #WEB
@@ -20,6 +21,8 @@ services:
       - ft_transcendence
     depends_on:
       - db_user_management
+    volumes:
+      - upload_data:/usr/share/nginx/html/front/ressources/uploads
     ports:
       - '8080:443'
 
@@ -41,6 +44,8 @@ services:
     build: ./user_management
     env_file: .env
     restart: always
+    volumes:
+      - upload_data:/usr/src/app/uploads
     depends_on:
       - db_user_management
     networks:

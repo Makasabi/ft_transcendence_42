@@ -138,11 +138,12 @@ function avatarUpload() {
 					'Authorization': `Token ${Login.getCookie('token')}`
 				},
 				body: formData
+
 			});
 			const data = await response.json();
 			if (data.file_path) {
 				const avatarImg = document.querySelector(".avatar_img");
-				avatarImg.src = data.file_path;
+				avatarImg.src = "/front/ressources/uploads/" + file.name;
 			}
 		} catch (error) {
 			console.error("Error uploading avatar:", error);
