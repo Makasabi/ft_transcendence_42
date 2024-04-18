@@ -1,0 +1,86 @@
+.notification-dot {
+	display: none;
+	width: 8px;
+	height: 8px;
+	background-color: red;
+	border-radius: 50%;
+	margin-left: 5px;
+}
+
+
+.foreground-box {
+	position: fixed;
+	top: 6.3%;
+	right: 0%;
+	height: 35vh;
+	max-height: 80vh;
+	width: fit-content;
+	max-width: 40vw;
+	padding: 3vh 3vw;
+	border-radius: 10px;
+	justify-content: left;
+	gap: 2em;
+	text-align: left;
+	backdrop-filter: blur(4px);
+	border: var(--border-light) 1px solid;
+	background-color: var(--transparent-darker);
+	z-index: 999;
+	overflow-y: auto;
+}
+
+.notifications-container {
+	max-height: 100%;
+	overflow-y: auto;
+	position: relative;
+	z-index: 2000;
+	
+}
+
+.notifications-container::-webkit-scrollbar-track
+{
+	border-radius: 10px;
+	background-color: var(--border-light);
+}
+
+.notifications-container::-webkit-scrollbar
+{
+	width: 12px;
+	background-color: var(--transparent-dark);
+}
+
+.notifications-container::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	background-color: var(--transparent-primary);
+}
+
+.notification {
+	box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+	margin-bottom: 15px;
+	padding: 15px;
+	border-radius: 8px;
+	border: 1px solid transparent;
+	transition: ease-in-out 0.1s;
+	position: relative; /* Make position relative to contain action buttons */
+	display: flex;
+	align-items: center;
+	background: var(--transparent-darker);
+}
+
+.action-icons {
+	display: flex;
+	justify-content: space-between;
+	margin-left: auto;
+}
+
+.action-icon {
+	cursor: pointer;
+	margin-left: 10px;
+	padding: 8px 12px; /* Adjust the horizontal padding for larger buttons */
+	border-radius: 5px;
+	transition: background-color 0.1s ease-in-out;
+}
+
+.action-icon:hover {
+	background-color: var(--hover-primary-color);
+}

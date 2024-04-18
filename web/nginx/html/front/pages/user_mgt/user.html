@@ -1,0 +1,59 @@
+<div class="me">
+	<div class="profile_info">
+		<div class="profile_info_box">
+			<div class="center_profile">
+				<img src="{{avatar}}" class="avatar_img" alt="avatar">
+			</div>
+			<div class="center_profile">
+				<h2 class="edit" id="username">{{username}}</h2>
+			</div>
+			<div class="profile_table">
+				<img src="/front/ressources/img/svg/icons/rank.svg" class="icon_svg" alt="">
+				<span>{{rank}}</span>
+			</div>
+			<div class="profile_table">
+				<img src="/front/ressources/img/svg/icons/mail.svg" class="icon_svg" alt="">	
+				<p class="edit" id="email"> {{email}} </p>
+			</div>
+			<div class="center_profile">
+				<button id="add-friend" class="cta purple_cta" value="Button Text"></button>
+			</div>
+		</div>
+	</div>
+	<div class="history_stats">
+		<div class="history">
+			<h2>History</h2>
+			<div class="history_table">
+				<table>
+					<thead>
+						<tr>
+							<th scope="col">Rank</th>
+							<th scope="col">Game Mode</th>
+							<th scope="col">Game Visibility</th>
+							<th scope="col">Date</th>
+						</tr>
+					</thead>
+					<tbody id="history_table_body">
+						{{history}}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="stats">
+			<h2>Stats</h2>
+			<div class="stats_table">
+				<div class="wins-label">Wins</div>
+				<div class="bars-container">
+					<div class="bar" id="gamesBar"></div>
+					<div class="win-bar win-bar-games" style="height: ${gamesWinPercentage}%"></div>
+					<div class="label">Games</div>
+				</div>
+				<div class="bars-container">
+					<div class="bar" id="tournamentBar"></div>
+					<div class="win-bar win-bar-tournament" style="height: ${tournamentWinPercentage}%"></div>
+					<div class="label">Tournament</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

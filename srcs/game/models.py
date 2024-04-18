@@ -2,7 +2,6 @@
 
 from django.db import models
 from django.utils import timezone
-from user_management.models import Player
 
 class Game(models.Model):
 	game_id = models.AutoField(primary_key=True)

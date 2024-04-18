@@ -58,7 +58,7 @@ def distribute_contestants(contestants, repartition):
 		places = pool_data.get("places", 0)
 		players = contestants_list[:places]
 		for player in players:
-			url = f"http://localhost:8000/api/user_management/user/id/{player.player_id}"
+			url = f"http://proxy/api/user_management/user/id/{player.player_id}"
 			headers = {
 				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
 			}

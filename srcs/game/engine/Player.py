@@ -18,6 +18,7 @@ class Player:
 		"""
 		self.player_id = player_id
 		self.username = get_username(player_id)
+		print("Username:", self.username)
 		self.border = border
 		self.debug = debug
 		self.ready = False
@@ -138,7 +139,7 @@ def get_username(player_id):
 	headers = {
 		'Authorization': 'App ' + config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')
 	}
-	res = requests.get(f"http://localhost:8000/api/user_management/user/id/{player_id}", headers=headers)
+	res = requests.get(f"http://proxy/api/user_management/user/id/{player_id}", headers=headers)
 	if res.status_code != 200:
 		return "Unknown"
 	return res.json()["username"]

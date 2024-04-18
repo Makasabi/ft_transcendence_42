@@ -1,0 +1,186 @@
+from django.shortcuts import render
+from django.http import JsonResponse
+from rest_framework.decorators import api_view
+import requests
+from decouple import config
+
+from rooms.models import Rooms, Tournament, Occupy, Round
+from .view_utils import CheckPlayerAccess, getWinnerId, update_tournament
+
+def tournament_serializer(tournament, occupancy):
+	"""
+	Serialize a tournament object
+
+	Args:
+	- tournament: Tournament object
+
+	Returns:
+	- tournament_data: Dictionary containing tournament data :
+		room_id
+		total_rounds
+		current_round
+	"""
+	tournament_data = {
+		"id": tournament.id,
+		"total_rounds": tournament.total_rounds,
+		"current_round": tournament.current_round,
+		"occupancy": occupancy,
+	}
+	return tournament_data
+
+@api_view(['POST'])
+def create_tournament(request, roomId):
+	"""
+	Create a new tournament
+
+	Args:
+	- request: Request object
+	- roomId: Room ID
+
+	Returns:
+	- tournament_data: Dictionary containing tournament data :
+		room_id
+		total_rounds
+		current_round
+	"""
+	tournament_data = {
+		"room_id": roomId,
+		"room_code": "",
+		"total_rounds": 0,
+		"current_round": 0,
+		"occupancy": 0,
+		"repartition": []
+	}
+
+	if Rooms.objects.filter(room_id=roomId).exists():
+		room = Rooms.objects.get(room_id=roomId)
+		room_CODE = room.code
+		contestants = Occupy.objects.filter(room_id=roomId)
+		occupancy = len(contestants)
+
+	total_rounds = (occupancy + 6) // 7
+
+	tournament = Tournament.objects.create(room_id=room, total_rounds=total_rounds)
+
+	tournament_data['id'] = tournament.id
+	tournament_data['room_id'] = roomId
+	tournament_data['room_code'] = room_CODE
+	tournament_data['total_rounds'] = total_rounds
+	tournament_data['current_round'] = 0
+	tournament_data['occupancy'] = occupancy
+
+	return JsonResponse(tournament_data)
+
+@api_view(['GET'])
+def tournamentInfo(request, room_id):
+	"""
+	get tournament data
+
+	Args:
+	- request: Request object
+	- code: Room code
+	
+	Returns:
+		json response containing tournament data
+	"""
+	if Rooms.objects.filter(room_id=room_id).exists():
+		room = Rooms.objects.get(room_id=room_id)
+		contestants = Occupy.objects.filter(room_id=room)
+		occupancy = len(contestants)
+		tournament = Tournament.objects.get(room_id=room)
+		update_tournament(tournament.id)
+		tournament = Tournament.objects.get(room_id=room)
+		print(tournament_serializer(tournament, occupancy))
+		return JsonResponse(tournament_serializer(tournament, occupancy))
+	else:
+		return JsonResponse({"error": "No tournament or too many tournaments found for this room"}, status=404)
+
+@api_view(['GET'])
+def roundInfo(request, tournament_id, round_number):
+	"""
+	Get round informations
+
+	Args:
+	- request: Request object
+	- tournament_id: Tournament ID
+
+	Returns:
+	- res: Dictionary containing round data
+		- round_id
+		- round_number
+		- tournament_id
+		- distribution
+		- start_time
+	"""
+	round_data = {
+		"round_id": 0,
+		"round_number": 0,
+		"tournament_id": "",
+		"start_time": 0
+	}
+
+	res = {}
+	tournament = Tournament.objects.get(id=tournament_id)
+
+	print(round_number)
+	round = Round.objects.get(tournament_id=tournament, round_number=round_number)
+	url = f"http://proxy/api/game/retrieve_round/{round.id}"
+	token = f"Token {request.auth}"
+	headers = {'Authorization': token}
+	response = requests.get(url, headers=headers)
+	res['distribution'] = response.json()
+
+	round_data['round_id'] = round.id
+	round_data['round_number'] = round.round_number
+	round_data['tournament_id'] = tournament_id
+	round_data['start_time'] = round.date_start
+
+	res['round_data'] = round_data
+
+	return JsonResponse(res)
+
+def getWinnerId(tournament_id):
+	tournament = Tournament.objects.get(id=tournament_id)
+	final_round = Round.objects.get(tournament_id=tournament, round_number=tournament.total_rounds)
+	url = f"http://proxy/api/game/retrieve_round/{final_round.id}"
+	headers = {
+				"Content-Type": "application/json",
+				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+			}
+	rounds = requests.get(url, headers=headers)
+	finalpool = rounds.json()
+	for pool in finalpool.values():
+		url = f"http://proxy/api/game/get_results/{pool['game_id']}"
+		headers = {
+			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+		}
+		game_results = requests.get(url, headers=headers)
+		game_results = game_results.json()
+		len = game_results.__len__()
+		winner = game_results[len-1]
+	return winner['user_id']
+
+
+@api_view(['GET'])
+def round_start_time(request, tournament_id, round_number):
+	tournament = Tournament.objects.get(id=tournament_id)
+	round = Round.objects.get(tournament_id=tournament, round_number=round_number)
+	return JsonResponse({"start_time": round.date_start})
+
+
+@api_view(['GET'])
+def get_round_code(request, round_id):
+	"""
+	Return the room code of the game with the given round_id
+
+	json response format:
+	{
+		room_code: "room_code"
+	}
+	"""
+	round = Round.objects.get(id=round_id)
+	code = round.tournament_id.room_id.code
+
+	return JsonResponse({
+		"room_code": code
+	})

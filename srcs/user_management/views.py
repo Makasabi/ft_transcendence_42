@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from user_management.models import Player, BeFriends
-from game.models import Play
 from rest_framework.decorators import api_view
 from django.conf import settings
 import os
@@ -48,7 +47,8 @@ def profile_serializer(request, user):
 
 	# @TODO : change localhost for scalable solution
 	user_id = user.id
-	url = f"http://localhost:8000/api/game/get_history/{user_id}"
+	#url = f"http://proxy/api/game/get_history/{user_id}"
+	url = f"http://proxy/api/game/get_history/{user_id}"
 	token = f"Token {request.auth}"
 	headers = {'Authorization': token}
 	game_history = requests.get(url, headers=headers)
@@ -140,7 +140,7 @@ def upload_avatar(request):
 		with open(file_path, 'wb+') as destination:
 			for chunk in avatar_file.chunks():
 				destination.write(chunk)
-		request.user.avatar_file = "/front/ressources/upload/" + avatar_file.name
+		request.user.avatar_file = "/web/nginx/html/front/ressources/" + avatar_file.name
 		print("avatar file is", request.user.avatar_file)
 		request.user.save()
 		return JsonResponse({'file_path': request.user.avatar_file})
@@ -297,8 +297,9 @@ def switch_online(request, username, status):
 		user.online = True
 	else:
 		user.online = False
-	print("User online status: ", user.online)
+		user.valid_twoFA = False
 	user.save()
+	print("User online status: ", user.online)
 	return JsonResponse({'status': 'ok', 'is_online': user.online})
 
 @api_view(['GET'])
@@ -308,3 +309,22 @@ def get_online_status(request, username):
 	"""
 	user = Player.objects.filter(username=username).first()
 	return JsonResponse({'is_online': user.online})
+
+@api_view(['GET'])
+def twoFA(request):
+	"""
+	Return the two factor authentication status of a user
+	"""
+	return JsonResponse({'twoFA': request.user.twoFA})
+
+@api_view(['POST'])
+def switch_twoFA(request):
+	"""
+	Switch user two factor authentication status
+	"""
+	if request.user.twoFA:
+		request.user.twoFA = False
+	else:
+		request.user.twoFA = True
+	request.user.save()
+	return JsonResponse({'twoFA': request.user.twoFA})

@@ -45,7 +45,7 @@ class TournamentConsumer(WebsocketConsumer):
 		else:
 			print("🛎️ Accepted")
 			self.accept()
-			url = f"http://localhost:8000/api/game/get_pool/{self.round_info.id}/{self.user.id}"
+			url = f"http://proxy/api/game/get_pool/{self.round_info.id}/{self.user.id}"
 			token = f"Token {self.scope['user'].auth_token}"
 			headers = {'Authorization': token}
 			response = requests.get(url, headers=headers)

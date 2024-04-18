@@ -20,7 +20,7 @@ def create_notif(request, type, target):
 	"""
 	user1 = request.user
 	# @TODO : change localhost for scalable solution
-	url = f"http://localhost:8000/api/user_management/user/username/{target}"
+	url = f"http://proxy/api/user_management/user/username/{target}"
 	token = request.COOKIES.get('token')
 	headers = {'Authorization': "Token " + token}
 	target = requests.get(url, headers=headers)
@@ -41,12 +41,15 @@ def get_notifs(request, type):
 		notifs = Notification.objects.filter(isnotified__user_id=user_id, isnotified__notif__is_seen=False)
 	elif (type == 'all'):
 		notifs = Notification.objects.filter(isnotified__user_id=user_id)
-	for notif in notifs:
-		if notif.type == 'game_invitation':
-			notif_json.append({'notif_id': notif.notif_id, 'type': notif.type, 'date': notif.date, 'message': notif.message, 'is_seen': notif.is_seen, 'room_code': notif.roomnotifies_set.all()[0].room_code})
-		else:
-			notif_json.append({'notif_id': notif.notif_id, 'type': notif.type, 'date': notif.date, 'message': notif.message, 'is_seen': notif.is_seen, 'sender_id': notif.usernotifies_set.all()[0].user_id})
-	return JsonResponse(notif_json, safe=False)
+	try:
+		for notif in notifs:
+			if notif.type == 'game_invitation':
+				notif_json.append({'notif_id': notif.notif_id, 'type': notif.type, 'date': notif.date, 'message': notif.message, 'is_seen': notif.is_seen, 'room_code': notif.roomnotifies_set.all()[0].room_code})
+			else:
+				notif_json.append({'notif_id': notif.notif_id, 'type': notif.type, 'date': notif.date, 'message': notif.message, 'is_seen': notif.is_seen, 'sender_id': notif.usernotifies_set.all()[0].user_id})
+		return JsonResponse(notif_json, safe=False)
+	except IndexError:
+		return JsonResponse({'message': 'none'}, safe=False)
 
 
 def create_send_notification(user, target, type, request):

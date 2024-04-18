@@ -1,0 +1,139 @@
+version: '3.9'
+
+networks:
+  ft_transcendence:
+    driver: bridge
+
+volumes:
+  user_postgres_data:
+  notif_postgres_data:
+  rooms_postgres_data:
+  game_postgres_data:
+
+services:
+        #WEB
+  nginx:
+    container_name: nginx_container
+    env_file: .env
+    build: ./web/nginx
+    networks:
+      - ft_transcendence
+    depends_on:
+      - db_user_management
+    ports:
+      - '8080:443'
+
+  proxy_api:
+    container_name: proxy
+    env_file: .env
+    build: ./web/proxy
+    networks:
+      - ft_transcendence
+    depends_on:
+      - user_management
+      - notification
+    expose:
+      - '80'
+
+        #APPS
+  user_management:
+    container_name: user_management_container
+    build: ./user_management
+    env_file: .env
+    restart: always
+    depends_on:
+      - db_user_management
+    networks:
+      - ft_transcendence
+    ports: 
+      - "8001:8001"
+
+  notification:
+    container_name: notification_container
+    build: ./notification
+    env_file: .env
+    restart: always
+    depends_on:
+      - db_notification
+    networks:
+      - ft_transcendence
+    expose: 
+      - "8002"
+
+  rooms:
+    container_name: rooms_container
+    build: ./rooms
+    env_file: .env
+    restart: always
+    depends_on:
+      - db_rooms
+    networks:
+      - ft_transcendence
+    expose: 
+      - "8003"
+
+  game:
+    container_name: game_container
+    build: ./game
+    env_file: .env
+    restart: always
+    depends_on:
+      - db_game
+    networks:
+      - ft_transcendence
+    expose: 
+      - "8004"
+
+        #DATABASES
+  db_user_management:
+    container_name: db_user_management
+    image: postgres:15
+    env_file: .env
+    volumes:
+      - user_postgres_data:/var/lib/postgresql/data/
+    expose: 
+      - "5432"
+    networks:
+      - ft_transcendence
+
+  db_notification:
+    container_name: db_notification
+    image: postgres:15
+    env_file: .env
+    volumes:
+      - notif_postgres_data:/var/lib/postgresql/data/
+    expose:
+      - "5432"
+    networks:
+      - ft_transcendence
+
+  db_rooms:
+    container_name: db_rooms
+    image: postgres:15
+    env_file: .env
+    volumes:
+      - rooms_postgres_data:/var/lib/postgresql/data/
+    expose:
+      - "5432"
+    networks:
+      - ft_transcendence
+
+  db_game:
+    container_name: db_game
+    image: postgres:15
+    env_file: .env
+    volumes:
+      - game_postgres_data:/var/lib/postgresql/data/
+    expose:
+      - "5432"
+    networks:
+      - ft_transcendence
+
+  redis:
+    image: redis
+    container_name: redis_server
+    restart: always
+    networks:
+      - ft_transcendence
+    expose:
+     - "6379"

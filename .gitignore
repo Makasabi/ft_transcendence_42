@@ -1,9 +1,7 @@
 .env
-venv/
 .venv/
+venv/
 __pycache__
-db.sqlite3
 .vscode
-node_modules/
 .DS_Store
 .nfs*

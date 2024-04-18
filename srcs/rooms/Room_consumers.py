@@ -209,7 +209,7 @@ def is_master(room_id, user_id):
 	
 # check if game already started
 def checkGameStarted(room_id):
-	url = f"http://localhost:8000/api/game/get_game_started/{room_id}"
+	url = f"http://proxy/api/game/get_game_started/{room_id}"
 	started = requests.get(url)
 	# print("Game started: ", started)
 	return started.json()['game_started']

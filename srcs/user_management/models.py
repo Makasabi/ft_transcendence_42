@@ -13,6 +13,15 @@ class Player(AbstractUser):
 	avatar_file = models.CharField(max_length=255, blank=True, null=True)
 	global_score = models.IntegerField(default=0)
 	online = models.BooleanField(default=False)
+	twoFA = models.BooleanField(default=False)
+	valid_twoFA = models.BooleanField(default=False)
+
+	otpauth_url = models.CharField(max_length=225, blank=True, null=True)
+	otp_base32 = models.CharField(max_length=255, null=True)
+	qr_code = models.ImageField(upload_to="qrcode/",blank=True, null=True)
+	login_otp = models.CharField(max_length=255, null=True, blank=True)
+	login_otp_used = models.BooleanField(default=True)
+	otp_created_at = models.DateTimeField(blank=True, null=True)
 
 class BeFriends(models.Model):
 	user1 = models.IntegerField()

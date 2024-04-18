@@ -109,7 +109,7 @@ def roundInfo(request, tournament_id, round_number):
 
 	print(round_number)
 	round = Round.objects.get(tournament_id=tournament, round_number=round_number)
-	url = f"http://localhost:8000/api/game/retrieve_round/{round.id}"
+	url = f"http://proxy/api/game/retrieve_round/{round.id}"
 	token = f"Token {request.auth}"
 	headers = {'Authorization': token}
 	response = requests.get(url, headers=headers)
