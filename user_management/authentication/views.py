@@ -1,4 +1,5 @@
 import random
+import os
 from django.http import HttpResponse
 from user_management.models import Player
 from rest_framework import status
@@ -78,9 +79,9 @@ def forty2_auth(request):
 	data = {
 		'grant_type': 'authorization_code',
 		'client_id': 'u-s4t2ud-778802c450d2090b49c6c92d251ff3d1fbb51b03a9284f8f43f5df0af1dae8fa',
-		'client_secret': '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',
+		'client_secret': os.environ.get('SECRET_KEY_42'),
 		'code': request.data['code'],
-		'redirect_uri': 'http://proxy/forty2',
+        'redirect_uri': 'https://localhost:8080/forty2',
 	}
 	print(data)
 	response = requests.post("https://api.intra.42.fr/oauth/token", data=data)
@@ -90,6 +91,16 @@ def forty2_auth(request):
 	print(data)
 	return Response(data)
 
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_42_mail(request):
+	bearer = request.META.get('HTTP_AUTHORIZATION')
+	response = requests.get("https://api.intra.42.fr/v2/me", headers = {'Authorization': bearer})
+	if response.status_code != 200:
+		return Response(response.json(), status=status.HTTP_400_BAD_REQUEST)
+	return Response(response.json(), status=status.HTTP_200_OK)
+
 @api_view(['POST'])
 @authentication_classes([])
 @permission_classes([])
@@ -98,9 +109,9 @@ def google_auth(request):
 	data = {
 		'grant_type': 'authorization_code',
 		'client_id': '646881961013-bgo5lf3ru7bc1869b12ushtq3q2irgah.apps.googleusercontent.com',
-		'client_secret': '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',
+		'client_secret': os.environ.get('SECRET_KEY_GOOGLE'),
 		'code': request.data['code'],
-		'redirect_uri': 'http://proxy/google',
+        'redirect_uri': 'https://localhost:8080/google',
 	}
 	print(data)
 	response = requests.post("https://oauth2.googleapis.com/token", data=data)
