@@ -20,8 +20,11 @@ export class LoggedHeaderView extends IView {
 	}
 
 	destroy() {
+		console.log("Notif socket is closed");
 		if (this.notifSocket)
+		{
 			this.notifSocket.close();
+		}
 	}
 }
 

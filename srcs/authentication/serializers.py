@@ -8,7 +8,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Player
-		fields = ['id', 'username', 'email', 'password']
+		fields = ['id', 'username', 'email', 'password', 'twoFA']
 
 	def validation_email(self, value):
 		if (value.count('@') != 1):

@@ -27,6 +27,7 @@ def login(request):
 			return Response({"error" : "Wrong password"}, status=status.HTTP_400_BAD_REQUEST)
 		token, _ = Token.objects.get_or_create(user=user)
 		print("Token : ", token.key)
+
 		serializer = PlayerSerializer(instance=user)
 
 		return Response({ "token" : token.key, "user" : serializer.data }, status=status.HTTP_200_OK)
@@ -39,6 +40,8 @@ def check_token(request):
 	"""
 	Communication endpoint to check if a token is valid for other services
 	"""
+	if request.user.twoFA == True and request.user.valid_twoFA == False:
+		return Response({"error" : "2FA not valid"}, status=status.HTTP_400_BAD_REQUEST)
 	return Response({"message": "Token is valid"}, status=status.HTTP_200_OK)
 
 ##### Registration #####
@@ -171,5 +174,7 @@ def TOTPVerifyView(request):
 		if not device.confirmed:
 			device.confirmed = True
 			device.save()
+		request.user.valid_twoFA = True
+		request.user.save()
 		return Response(True, status=status.HTTP_200_OK)
-	return Response(status=status.HTTP_400_BAD_REQUEST)
+	return Response(False, status=status.HTTP_400_BAD_REQUEST)
