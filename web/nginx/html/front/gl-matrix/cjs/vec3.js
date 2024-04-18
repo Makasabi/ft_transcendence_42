@@ -416,7 +416,7 @@ function normalize(out, a) {
   var len = x * x + y * y + z * z;
 
   if (len > 0) {
-    //TODO: evaluate use of glm_invsqrt here?
+    //: evaluate use of glm_invsqrt here?
     len = 1 / Math.sqrt(len);
   }
 

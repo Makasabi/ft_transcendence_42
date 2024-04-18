@@ -238,7 +238,7 @@ function fromRotation(out, q) {
 
 
 function fromMat4(out, a) {
-  //TODO Optimize this
+  // Optimize this
   var outer = quat.create();
   mat4.getRotation(outer, a);
   var t = new glMatrix.ARRAY_TYPE(3);

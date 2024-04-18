@@ -231,7 +231,6 @@ export async function is_logged()
 
 	if (!token)
 		return false;
-	// @TODO test with a bad token
 	const ret = fetch('/api/auth/', {
 		method: 'GET',
 		headers: { 'Authorization': `Token ${token}` }
@@ -524,6 +523,11 @@ export async function username_event(e)
 		email = await getEmailFromGoogle();
 	else if (username_button.dataset.auth === "forty2")
 		email = await getEmailFrom42();
+	if (!email)
+	{
+		route("/login");
+		return;
+	}
 	const password = generateRandomString(15);
 	signup(username, password, email);
 }
@@ -624,5 +628,7 @@ async function getEmailFromGoogle()
 			return null;
 	});
 	console.log("data from Google :" , data);
+	if (data == null)
+		return null;
 	return data.email;
 }

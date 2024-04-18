@@ -124,7 +124,7 @@ class Player:
 			'HP': self.HP,
 			'player_id': self.player_id,
 			'username': self.username,
-			'ready': self.ready, # @TODO handle disconnected players
+			'ready': self.ready,
 		}
 
 def get_username(player_id):

@@ -44,10 +44,7 @@ def profile_serializer(request, user):
 		"global_rank": 0,
 		"game_history": []
 	}
-
-	# @TODO : change localhost for scalable solution
 	user_id = user.id
-	#url = f"http://proxy/api/game/get_history/{user_id}"
 	url = f"http://proxy/api/game/get_history/{user_id}"
 	token = f"Token {request.auth}"
 	headers = {'Authorization': token}

@@ -335,7 +335,7 @@ export function slerp(out, a, b, t) {
 
 export function random(out) {
   // Implementation of http://planning.cs.uiuc.edu/node198.html
-  // TODO: Calling random 3 times is probably not the fastest solution
+  // : Calling random 3 times is probably not the fastest solution
   var u1 = glMatrix.RANDOM();
   var u2 = glMatrix.RANDOM();
   var u3 = glMatrix.RANDOM();
@@ -361,7 +361,7 @@ export function invert(out, a) {
       a2 = a[2],
       a3 = a[3];
   var dot = a0 * a0 + a1 * a1 + a2 * a2 + a3 * a3;
-  var invDot = dot ? 1.0 / dot : 0; // TODO: Would be faster to return [0,0,0,0] immediately if dot == 0
+  var invDot = dot ? 1.0 / dot : 0; // : Would be faster to return [0,0,0,0] immediately if dot == 0
 
   out[0] = -a0 * invDot;
   out[1] = -a1 * invDot;

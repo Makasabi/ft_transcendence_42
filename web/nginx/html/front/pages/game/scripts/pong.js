@@ -357,7 +357,7 @@ export class GameContext {
 }
 
 async function resize_canvas() {
-	// @TODO resize the canvas and re-render the canvas OR print to the user to reload the page for a better experience
+	//  resize the canvas and re-render the canvas OR print to the user to reload the page for a better experience
 	//const canvas = document.querySelector('canvas');
 	//canvas.width = canvas.clientWidth;
 	//canvas.height = canvas.width * 0.5;

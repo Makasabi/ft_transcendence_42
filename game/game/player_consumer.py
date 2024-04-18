@@ -2,7 +2,7 @@
 import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
-from game.models import Game
+from game.models import Game, Play
 from channels.db import database_sync_to_async
 
 class PlayerConsumer(AsyncWebsocketConsumer):
@@ -18,7 +18,8 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 		self.user = self.scope["user"]
 		if self.user.get("id") is None or self.user.get("user") is None:
 			return
-		# @TODO: Verify the player is in the game
+		if not user_is_in_game(self.game_id, self.user["id"]):
+			return
 
 		# Join room group
 		await self.channel_layer.group_add(
@@ -86,3 +87,10 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
 	#	# Send message to WebSocket
 	#	self.send(text_data=json.dumps({"message": message}))
+
+def user_is_in_game(game_id, user_id):
+	plays = Play.objects.filter(game_id=game_id)
+	for play in plays:
+		if play.user_id == user_id:
+			return True
+	return False
