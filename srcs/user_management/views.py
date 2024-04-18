@@ -140,7 +140,7 @@ def upload_avatar(request):
 		with open(file_path, 'wb+') as destination:
 			for chunk in avatar_file.chunks():
 				destination.write(chunk)
-		request.user.avatar_file = "/front/ressources/upload/" + avatar_file.name
+		request.user.avatar_file = "/web/nginx/html/front/ressources/" + avatar_file.name
 		print("avatar file is", request.user.avatar_file)
 		request.user.save()
 		return JsonResponse({'file_path': request.user.avatar_file})

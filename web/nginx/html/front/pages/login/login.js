@@ -294,7 +294,7 @@ async function signup(username, password, email)
 			else
 			{
 				return response.json().then(data => {
-					console.error(data.error);
+					console.error("Signup:", data.error);
 					const error_field = document.getElementById("signup_error");
 					error_field.textContent = data.error;
 					error_field.hidden = false;

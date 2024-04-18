@@ -45,6 +45,7 @@ def profile_serializer(request, user):
 		"game_history": []
 	}
 
+	print("avatar file is", user.avatar_file)
 	# @TODO : change localhost for scalable solution
 	user_id = user.id
 	#url = f"http://proxy/api/game/get_history/{user_id}"
@@ -138,6 +139,7 @@ def upload_avatar(request):
 	if request.method == 'POST' and request.FILES.get('avatar_file'):
 		avatar_file = request.FILES['avatar_file']
 		file_path = os.path.join(settings.BASE_DIR, 'front', 'ressources', 'upload', avatar_file.name)
+		file_path = os.path.join('front', 'ressources', 'upload', avatar_file.name)
 		with open(file_path, 'wb+') as destination:
 			for chunk in avatar_file.chunks():
 				destination.write(chunk)
