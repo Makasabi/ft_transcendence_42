@@ -115,11 +115,6 @@ export class TournamentView extends IView {
 
 	async updateNextRoundTimer() {
 
-		// let start_time = await getRoundStartTime(this.tournament.id, this.tournament.current_round);
-		// if (!start_time) {
-		// 	document.getElementById("next_round_timer").innerText = "No upcoming round";
-		// 	return;
-		// }
 		let startTime = new Date(this.start_time);
 		let currentTime = new Date();
 		let timeRemaining = startTime - currentTime;
@@ -165,22 +160,21 @@ export class TournamentView extends IView {
 
 
 export function createTournamentSocket(tournament_id) {
-	console.log("Creating tournament socket for tournament: ", tournament_id);
+	console.log(`💥 Creating tournament socket for tournament: ${tournament_id}💥`);
 	const TournamentSocket = new WebSocket(
 		'ws://'
 		+ window.location.host
 		+ '/ws/tournament/'
 		+ tournament_id,
 	);
-	// console.log(TournamentSocket);
 
 	TournamentSocket.onerror = function (e) {
-		console.log('Tournament - Socket error', e);
-		// route('/home');
+		console.log(`💔 Tournament - Socket error ${e} 💔`);
+		route('/home');
 	};
 
 	TournamentSocket.onopen = function (e) {
-		// console.log('Tournament - Socket successfully connected: ', e);
+		console.log(`💜 Tournament - Socket successfully connected: ${e} 💜`);
 
 	};
 
@@ -190,18 +184,18 @@ export function createTournamentSocket(tournament_id) {
 		const reason = e.reason;
 		switch (code) {
 			case 1000:
-				console.log('Tournament - Socket closed normally.');
+				console.log('🪓 Tournament - Socket closed normally.');
 				break;
 			case 3010:
-				console.log('Tournament - Player not invited to tournament');
+				console.log('💀 Tournament - Player not invited to tournament');
 				route('/uninvited');
 				break;
 			case 3011:
-				console.log('Tournament - Player was eliminated');
+				console.log('🚨 Tournament - Player was eliminated');
 				route('/playerEliminated');
 				break;
 			default:
-				console.log('Tournament - Socket closed unexpectedly:', code, reason);
+				console.log('🚩 Tournament - Socket closed unexpectedly:', code, reason);
 		}
 	};
 
@@ -211,19 +205,19 @@ export function createTournamentSocket(tournament_id) {
 		const type = data.type;
 		switch (type) {
 			case "ready_to_play":
-				console.log(`Entering pool : ${data.game_id}`);
+				console.log(`🎉 Ready to play 🎉\n⚽ Entering pool : ${data.game_id}`);
 				route(`/game/${data.game_id}`);
 				break;
 			case "round_created":
-				console.log("Round created:", data);
+				console.log("🏅 Round created:🏅 ", data);
 				route(`/tournament/${data.tournament_code}`);
 				break;
 			case "tournament_finished":
-				console.log("tournament_finished:", data);
+				console.log("🏆 tournament_finished: 🏆", data);
 				route(`/tournamentFinished/${data.winner}`)
 				break;
 			default:
-				console.error("Unknown message type:", data.type);
+				console.error("❔ Unknown message type: ❔", data.type);
 				break;
 		}
 	};
