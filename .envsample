@@ -1,4 +1,37 @@
 # This is a sample file for the environment variables that are used in the application.
 # Copy this file to .env and fill in the values for the environment variables.
 
-DJANGO_SECRET_KEY= # use `make create_key` to generate a new key
+DJANGO_SECRET_KEY="generate a key for this"
+APP_KEY="generate a key for this"
+SECRET_KEY_42="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"
+SECRET_KEY_GOOGLE="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"
+DJANGO_ALLOWED_HOSTS="* localhost 127.0.0.1 [::1] proxy bess-f4r3s7"
+DEBUG=1
+
+USER_SQL_DATABASE=postgres
+USER_SQL_USERNAME=tito
+USER_SQL_PASSWORD=titi
+USER_SQL_HOST=db_user_management
+USER_SQL_PORT=5432
+
+NOTIF_SQL_DATABASE=postgres
+NOTIF_SQL_USERNAME=tito
+NOTIF_SQL_PASSWORD=titi
+NOTIF_SQL_HOST=db_notification
+NOTIF_SQL_PORT=5432
+
+ROOMS_SQL_DATABASE=postgres
+ROOMS_SQL_USERNAME=tito
+ROOMS_SQL_PASSWORD=titi
+ROOMS_SQL_HOST=db_rooms
+ROOMS_SQL_PORT=5432
+
+GAME_SQL_DATABASE=postgres
+GAME_SQL_USERNAME=tito
+GAME_SQL_PASSWORD=titi
+GAME_SQL_HOST=db_game
+GAME_SQL_PORT=5432
+
+POSTGRES_NAME=postgres
+POSTGRES_USER=tito
+POSTGRES_PASSWORD=titi
