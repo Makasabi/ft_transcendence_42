@@ -22,7 +22,8 @@ def create_room(request):
 		visibility
 		code
 	"""
-
+	if 'roomMode' not in request.data or 'visibility' not in request.data:
+		return JsonResponse({"error": "Missing data"}, status=400)
 	room_data = {
 		"room_id": 0,
 		"date": "",
@@ -95,7 +96,7 @@ def roomInfo(request, roomCode):
 		"date": "",
 		"roomMode": "",
 		"visibility": "",
-		"code": code, 
+		"code": code,
 		"allowed": False,
 	}
 
@@ -105,7 +106,7 @@ def roomInfo(request, roomCode):
 		room_data['date'] = room.date
 		room_data['roomMode'] = room.roomMode
 		room_data['visibility'] = room.visibility
-	
+
 	# check if the user is in the occuypy table
 	if Occupy.objects.filter(room_id=room.room_id, player_id=request.user.id).exists():
 		room_data['allowed'] = True

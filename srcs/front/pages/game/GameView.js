@@ -6,7 +6,6 @@ import { getCookie } from "../login/login.js";
 export class GameView extends IView {
 	static match_route(route) {
 		const regex = new RegExp("^/game/[0-9]+$");
-		console.log("GameView.match_route", route, regex.test(route));
 		return regex.test(route);
 	}
 
@@ -98,6 +97,10 @@ export class GameView extends IView {
 		document.head.removeChild(this.stylesheet);
 		const main = document.querySelector("main");
 		main.insertAdjacentHTML("afterend", this.footer.outerHTML);
+	}
+
+	stop() {
+		this.game.stop();
 	}
 
 	reset_centered_box() {

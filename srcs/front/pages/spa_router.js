@@ -46,20 +46,24 @@ const unloggedViews = [
 ];
 
 	/*** Utilities ***/
-export async function route(path, event=null)
+export async function route(path, event=null, push=true)
 {
 	if (event)
 		event.preventDefault();
-	window.history.pushState({}, "", path);
+	if (push)
+		window.history.pushState({}, "", path);
+	else
+		window.history.replaceState({}, "", path);
 	await handleLocation();
 }
 
 async function handleLocationViews(views, defaultRoute)
 {
+	console.log("🚗 Route to:", window.location.pathname);
 	const match = views.filter(view => view.match_route(window.location.pathname));
 	if (match.length === 0) {
 		console.warn("No route matches the path:", window.location.pathname);
-		route(defaultRoute);
+		route(defaultRoute, null, false);
 		return;
 	}
 	if (match.length > 1)
@@ -68,6 +72,8 @@ async function handleLocationViews(views, defaultRoute)
 		return;
 	}
 	console.log("this is the current view:", view);
+	if (view)
+		view.stop();
 	while (is_rendering)
 		await new Promise(resolve => setTimeout(resolve, 100));
 	is_rendering = true;

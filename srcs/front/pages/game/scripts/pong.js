@@ -30,6 +30,11 @@ export class GameContext {
 		this.end = true;
 	}
 
+	stop() {
+		console.log("GameContext.stop");
+		this.end = true;
+	}
+
 	attribute_websocket(game_id) {
 		let game = this;
 		this.websocket = new WebSocket(

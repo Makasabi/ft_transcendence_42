@@ -24,4 +24,7 @@ export class IView {
 	 */
 	destroy() {
 	}
+
+	stop() {
+	}
 }

@@ -11,16 +11,14 @@ from .Player import Player
 from .constants import ARENA_HEIGHT, ARENA_WIDTH, FPS, PLAYER_BASIC_SPEED, PLAYER_RUNNING_SPEED, CENTER_X, CENTER_Y, M_PILAR_SIZE, BALL_SPAWN_TIME, MAX_BALLS
 from .utils import get_hexagon_borders, get_arena_pilars, get_players_arrangement, rotate, get_middle_pilar
 
+
 class GameEngine(threading.Thread):
 	"""
 		Initialisation des parametres du jeu
 	"""
-	def __init__(self, game_id: int, players: list, state = None) -> None:
+	def __init__(self, game_id: int, players: list, state = None, debug = False) -> None:
 		super().__init__()
-		if state is None:
-			self.debug = False
-		else:
-			self.debug = True
+		self.debug = debug
 		self.is_stop = False
 		self.game_id = game_id
 		self.state = state
