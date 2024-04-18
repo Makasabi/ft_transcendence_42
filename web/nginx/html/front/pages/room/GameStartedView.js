@@ -8,7 +8,10 @@ export class GameStartedView extends IView {
 
 	async render() {
 		let html = await fetch("/front/pages/room/gamestarted.html").then(response => response.text());
-		document.querySelector("main").innerHTML = html;
+		let main = document.querySelector("main");
+		if (main === null)
+			return
+		main.innerHTML = html;
 
 		let backToHome = document.getElementById("backHomeFullRoom");
 		if (backToHome === null)

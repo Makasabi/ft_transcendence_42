@@ -228,6 +228,9 @@ export async function APool(pools, pool_number) {
 export async function displayAPool(pools) {
 
 	let current_round = document.querySelector(".current_round");
+	if (current_round === null) {
+		return;
+	}
 	current_round.addEventListener("click", (e) => {
 		let pool = e.target.id;
 		if (pool === "undefined") {

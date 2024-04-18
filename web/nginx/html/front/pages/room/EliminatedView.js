@@ -9,7 +9,10 @@ export class EliminatedView extends IView {
 
 	async render() {
 		let html = await fetch("/front/pages/room/eliminated.html").then(response => response.text());
-		document.querySelector("main").innerHTML = html;
+		let main = document.querySelector("main");
+		if (main === null)
+			return
+		main.innerHTML = html;
 
 		let backToHome = document.getElementById("backHomeEliminated");
 		if (backToHome === null)

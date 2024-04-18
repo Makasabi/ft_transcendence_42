@@ -17,8 +17,10 @@ export class MeView extends IView {
 		// history-stats
 		html = await getHistoryStats(html, user);
 
-
-		document.querySelector("main").innerHTML = html;
+		let main = document.querySelector("main");
+		if (main === null)
+			return
+		main.innerHTML = html;
 		html = await switch2FA(html);
 		editProfileButton();
 		displayGameBox(user);
@@ -124,6 +126,9 @@ function editProfileButton()
 	}
 
 	const avatarContainer = document.querySelector(".avatar-container");
+	if (avatarContainer === null)
+		return;
+	
 	edit_button.addEventListener("click", () => {
 		if (edit === true) {
 			editProfile();

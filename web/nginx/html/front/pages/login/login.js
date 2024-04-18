@@ -39,7 +39,10 @@ export class FAView extends IView {
 		})
 			.then(response => response.blob())
 		html = html.replace("{{src}}", URL.createObjectURL(bob));
-		document.querySelector("main").innerHTML = html;
+		let main = document.querySelector("main");
+		if (main === null)
+			return ;
+		main.innerHTML = html;
 
 		const submit_button = document.getElementById("submit-secret-code");
 		if (submit_button === null)

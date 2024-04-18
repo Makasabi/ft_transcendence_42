@@ -16,7 +16,10 @@ export class IView {
 	 * Renders the view.
 	 */
 	async render() {
-		document.querySelector("main").innerHTML = "<h1>Not implemented</h1>";
+		let main = document.querySelector("main");
+		if (main === null)
+			return;
+		main.innerHTML = "<h1>Not implemented</h1>";
 	}
 
 	/**

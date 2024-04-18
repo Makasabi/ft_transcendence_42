@@ -212,15 +212,10 @@ export class GameContext {
 
 	async start() {
 		const box = document.getElementById("centered_box");
-		if (box === null)
-			return;
 		const game_status = document.getElementById("game_status");
-		if (game_status === null)
-			return;
 		const status_title = document.querySelector("#game_status h2");
-		if (status_title === null)
+		if (box === null || game_status === null || status_title === null)
 			return;
-
 		box.style.display = "flex";
 		game_status.style.display = "flex";
 		status_title.textContent = "Loading...";
@@ -264,7 +259,9 @@ export class GameContext {
 			for (let i = 0; i < count % 4; i++)
 				dots += ".";
 			status_title.textContent = "Waiting for other players" + dots;
-			document.querySelector("#game_status h2").textContent = this.state.timeout + "s before force start";
+			let game_status = document.getElementById("game_status");
+			if (game_status !== null)
+				game_status.textContent = this.state.timeout + "s before force start";
 			this.update_players();
 			if (this.end)
 				return;

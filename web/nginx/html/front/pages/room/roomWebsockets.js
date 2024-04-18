@@ -23,6 +23,8 @@ export async function	addPlayer(data) {
 	let playerList = document.querySelector(".playersInTheRoom");
 	let playerDiv = document.createElement("div");
 
+	if (playerList === null || playerDiv === null)
+		return;
 	playerDiv.className = "player_box";
 	playerDiv.id = `player${data.player_id}`;
 	if (data.is_master === true) {
@@ -71,6 +73,8 @@ export async function updatePlayer(data) {
 	let playerList = document.querySelector(".playersInTheRoom");
 	let oldMaster = document.getElementById(`player${data.player_id}`);
 	let newMaster = document.getElementById(`player${data.player_id}`);
+	if (playerList === null || oldMaster === null || newMaster === null)
+		return;
 	newMaster.id = `player${data.player_id}`;
 	newMaster.innerHTML = `<img src="${player.avatar_file}" id="imgPlayer${data.player_id}" class="room_avatar" alt"${player.username} avatar">`
 	+ `<div id="master">`

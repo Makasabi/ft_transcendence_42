@@ -14,9 +14,14 @@ export class FriendsView extends IView {
 
 		let friends = await APIcall("/api/user_management/get_friends");
 		let html = await fetch("/front/pages/user_mgt/friends.html").then(response => response.text());
-		document.querySelector("main").innerHTML = html;
+		let main = document.querySelector("main");
+		if (main === null)
+			return
+		main.innerHTML = html;
 	
 		const friendsContainer = document.querySelector(".current-friends");
+		if (friendsContainer === null)
+			return;
 		friends.forEach(async friend =>{
 			const friendContainer = document.createElement("div");
 			friendContainer.classList.add("friend-container");

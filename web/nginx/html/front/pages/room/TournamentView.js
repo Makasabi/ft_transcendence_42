@@ -65,7 +65,10 @@ export class TournamentView extends IView {
 		let first_pools = await renamePools(first_round.distribution);
 
 		let html = await fetch("/front/pages/room/tournament.html").then(response => response.text());
-		document.querySelector("main").innerHTML = html;
+		let main = document.querySelector("main");
+		if (main === null)
+			return;
+		main.innerHTML = html;
 
 		let pools = await renamePools(roundInfo.distribution);
 		fillRoundMap(this.tournament, first_pools);

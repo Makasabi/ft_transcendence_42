@@ -31,7 +31,10 @@ export class UserView extends IView {
 		// history-stats
 		html = await getHistoryStats(html, user);
 		
-		document.querySelector("main").innerHTML = html;
+		let main = document.querySelector("main");
+		if (main === null)
+			return
+		main.innerHTML = html;
 		addFriendButton(requester.username);
 		displayGameBox(user);
 	}

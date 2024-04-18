@@ -110,16 +110,9 @@ export class GameView extends IView {
 		const status_title = document.querySelector("#game_status h2");
 		const player_list = document.getElementById("players");
 
-		if (box === null)
+		if (box === null || timer === null || status === null || status_title === null || player_list === null)
 			return;
-		if (timer === null)
-			return;
-		if (status === null)
-			return;
-		if (status_title === null)
-			return;
-		if (player_list === null)
-			return;
+
 		box.style.display = "none";
 		timer.hidden = true;
 		status.style.display = "none";
@@ -131,13 +124,10 @@ export class GameView extends IView {
 		this.reset_centered_box()
 
 		const box = document.getElementById("centered_box");
-		if (box === null)
-			return;
 		const status = document.getElementById("game_status");
-		if (status === null)
-			return;
 		const status_title = document.querySelector("#game_status h2");
-		if (status_title === null)
+
+		if (box === null || status === null || status_title === null)
 			return;
 
 		box.style.display = "flex";
@@ -159,15 +149,11 @@ export class GameView extends IView {
 		this.reset_centered_box()
 
 		const box = document.getElementById("centered_box");
-		if (box === null)
-			return;
 		const status = document.getElementById("game_status");
-		if (status === null)
-			return;
 		const status_title = document.querySelector("#game_status h2");
-		if (status_title === null)
+		if (box === null || status === null || status_title === null)
 			return;
-
+	
 		box.style.display = "flex";
 		status.style.display = "flex";
 		status_title.innerHTML = "Game ended unexpectedly";

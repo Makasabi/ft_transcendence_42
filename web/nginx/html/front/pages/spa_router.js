@@ -128,6 +128,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 	handleLocation();
 	let tag = this.querySelector("header");
+	if (tag === null)
+		return;
 	let parent = tag.parentNode;
 	let particles = document.getElementsByClassName("particles-js-canvas-el");
 	if (particles.length > 0)

@@ -30,7 +30,10 @@ export class tournamentFinishedView extends IView {
 
 		let html = await fetch("/front/pages/room/tournamentFinished.html").then(response => response.text());
 		html = html.replace("{{winner}}", winner.username);
-		document.querySelector("main").innerHTML = html;
+		let main = document.querySelector("main");
+		if (main === null)
+			return;
+		main.innerHTML = html;
 
 		let winner_avatar = await document.getElementById("winner");
 		if (winner_avatar === null)

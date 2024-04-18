@@ -89,7 +89,8 @@ function renderAcceptIcon(notification, actionIcons, notifsLength) {
 		acceptIcon.addEventListener('click', (event) => {
 			if (notifsLength === 1) {
 				const foregroundBox = document.querySelector('.foreground-box');
-				foregroundBox.remove();
+				if (foregroundBox)
+					foregroundBox.remove();
 			}
 			if (notification.type === 'friend_request')
 				acceptFriend(notification);
@@ -115,7 +116,8 @@ function renderDeclineIcon(notifsLength) {
 		}
 		if (notifsLength === 1) {
 			const foregroundBox = document.querySelector('.foreground-box');
-			foregroundBox.remove();
+			if (foregroundBox)
+				foregroundBox.remove();
 		}
 	});
 	return declineIcon;

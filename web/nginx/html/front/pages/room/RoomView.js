@@ -46,7 +46,10 @@ export class RoomView extends IView {
 		html = html.replace("{{roomVisibility}}", roomInfo.visibility);
 		html = html.replace("{{roomMode}}" , roomInfo.roomMode);
 		html = html.replace("{{roomCode}}", roomInfo.code);
-		document.querySelector("main").innerHTML = html;
+		let main = document.querySelector("main");
+		if (main === null)
+			return;
+		main.innerHTML = html;
 
 		addFriendList();
 		inviteFriend(roomInfo.code, roomInfo.roomMode);
