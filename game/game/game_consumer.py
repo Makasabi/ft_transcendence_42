@@ -3,11 +3,11 @@ import json
 
 from django.utils import timezone
 from channels.generic.websocket import AsyncConsumer
-from game.models import Game, Play
 from channels.db import database_sync_to_async
 from decouple import config
 
 from .engine.GameEngine import GameEngine
+from game.models import Game, Play
 
 class GameConsumer(AsyncConsumer):
 	def __init__(self, *args, **kwargs):

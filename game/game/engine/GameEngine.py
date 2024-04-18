@@ -15,12 +15,9 @@ class GameEngine(threading.Thread):
 	"""
 		Initialisation des parametres du jeu
 	"""
-	def __init__(self, game_id: int, players: list, state = None) -> None:
+	def __init__(self, game_id: int, players: list, state = None, debug = False) -> None:
 		super().__init__()
-		if state is None:
-			self.debug = False
-		else:
-			self.debug = True
+		self.debug = debug
 		self.is_stop = False
 		self.game_id = game_id
 		self.state = state
@@ -139,7 +136,7 @@ class GameEngine(threading.Thread):
 		for player in self.players.values():
 			player.update(timestamp)
 		for ball in self.balls:
-			ball.update(1 / 60, self.players, self.collisions_walls, self.middle_pilar, self.balls)
+			ball.update(timestamp, self.players, self.collisions_walls, self.middle_pilar, self.balls)
 		for player in self.players.values():
 			if player.HP <= 0:
 				self.death_order.append(player.player_id)

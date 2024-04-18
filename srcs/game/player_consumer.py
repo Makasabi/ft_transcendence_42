@@ -30,7 +30,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 	async def game_update(self, event):
 		state = event["state"]
 		state["type"] = "update"
-		state["player_id"] = self.user.id
+		state["player_id"] = self.user['user']['id']
 		await self.send(json.dumps(state))
 
 	async def game_error(self, event):
@@ -56,7 +56,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 			{
 				"type": "input",
 				"game_id": self.game_id,
-				"player_id": self.user.id,
+				"player_id": self.user['user']['id'],
 				"input": text_data,
 			},
 		)

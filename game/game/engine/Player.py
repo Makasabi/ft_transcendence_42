@@ -136,11 +136,9 @@ def get_username(player_id):
 		str
 	"""
 	headers = {
-			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+		'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
 	}
-	print("Getting user for id", player_id)
 	res = requests.get(f"http://proxy/api/user_management/user/id/{player_id}", headers=headers)
-	print("Res:", res)
 	if res.status_code != 200:
 		return "Unknown"
 	return res.json()["username"]
