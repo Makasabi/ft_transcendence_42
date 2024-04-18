@@ -30,9 +30,6 @@ export class MeView extends IView {
 
 async function editProfile() {
 
-	const user = getElementById("username");
-	if (user === null)
-		return;
 	let username = document.getElementById("username").textContent;
 	let password = document.getElementById("password").textContent;
 

@@ -20,6 +20,7 @@ import { tournamentFinishedView } from "./room/tournamentFinishedView.js";
 var view = null;
 var headerView = null;
 var is_rendering = false;
+var was_logged = false;
 
 const loggedViews = [
 	HomeView,
@@ -90,7 +91,6 @@ async function handleLocationViews(views, defaultRoute)
 
 async function handleLocation()
 {
-	var was_logged;
 
 	await login.is_logged().then(async (is_logged) => {
 		console.log("is_logged", is_logged);
@@ -111,6 +111,7 @@ async function handleLocation()
 
 async function update_header(is_logged)
 {
+	console.log("Updating header");
 	if (headerView)
 		headerView.destroy();
 	headerView = new (is_logged ? LoggedHeaderView : UnloggedHeaderView)();

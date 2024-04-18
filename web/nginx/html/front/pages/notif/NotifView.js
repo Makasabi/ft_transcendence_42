@@ -37,7 +37,7 @@ export function createNotificationSocket(username) {
 
 	// on socket close
 	notifySocket.onclose = function (e) {
-		console.log('Notif Socket closed unexpectedly');
+		// console.log('Notif Socket closed unexpectedly');
 		switch (e.code) {
 			case 1000:
 				console.log('Socket closed normally');
@@ -215,6 +215,6 @@ async function handleNotificationDot() {
 			displayNotifDot();
 	})
 	.catch((error) => {
-		console.error('Error:', error);
+		// console.error('Error:', error);
 	});
 }

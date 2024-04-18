@@ -50,8 +50,11 @@ def profile_serializer(request, user):
 	headers = {'Authorization': token}
 	game_history = requests.get(url, headers=headers)
 
-	for game in game_history.json():
-		user_data["game_history"].append(game)
+	if (game_history.status_code != 200):
+		user_data["game_history"] = []
+	else:
+		for game in game_history.json():
+			user_data["game_history"].append(game)
 	higher_scores = Player.objects.filter(global_score__gt=user.global_score).count()
 	user_data["global_rank"] = f"{higher_scores + 1}/{Player.objects.count()}"
 	return user_data
