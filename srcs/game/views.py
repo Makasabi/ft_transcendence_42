@@ -294,13 +294,11 @@ def get_game_started(request, room_id):
 	}
 	"""
 	game = Game.objects.filter(parent_id=room_id).first()
-	if game:
-		print("Game found")
+	if game and game.ongoing:
 		return JsonResponse({
 			"game_started": True
 		})
 	else:
-		print("Game not found")
 		return JsonResponse({
 			"game_started": False
 	})
