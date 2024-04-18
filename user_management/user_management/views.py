@@ -45,7 +45,6 @@ def profile_serializer(request, user):
 		"game_history": []
 	}
 
-	print("avatar file is", user.avatar_file)
 	# @TODO : change localhost for scalable solution
 	user_id = user.id
 	#url = f"http://proxy/api/game/get_history/{user_id}"
@@ -54,7 +53,6 @@ def profile_serializer(request, user):
 	headers = {'Authorization': token}
 	game_history = requests.get(url, headers=headers)
 
-	print(game_history.json())
 	for game in game_history.json():
 		user_data["game_history"].append(game)
 	higher_scores = Player.objects.filter(global_score__gt=user.global_score).count()
@@ -138,7 +136,6 @@ def upload_avatar(request):
 	"""
 	if request.method == 'POST' and request.FILES.get('avatar_file'):
 		avatar_file = request.FILES['avatar_file']
-		file_path = os.path.join(settings.BASE_DIR, 'front', 'ressources', 'upload', avatar_file.name)
 		file_path = os.path.join('front', 'ressources', 'upload', avatar_file.name)
 		with open(file_path, 'wb+') as destination:
 			for chunk in avatar_file.chunks():
@@ -171,7 +168,6 @@ def user_id(request, id):
 
 	json response format:
 	"""
-	print("USER_ID", id)
 	user = Player.objects.filter(id=id).first()
 	if user is None:
 		return JsonResponse({'error': 'User not found'}, status=404)
@@ -301,7 +297,7 @@ def switch_online(request, username, status):
 		user.online = True
 	else:
 		user.online = False
-	print("User online status: ", user.online)
+		user.valid_twoFA = False
 	user.save()
 	return JsonResponse({'status': 'ok', 'is_online': user.online})
 

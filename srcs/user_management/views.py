@@ -136,11 +136,11 @@ def upload_avatar(request):
 	"""
 	if request.method == 'POST' and request.FILES.get('avatar_file'):
 		avatar_file = request.FILES['avatar_file']
-		file_path = os.path.join(settings.BASE_DIR, 'front', 'ressources', 'upload', avatar_file.name)
+		file_path = os.path.join('front', 'ressources', 'upload', avatar_file.name)
 		with open(file_path, 'wb+') as destination:
 			for chunk in avatar_file.chunks():
 				destination.write(chunk)
-		request.user.avatar_file = "/web/nginx/html/front/ressources/" + avatar_file.name
+		request.user.avatar_file = "/front/ressources/upload/" + avatar_file.name
 		print("avatar file is", request.user.avatar_file)
 		request.user.save()
 		return JsonResponse({'file_path': request.user.avatar_file})
@@ -299,7 +299,6 @@ def switch_online(request, username, status):
 		user.online = False
 		user.valid_twoFA = False
 	user.save()
-	print("User online status: ", user.online)
 	return JsonResponse({'status': 'ok', 'is_online': user.online})
 
 @api_view(['GET'])
