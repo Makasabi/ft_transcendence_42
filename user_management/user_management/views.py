@@ -169,6 +169,7 @@ def user_id(request, id):
 
 	json response format:
 	"""
+	print("USER_ID", id)
 	user = Player.objects.filter(id=id).first()
 	if user is None:
 		return JsonResponse({'error': 'User not found'}, status=404)

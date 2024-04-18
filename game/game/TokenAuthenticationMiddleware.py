@@ -3,6 +3,7 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import AnonymousUser
 from django.db import close_old_connections
 from channels.db import database_sync_to_async
+import requests
 
 class TokenAuthMiddleware:
 	"""
@@ -30,11 +31,15 @@ class TokenAuthMiddleware:
 
 #Change this one to send a request to /auth endpoint
 def get_user(token_key):
-	try:
-		token = Token.objects.get(key=token_key)
-		return token.user
-	except Token.DoesNotExist:
+	response = requests.get(
+		'http://proxy/api/auth',
+		headers = {'Authorization': 'Token ' + token_key}
+	)
+	if response.status_code != 200:
 		return None
+	print(type(response))
+	print(response.json())
+	return response.json()
 
 def TokenAuthMiddlewareStack(app):
 	return TokenAuthMiddleware(AuthMiddlewareStack(app))

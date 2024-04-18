@@ -26,7 +26,7 @@ def create_notif(request, type, target):
 	if not user1:
 		return JsonResponse({'message': 'User not found'}, status=404)
 		
-	print("user1", user1["user"])
+	# print("user1", user1["user"])
 	url = f"http://proxy/api/user_management/user/username/{target}"
 	headers = {'Authorization': "Token " + token}
 	target = requests.get(url, headers=headers)

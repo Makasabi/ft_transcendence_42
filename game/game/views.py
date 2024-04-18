@@ -193,6 +193,7 @@ def get_redirect(request, game_id):
 		redirect_route: "redirect_route"
 	}
 	"""
+	print("GET REDIRECT")
 	game = Game.objects.get(game_id=game_id)
 
 	if game.mode == "Tournament":
@@ -207,10 +208,12 @@ def get_redirect(request, game_id):
 	else:
 		url = f"http://proxy/api/rooms/get_code/{game.parent_id}"
 		headers = {
+			# "Authorization": f"Token {request.COOKIES.get('token')}"
 			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
 		}
 		response = requests.get(url, headers=headers)
 		response = response.json()
+		print("RESPONSE", response)
 		room_code = response['room_code']
 		redirect = "/room/" + room_code
 	return JsonResponse({

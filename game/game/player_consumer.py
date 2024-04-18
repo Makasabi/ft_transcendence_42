@@ -15,10 +15,12 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 			return
 		self.group_name = f"game_{self.game_id}"
 		self.group_send = f"game_consumer"
+		# @TODO : anonymous ?
 		self.user = self.scope["user"]
-		if self.user.is_anonymous:
-			print("PlayerConsumer.connect: Anonymous user")
-			return
+		print("User from scope: ", self.user)
+		# if self.user['user'].is_anonymous:
+		# 	print("PlayerConsumer.connect: Anonymous user")
+		# 	return
 		# @TODO: Verify the player is in the game
 
 		# Join room group
@@ -30,7 +32,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 	async def game_update(self, event):
 		state = event["state"]
 		state["type"] = "update"
-		state["player_id"] = self.user.id
+		state["player_id"] = self.user['user']['id']
 		await self.send(json.dumps(state))
 
 	async def game_error(self, event):
@@ -56,7 +58,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 			{
 				"type": "input",
 				"game_id": self.game_id,
-				"player_id": self.user.id,
+				"player_id": self.user['user']['id'],
 				"input": text_data,
 			},
 		)

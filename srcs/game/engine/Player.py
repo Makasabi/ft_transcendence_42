@@ -18,6 +18,7 @@ class Player:
 		"""
 		self.player_id = player_id
 		self.username = get_username(player_id)
+		print("Username:", self.username)
 		self.border = border
 		self.debug = debug
 		self.ready = False

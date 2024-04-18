@@ -3,8 +3,8 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rooms.models import Rooms, Tournament, Occupy
 import random
-import requests
 import string
+from rooms.TokenAuthenticationMiddleware import get_user
 
 @api_view(['POST'])
 def create_room(request):
@@ -106,8 +106,12 @@ def roomInfo(request, roomCode):
 		room_data['roomMode'] = room.roomMode
 		room_data['visibility'] = room.visibility
 	
+	token = request.COOKIES.get('token')
+	user = get_user(token)
+	if not user:
+		return JsonResponse({'message': 'User not found'}, status=404)
 	# check if the user is in the occuypy table
-	if Occupy.objects.filter(room_id=room.room_id, player_id=request.user.id).exists():
+	if Occupy.objects.filter(room_id=room.room_id, player_id=user['user']['id']).exists():
 		room_data['allowed'] = True
 
 	return JsonResponse(room_data)
@@ -144,13 +148,15 @@ def get_code(request, room_id):
 		room_code: "room_code"
 	}
 	"""
+	print("GET CODE FOR ROOM", room_id)
 	try:
 		room = Rooms.objects.get(room_id=room_id)
 	except Rooms.DoesNotExist:
+		print("Room not found")
 		return JsonResponse({
 			"error": "Room not found"
 		}, status=404)
-
+	print("Room found : ", room.code)
 	return JsonResponse({
 		"room_code": room.code
 	})

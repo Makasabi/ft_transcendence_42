@@ -5,6 +5,7 @@ from django.utils import timezone
 from channels.generic.websocket import AsyncConsumer
 from game.models import Game, Play
 from channels.db import database_sync_to_async
+from decouple import config
 
 from .engine.GameEngine import GameEngine
 
@@ -78,7 +79,5 @@ def create_history(game_id, player_ranking):
 			defaults={"score":i},
 		)[0]
 		play.save()
-		player = Player.objects.get(id=player_id) # @TODO PLAYER model can't be accessed here
-		player.global_score += play.score
-		player.save()
+		# @TODO add play.score fo player in user_mgt
 	game.save()
