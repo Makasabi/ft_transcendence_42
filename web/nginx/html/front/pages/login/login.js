@@ -19,6 +19,8 @@ export function getCookie(name)
 
 export function deleteCookie(name)
 {
+	if (getCookie(name) == null)
+		return;
 	document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 }
 
@@ -193,7 +195,6 @@ export class UsernameView extends IView
 			return true;
 		}
 		return false;
-		//return route.match(regex);//route === "/username";
 	}
 
 	async render()
@@ -205,6 +206,7 @@ export class UsernameView extends IView
 			route("/login");
 			return ;
 		}
+		console.log("rendering username view");
 		await fetch("/front/pages/login/username.html")
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
@@ -218,6 +220,8 @@ export class UsernameView extends IView
 export function logout()
 {
 	deleteCookie("token");
+	deleteCookie("Googletoken");
+	deleteCookie("42token");
 	route("/login");
 }
 
@@ -411,9 +415,9 @@ export async function forty2_callback()
 	{
 		const reg = await is_registered(email);
 		if (!reg)
-			await route("/username/forty2");
+			route("/username/forty2");
 		else
-			await route("/home");
+			route("/home");
 	}
 	catch(error)
 	{
@@ -468,7 +472,7 @@ export async function google_signup_event(e)
 	console.log("google event");
 	const uid = '646881961013-bgo5lf3ru7bc1869b12ushtq3q2irgah.apps.googleusercontent.com';
 	const state = generateRandomString(15);
-	const redirect_uri = 'http://localhost:8000/google';
+	const redirect_uri = 'https://localhost:8080/google';
 	const scope = 'email profile';
 	const authURL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${uid}&redirect_uri=${redirect_uri}&response_type=code&scope=${encodeURIComponent(scope)}&state=${state}`;
 	setCookie('Googlestate', state, 1);
@@ -479,7 +483,7 @@ export async function forty2_signup_event(e)
 {
 	const uid = "u-s4t2ud-778802c450d2090b49c6c92d251ff3d1fbb51b03a9284f8f43f5df0af1dae8fa";
 	const state = generateRandomString(15);
-	const authURL = `https://api.intra.42.fr/oauth/authorize?client_id=${uid}&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fforty2&response_type=code&state=${state}`
+	const authURL = `https://api.intra.42.fr/oauth/authorize?client_id=${uid}&redirect_uri=https%3A%2F%2Flocalhost%3A8080%2Fforty2&response_type=code&state=${state}`
 	setCookie('42state', state, 1);
 	window.location.href=authURL;
 }
@@ -567,22 +571,36 @@ function generateRandomString(length)
 	return randomString;
 }
 
+//async function getEmailFrom42()
+//{
+//	const data = await fetch("https://api.intra.42.fr/v2/me", {
+//		method : "GET",
+//		headers: {
+//			'Authorization' : `Bearer ${getCookie("42token")}`
+//		}})
+//		.then(response => {
+//			if (!response.ok)
+//				throw new Error(response.json());
+//			return response.json();
+//		})
+//		.catch(error => {
+//			console.error('ERROR DE 42 : ', error);
+//			return null;
+//	});
+//	console.log("data from 42 :" , data);
+//	if (data == null)
+//		return null;
+//	return data.email;
+//}
+
 async function getEmailFrom42()
 {
-	const data = await fetch("https://api.intra.42.fr/v2/me", {
+	const data = await fetch("/api/auth/get_42_mail/", {
 		method : "GET",
 		headers: {
 			'Authorization' : `Bearer ${getCookie("42token")}`
 		}})
-		.then(response => {
-			if (!response.ok)
-				throw new Error(response.json());
-			return response.json();
-		})
-		.catch(error => {
-			//console.error(error);
-			return null;
-	});
+		.then(response => response.json())
 	console.log("data from 42 :" , data);
 	if (data == null)
 		return null;
