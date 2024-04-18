@@ -89,7 +89,8 @@ export class GameView extends IView {
 	}
 
 	destroy() {
-		this.game.destroy();
+		if (this.game !== undefined)
+			this.game.destroy();
 		document.head.removeChild(this.stylesheet);
 		const main = document.querySelector("main");
 		if (main === null)
@@ -98,7 +99,8 @@ export class GameView extends IView {
 	}
 
 	stop() {
-		this.game.stop();
+		if (this.game !== undefined)
+			this.game.stop();
 	}
 
 	reset_centered_box() {
@@ -145,6 +147,8 @@ export class GameView extends IView {
 		//const players = this.game.state.everyone;
 		//const sorted = [...players].sort((a, b) => ranking.indexOf(a) - ranking.indexOf(b));
 		//console.log("Sorted", sorted);
+		if (this.game.state === undefined || this.game.state.player_id === undefined)
+			return;
 		if (this.game.state.player_id === ranking[ranking.length - 1])
 			status_title.innerHTML = "You won!";
 		else

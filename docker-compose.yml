@@ -50,7 +50,7 @@ services:
       - db_user_management
     networks:
       - ft_transcendence
-    ports: 
+    ports:
       - "8001:8001"
 
   notification:
@@ -62,7 +62,7 @@ services:
       - db_notification
     networks:
       - ft_transcendence
-    expose: 
+    expose:
       - "8002"
 
   rooms:
@@ -74,7 +74,7 @@ services:
       - db_rooms
     networks:
       - ft_transcendence
-    expose: 
+    expose:
       - "8003"
 
   game:
@@ -86,7 +86,7 @@ services:
       - db_game
     networks:
       - ft_transcendence
-    expose: 
+    expose:
       - "8004"
 
         #DATABASES
@@ -96,7 +96,7 @@ services:
     env_file: .env
     volumes:
       - user_postgres_data:/var/lib/postgresql/data/
-    expose: 
+    expose:
       - "5432"
     networks:
       - ft_transcendence
