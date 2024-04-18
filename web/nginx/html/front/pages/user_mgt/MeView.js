@@ -28,6 +28,9 @@ export class MeView extends IView {
 
 async function editProfile() {
 
+	const user = getElementById("username");
+	if (user === null)
+		return;
 	let username = document.getElementById("username").textContent;
 	let password = document.getElementById("password").textContent;
 
@@ -35,6 +38,8 @@ async function editProfile() {
 		const me = await APIcall("/api/user_management/me");
 		document.getElementById("username").textContent = me.username;
 		const error_username = document.getElementById("error_username");
+		if (error_username === null)
+			return;
 		error_username.textContent = "Username cannot be empty";
 		error_username.hidden = false;
 		setTimeout(() => {
@@ -47,6 +52,8 @@ async function editProfile() {
 	if (responseUsername.status === "error") {
 		// display error message
 		const error_username = document.getElementById("error_username");
+		if (error_username === null)
+			return;
 		error_username.textContent = "Be original, this username is already taken!";
 		error_username.hidden = false;
 		document.getElementById("username").textContent = responseUsername.username;
@@ -90,14 +97,20 @@ function editModeOff(editables) {
 		editable.style.removeProperty("border");
 		editable.style.color = "#dedede";
 	}
-	document.getElementById("edit-button").textContent = "Edit my Profile";
-	document.getElementById("password").style.display = "none";
+	let button = document.getElementById("edit-button");
+	let password = document.getElementById("password");
+	if (button === null || password === null)
+		return false;
+	button.textContent = "Edit my Profile";
+	password.style.display = "none";
 	return false;
 }
 
 function editProfileButton()
 {
 	const edit_button = document.getElementById("edit-button");
+	if (edit_button === null)
+		return;
 	edit_button.textContent = "Edit my Profile";
 	const editables = document.getElementsByClassName("edit");
 	let edit = false;
@@ -126,6 +139,8 @@ function editProfileButton()
 
 function avatarUpload() {
 	const avatarInput = document.getElementById("avatar-upload");
+	if (avatarInput === null)
+		return;
 	avatarInput.addEventListener("change", async () => {
 		const file = avatarInput.files[0];
 		const formData = new FormData();
@@ -153,12 +168,17 @@ function avatarUpload() {
 
 async function switch2FA(html) {
 	const switchElement = document.getElementById('2fa-switch');
+	if (switchElement === null)
+		return;
 	const twoFA = await APIcall("/api/user_management/twoFA");
 	if (twoFA.twoFA === true)
 		switchElement.checked = true;
 	else
 		switchElement.checked = false;
-	document.getElementById('2fa-switch').addEventListener('change', async function() {
+	let icon = document.getElementById('2fa-switch');
+	if (icon === null)
+		return;
+	icon.addEventListener('change', async function() {
 		await fetch('/api/user_management/switch_twoFA', {
 			method: 'POST',
 			headers: {'Authorization': `Token ${Login.getCookie('token')}`},

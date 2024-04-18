@@ -11,6 +11,8 @@ export class GameStartedView extends IView {
 		document.querySelector("main").innerHTML = html;
 
 		let backToHome = document.getElementById("backHomeFullRoom");
+		if (backToHome === null)
+			return
 		backToHome.addEventListener("click", (e) => {
 			e.preventDefault();
 			route("/home");

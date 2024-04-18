@@ -12,6 +12,8 @@ export class UnknownRoomView extends IView {
 		document.querySelector("main").innerHTML = html;
 
 		let backToHome = document.getElementById("backHomeUnknownRoom");
+		if (backToHome === null)
+			return
 		backToHome.addEventListener("click", (e) => {
 			e.preventDefault();
 			route("/home");

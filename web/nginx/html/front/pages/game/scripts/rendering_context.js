@@ -63,6 +63,9 @@ export class RenderingContext {
 
 	#create_gl_context() {
 		const canvas = document.getElementById("game_canvas");
+		if (!canvas) {
+			throw new Error('Canvas not found');
+		}
 		canvas.width = canvas.clientWidth;
 		canvas.height = canvas.width * 0.5;
 		let gl = canvas.getContext("webgl2", { premultipliedAlpha: false });

@@ -47,6 +47,8 @@ export async function	addPlayer(data) {
 export async function removePlayer(data) {
 	let playerList = document.querySelector(".playersInTheRoom");
 	let playerDiv = document.getElementById(`player${data.player_id}`);
+	if (playerList === null || playerDiv === null)
+		return;
 	playerList.removeChild(playerDiv);
 }
 

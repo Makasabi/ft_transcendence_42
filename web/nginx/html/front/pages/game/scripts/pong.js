@@ -83,26 +83,6 @@ export class GameContext {
 	events(game) {
 		window.addEventListener("resize", resize_canvas);
 
-		let x_rotate_slider = document.querySelector("#x_rotation");
-		let y_rotate_slider = document.querySelector("#y_rotation");
-		let z_rotate_slider = document.querySelector("#z_rotation");
-		let reset_rotation_button = document.querySelector("#reset_rotation");
-
-		function rotate_view(game) {
-			game.rendering_context.rotate_view([x_rotate_slider.value * Math.PI / 180., y_rotate_slider.value * Math.PI / 180., z_rotate_slider.value * Math.PI / 180.]);
-		}
-
-		x_rotate_slider.addEventListener("input", rotate_view.bind(null, game));
-		y_rotate_slider.addEventListener("input", rotate_view.bind(null, game));
-		z_rotate_slider.addEventListener("input", rotate_view.bind(null, game));
-
-		reset_rotation_button.addEventListener("click", function() {
-			x_rotate_slider.value = 180;
-			y_rotate_slider.value = 180;
-			z_rotate_slider.value = 180;
-			rotate_view(game);
-		});
-
 		document.game_socket = this.websocket;
 		document.addEventListener("keydown", keydown_event);
 		document.addEventListener("keyup", keyup_event);
@@ -231,10 +211,18 @@ export class GameContext {
 	}
 
 	async start() {
-		document.getElementById("centered_box").style.display = "flex";
+		const box = document.getElementById("centered_box");
+		if (box === null)
+			return;
 		const game_status = document.getElementById("game_status");
-		game_status.style.display = "flex";
+		if (game_status === null)
+			return;
 		const status_title = document.querySelector("#game_status h2");
+		if (status_title === null)
+			return;
+
+		box.style.display = "flex";
+		game_status.style.display = "flex";
 		status_title.textContent = "Loading...";
 
 		await this.load();
@@ -302,6 +290,8 @@ export class GameContext {
 
 	async update_players() {
 		const players = document.getElementById("players");
+		if (players === null)
+			return;
 		players.innerHTML = "";
 		for (let player of this.state.players) {
 			let li = document.createElement("li");
@@ -315,13 +305,18 @@ export class GameContext {
 		if (this.state.start_time === undefined || this.state.start_time === 0)
 			return;
 		let timer = document.getElementById("timer");
+		if (timer === null)
+			return;
 		timer.hidden = false;
 		while (this.state.start_time !== undefined && this.state.start_time !== 0) {
 			timer.textContent = this.state.start_time;
 			await new Promise(resolve => setTimeout(resolve, 100));
 		}
 		timer.hidden = true;
-		document.getElementById("centered_box").style.display = "none";
+		let box = document.getElementById("centered_box");
+		if (box === null)
+			return;
+		box.style.display = "none";
 	}
 
 	addWall(wall) {

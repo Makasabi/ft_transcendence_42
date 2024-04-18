@@ -76,6 +76,8 @@ function acceptRequest(username, user_id) {
 async function addFriendButton(username)
 {
 	let button = document.getElementById("add-friend");
+	if (button === null)
+		return;
 	
 	let user2 = window.location.pathname.split('/')[3];
 	let friend = await APIcall("/api/user_management/user/username/" + user2);

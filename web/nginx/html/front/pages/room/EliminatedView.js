@@ -12,6 +12,8 @@ export class EliminatedView extends IView {
 		document.querySelector("main").innerHTML = html;
 
 		let backToHome = document.getElementById("backHomeEliminated");
+		if (backToHome === null)
+			return
 		backToHome.addEventListener("click", (e) => {
 			e.preventDefault();
 			route("/home");

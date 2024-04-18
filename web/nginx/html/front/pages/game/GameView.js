@@ -14,10 +14,6 @@ export class GameView extends IView {
 		let main = document.querySelector("main");
 		let main_set = false;
 
-		//let particule = document.getElementsByClassName("particles-js-canvas-el");
-		//if (particule.length > 0)
-		//	particule[0].remove();
-
 		this.footer = document.querySelector("footer");
 		if (this.footer !== null)
 			this.footer.remove();
@@ -93,14 +89,18 @@ export class GameView extends IView {
 	}
 
 	destroy() {
-		this.game.destroy();
+		if (this.game !== undefined)
+			this.game.destroy();
 		document.head.removeChild(this.stylesheet);
 		const main = document.querySelector("main");
+		if (main === null)
+			return;
 		main.insertAdjacentHTML("afterend", this.footer.outerHTML);
 	}
 
 	stop() {
-		this.game.stop();
+		if (this.game !== undefined)
+			this.game.stop();
 	}
 
 	reset_centered_box() {
@@ -147,6 +147,8 @@ export class GameView extends IView {
 		//const players = this.game.state.everyone;
 		//const sorted = [...players].sort((a, b) => ranking.indexOf(a) - ranking.indexOf(b));
 		//console.log("Sorted", sorted);
+		if (this.game.state === undefined || this.game.state.player_id === undefined)
+			return;
 		if (this.game.state.player_id === ranking[ranking.length - 1])
 			status_title.innerHTML = "You won!";
 		else

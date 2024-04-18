@@ -63,7 +63,7 @@ def signup(request):
 	serializer.save()
 	user = Player.objects.get(username=request.data["username"])
 	# random avatar file from /front/ressources/img/png/avatar_XXX.png
-	avatar_file = "/front/ressources/upload/avatar_0" + str(random.randint(0, 3)) + ".png"
+	avatar_file = "/front/ressources/uploads/avatar_0" + str(random.randint(0, 3)) + ".png"
 	user.avatar_file = avatar_file
 	user.save()
 	token = Token.objects.create(user=user)

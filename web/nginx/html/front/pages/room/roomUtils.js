@@ -20,6 +20,9 @@ export function createRoomForm()
 		});
 	}
 	let createRoomCTA = document.getElementById("createRoomCTA");
+	if (createRoomCTA === null)
+		return;
+	
 	createRoomCTA.addEventListener("click", (e) => {
 		e.preventDefault();
 		route(selectedMode);
@@ -54,6 +57,8 @@ export function joinRoomForm()
 	let input = document.getElementById("inputRoomCode");
 	let joinRoomCTA = document.getElementById("joinRoomCTA");
 
+	if (input === null || joinRoomCTA === null)
+		return;
 	input.addEventListener("keyup", (e) => {
 		if (e.key === "Enter") {
 			joinRoomCTA.click();
@@ -93,6 +98,8 @@ export async function applyPlayerBorder(player_id) {
 
 	if (player_id === me.id) {
 		let playerImgDiv = document.getElementById(`imgPlayer${player_id}`);
+		if (playerImgDiv === null)
+			return;
 		playerImgDiv.style.border = "var(--primary-color) 4px solid";
 	}
 
@@ -107,6 +114,8 @@ export async function addFriendList() {
 	}).then(response => response.json());
 
 	let inviteFriends = document.getElementById("invite_friends");
+	if (inviteFriends === null)
+		return;
 
 	const defaultOption = document.createElement("option");
 	defaultOption.value = "";
@@ -133,6 +142,9 @@ export async function addFriendList() {
 export async function inviteFriend(code, mode) {
 	const inviteFriends = document.getElementById("invite_friends");
 	let inviteButton = document.getElementById("invite_button");
+	if (inviteFriends === null || inviteButton === null)
+		return;
+
 	inviteButton.addEventListener("click", async (e) => {
 		// retrive value selected in the dropdown
 		const guest = inviteFriends.value;
@@ -157,8 +169,12 @@ export async function inviteFriend(code, mode) {
 export function copyLink(){
 // when clicking on room code, copies it to the clipboard and adds a confirmation message in a bubble
 	const copyButton = document.getElementById("copy_room_code");
+	if (copyButton === null)
+		return;
 	copyButton.addEventListener("click", async () => {
 		const roomCode = document.getElementById("this_code");
+		if (roomCode === null)
+			return;
 		const code = roomCode.textContent;
 		const clipboard = navigator.clipboard;
 		if (!clipboard) {
@@ -167,6 +183,8 @@ export function copyLink(){
 		await clipboard.writeText(code);
 		const text = document.getElementById("this_code");
 		const bubble = document.getElementById("bubble");
+		if (text === null || bubble === null)
+			return;
 		text.hidden = true;
 		bubble.hidden = false;
 		setTimeout(() => {
@@ -182,7 +200,7 @@ export function errorMessage(message) {
 	const insert = document.getElementById("readyToPlay");
 	// create a div and put the error message in it and alight it to the center
 	// do no redisplay the error message if it already exists
-	if (document.getElementById("errorDiv") !== null) {
+	if (document.getElementById("errorDiv") !== null || insert === null) {
 		return;
 	}
 	const errorDiv = document.createElement("div");
@@ -197,6 +215,8 @@ export function errorMessage(message) {
 export function leaveRoom() {
 
 	const button = document.getElementById("leave");
+	if (button === null)
+		return;
 	button.addEventListener("click", (e) => {
 			e.preventDefault();
 			route("/home");
