@@ -5,6 +5,7 @@ from django.utils import timezone
 from channels.generic.websocket import AsyncConsumer
 from channels.db import database_sync_to_async
 from decouple import config
+import requests
 
 from .engine.GameEngine import GameEngine
 from game.models import Game, Play
@@ -80,7 +81,11 @@ def create_history(game_id, player_ranking):
 				defaults={"score":i},
 			)[0]
 			play.save()
-			# @TODO add play.score fo player in user_mgt
+			url = f"http://proxy/api/user_management/add_score/{player_id}/{i}"
+			headers = {
+				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+			}
+			requests.post(url, headers=headers)
 		game.save()
 	except Game.DoesNotExist as e:
 		print(f"GameConsumer.create_history: {e}")
