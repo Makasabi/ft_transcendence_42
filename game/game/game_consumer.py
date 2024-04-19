@@ -67,17 +67,22 @@ class GameConsumer(AsyncConsumer):
 		engine.input(event["input"], event["player_id"])
 
 def create_history(game_id, player_ranking):
-	game = Game.objects.get(game_id=game_id)
-	game.date_end = timezone.now()
-	game.end_status = "success"
-	game.ongoing = False
+	try:
+		game = Game.objects.get(game_id=game_id)
+		game.date_end = timezone.now()
+		game.end_status = "success"
+		game.ongoing = False
 
-	for i, player_id in enumerate(player_ranking):
-		play = Play.objects.update_or_create(
-			game=game,
-			user_id=player_id,
-			defaults={"score":i},
-		)[0]
-		play.save()
-		# @TODO add play.score fo player in user_mgt
-	game.save()
+		for i, player_id in enumerate(player_ranking):
+			play = Play.objects.update_or_create(
+				game=game,
+				user_id=player_id,
+				defaults={"score":i},
+			)[0]
+			play.save()
+			# @TODO add play.score fo player in user_mgt
+		game.save()
+	except Game.DoesNotExist as e:
+		print(f"GameConsumer.create_history: {e}")
+	except Game.MultipleObjectsReturned as e:
+		print(f"GameConsumer.create_history: {e}")

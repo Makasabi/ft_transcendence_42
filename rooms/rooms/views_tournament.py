@@ -52,24 +52,26 @@ def create_tournament(request, roomId):
 		"repartition": []
 	}
 
-	if Rooms.objects.filter(room_id=roomId).exists():
+	try:
 		room = Rooms.objects.get(room_id=roomId)
 		room_CODE = room.code
 		contestants = Occupy.objects.filter(room_id=roomId)
 		occupancy = len(contestants)
 
-	total_rounds = (occupancy + 6) // 7
+		total_rounds = (occupancy + 6) // 7
 
-	tournament = Tournament.objects.create(room_id=room, total_rounds=total_rounds)
+		tournament = Tournament.objects.create(room_id=room, total_rounds=total_rounds)
 
-	tournament_data['id'] = tournament.id
-	tournament_data['room_id'] = roomId
-	tournament_data['room_code'] = room_CODE
-	tournament_data['total_rounds'] = total_rounds
-	tournament_data['current_round'] = 0
-	tournament_data['occupancy'] = occupancy
+		tournament_data['id'] = tournament.id
+		tournament_data['room_id'] = roomId
+		tournament_data['room_code'] = room_CODE
+		tournament_data['total_rounds'] = total_rounds
+		tournament_data['current_round'] = 0
+		tournament_data['occupancy'] = occupancy
 
-	return JsonResponse(tournament_data)
+		return JsonResponse(tournament_data)
+	except Rooms.DoesNotExist:
+		return JsonResponse({"error": "Room does not exist"})
 
 @api_view(['GET'])
 def tournamentInfo(request, room_id):
@@ -83,7 +85,7 @@ def tournamentInfo(request, room_id):
 	Returns:
 		json response containing tournament data
 	"""
-	if Rooms.objects.filter(room_id=room_id).exists():
+	try:
 		room = Rooms.objects.get(room_id=room_id)
 		contestants = Occupy.objects.filter(room_id=room)
 		occupancy = len(contestants)
@@ -91,8 +93,9 @@ def tournamentInfo(request, room_id):
 		update_tournament(tournament.id)
 		tournament = Tournament.objects.get(room_id=room)
 		return JsonResponse(tournament_serializer(tournament, occupancy))
-	else:
-		return JsonResponse({"error": "No tournament or too many tournaments found for this room"}, status=404)
+	except Exception as e:
+		return JsonResponse({"error": str(e)})
+	
 
 @api_view(['GET'])
 def roundInfo(request, tournament_id, round_number):
@@ -118,32 +121,38 @@ def roundInfo(request, tournament_id, round_number):
 		"start_time": 0
 	}
 
-	res = {}
-	tournament = Tournament.objects.get(id=tournament_id)
+	try:
+		res = {}
+		tournament = Tournament.objects.get(id=tournament_id)
 
-	print(round_number)
-	round = Round.objects.get(tournament_id=tournament, round_number=round_number)
-	url = f"http://proxy/api/game/retrieve_round/{round.id}"
-	token = f"Token {request.auth}"
-	headers = {'Authorization': token}
-	response = requests.get(url, headers=headers)
-	res['distribution'] = response.json()
+		print(round_number)
+		round = Round.objects.get(tournament_id=tournament, round_number=round_number)
+		url = f"http://proxy/api/game/retrieve_round/{round.id}"
+		token = f"Token {request.auth}"
+		headers = {'Authorization': token}
+		response = requests.get(url, headers=headers)
+		res['distribution'] = response.json()
 
-	round_data['round_id'] = round.id
-	round_data['round_number'] = round.round_number
-	round_data['tournament_id'] = tournament_id
-	round_data['start_time'] = round.date_start
+		round_data['round_id'] = round.id
+		round_data['round_number'] = round.round_number
+		round_data['tournament_id'] = tournament_id
+		round_data['start_time'] = round.date_start
 
-	res['round_data'] = round_data
+		res['round_data'] = round_data
 
-	return JsonResponse(res)
+		return JsonResponse(res)
+	except Exception as e:
+		return JsonResponse({"error": str(e)})
+
 
 @api_view(['GET'])
 def round_start_time(request, tournament_id, round_number):
-	tournament = Tournament.objects.get(id=tournament_id)
-	round = Round.objects.get(tournament_id=tournament, round_number=round_number)
-	return JsonResponse({"start_time": round.date_start})
-
+	try:
+		tournament = Tournament.objects.get(id=tournament_id)
+		round = Round.objects.get(tournament_id=tournament, round_number=round_number)
+		return JsonResponse({"start_time": round.date_start})
+	except Exception as e:
+		return JsonResponse({"error": str(e)})
 
 @api_view(['GET'])
 def get_round_code(request, round_id):
@@ -155,12 +164,15 @@ def get_round_code(request, round_id):
 		room_code: "room_code"
 	}
 	"""
-	round = Round.objects.get(id=round_id)
-	code = round.tournament_id.room_id.code
+	try:
+		round = Round.objects.get(id=round_id)
+		code = round.tournament_id.room_id.code
 
-	return JsonResponse({
-		"room_code": code
-	})
+		return JsonResponse({
+			"room_code": code
+		})
+	except Exception as e:
+		return JsonResponse({"error": str(e)})
 
 @api_view(['GET'])
 def tournament_access(request, tournament_id, user_id):
@@ -182,23 +194,26 @@ def tournament_access(request, tournament_id, user_id):
 
 @api_view(['GET'])
 def check_tournament_status(request, tournament_id):
-	tournament = Tournament.objects.get(id=tournament_id)
-	if (tournament.current_round == tournament.total_rounds):
-		round = Round.objects.get(tournament_id=tournament, round_number=tournament.current_round)
-		url = f"http://proxy/api/game/retrieve_round/{round.id}"
-		headers = {
-				"Content-Type": "application/json",
-				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
-		}
-		rounds = requests.get(url, headers=headers)
+	try:
+		tournament = Tournament.objects.get(id=tournament_id)
+		if (tournament.current_round == tournament.total_rounds):
+			round = Round.objects.get(tournament_id=tournament, round_number=tournament.current_round)
+			url = f"http://proxy/api/game/retrieve_round/{round.id}"
+			headers = {
+					"Content-Type": "application/json",
+					'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+			}
+			rounds = requests.get(url, headers=headers)
 
-		for game in rounds.json().values():
-			if game['end_status'] == None:
-				return JsonResponse({"status": "ongoing"})
-		winner = getWinnerId(tournament_id)
-		return JsonResponse({
-			"status": "finished",
-			"winner": winner,
-			})
-	else:
-		return JsonResponse({"status": "ongoing"})
+			for game in rounds.json().values():
+				if game['end_status'] == None:
+					return JsonResponse({"status": "ongoing"})
+			winner = getWinnerId(tournament_id)
+			return JsonResponse({
+				"status": "finished",
+				"winner": winner,
+				})
+		else:
+			return JsonResponse({"status": "ongoing"})
+	except Exception as e:
+		return JsonResponse({"error": str(e)})

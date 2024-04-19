@@ -30,7 +30,8 @@ def create_notif(request, type, target):
 	url = f"http://proxy/api/user_management/user/username/{target}"
 	headers = {'Authorization': "Token " + token}
 	target = requests.get(url, headers=headers)
-
+	if target.status_code == 404:
+		return JsonResponse({'message': 'User not found'}, status=404)
 
 	create_send_notification(user1["user"], target.json(), type, request)
 	return JsonResponse({'message': 'Notification sent'})
@@ -147,5 +148,10 @@ def delete_notif(request, id):
 	- id: Notification id
 
 	"""
-	Notification.objects.get(notif_id=id).delete()
-	return JsonResponse({'message': 'Notification deleted'})
+	try:
+		Notification.objects.get(notif_id=id).delete()
+		return JsonResponse({'message': 'Notification deleted'})
+	except Notification.DoesNotExist:
+		return JsonResponse({'message': 'Notification not found'}, status=404)
+	except Notification.MultipleObjectsReturned:
+		return JsonResponse({'message': 'Multiple notifications found'}, status=404)

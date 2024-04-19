@@ -62,6 +62,8 @@ def distribute_contestants(contestants, repartition):
 				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
 			}
 			data = requests.get(url, headers=headers)
+			if data.status_code != 200:
+				raise Exception("No player found")
 			pool_data["players"].append(data.json())
 		contestants_list = contestants_list[places:]
 		distributed_contestants[f"pool_{i}"] = pool_data

@@ -101,22 +101,26 @@ def roomInfo(request, roomCode):
 		"allowed": False,
 	}
 
-	if Rooms.objects.filter(code=code).exists():
+	try:
 		room = Rooms.objects.get(code=code)
 		room_data['room_id'] = room.room_id
 		room_data['date'] = room.date
 		room_data['roomMode'] = room.roomMode
 		room_data['visibility'] = room.visibility
 
-	token = request.COOKIES.get('token')
-	user = get_user(token)
-	if not user:
-		return JsonResponse({'message': 'User not found'}, status=404)
-	# check if the user is in the occuypy table
-	if Occupy.objects.filter(room_id=room.room_id, player_id=user['user']['id']).exists():
-		room_data['allowed'] = True
+		token = request.COOKIES.get('token')
+		user = get_user(token)
+		if not user:
+			return JsonResponse({'message': 'User not found'}, status=404)
+		# check if the user is in the occuypy table
+		if Occupy.objects.filter(room_id=room.room_id, player_id=user['user']['id']).exists():
+			room_data['allowed'] = True
 
-	return JsonResponse(room_data)
+		return JsonResponse(room_data)
+	except Rooms.DoesNotExist:
+		return JsonResponse({"error": "Room not found"}, status=404)
+	except Rooms.MultipleObjectsReturned:
+		return JsonResponse({"error": "Multiple rooms found"}, status=500)
 
 
 @api_view(['GET'])
@@ -133,12 +137,14 @@ def roomPlayers(request, room_id):
 	"""
 	players = []
 
-	if Occupy.objects.filter(room_id=room_id).exists():
+	try:
 		occupants = Occupy.objects.filter(room_id=room_id)
 		for occupant in occupants:
 			players.append(occupant.player_id)
 
-	return JsonResponse({'players_ids': players})
+		return JsonResponse({'players_ids': players})
+	except Occupy.DoesNotExist:
+		return JsonResponse({"error": "No players found"}, status=404)
 
 @api_view(['GET'])
 def get_code(request, room_id):

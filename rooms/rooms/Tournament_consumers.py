@@ -13,43 +13,55 @@ tournament_lock = Lock()
 
 class TournamentConsumer(WebsocketConsumer):
 	def connect(self):
+		try:
+			# Getting tournament id and group name #
+			self.tournament_id = self.scope['url_route']['kwargs']['tournament_id']
+			self.tournament_group_name = f'tournament_{self.tournament_id}'
+			self.current_round = Tournament.objects.get(id=self.tournament_id).current_round
+			self.round_info = Round.objects.get(tournament_id=self.tournament_id, round_number=self.current_round)
 
-		# Getting tournament id and group name #
-		self.tournament_id = self.scope['url_route']['kwargs']['tournament_id']
-		self.tournament_group_name = f'tournament_{self.tournament_id}'
-		self.current_round = Tournament.objects.get(id=self.tournament_id).current_round
-		self.round_info = Round.objects.get(tournament_id=self.tournament_id, round_number=self.current_round)
+			# Adding user to group #
+			async_to_sync(self.channel_layer.group_add)(
+				self.tournament_group_name,
+				self.channel_name
+			)
+			self.user = self.scope['user']
 
-		# Adding user to group #
-		async_to_sync(self.channel_layer.group_add)(
-			self.tournament_group_name,
-			self.channel_name
-		)
-		self.user = self.scope['user']
-
-		# Testing user privileges on tournament #
-		testAccess = CheckPlayerAccess(self.user['id'], self.tournament_id)
-		if (self.user.get('id') == None or self.user.get('user') == None) or testAccess == "Uninvited":
-			print("💀 Uninvited or Anonymous user")
-			self.user = None
-			self.accept()
-			self.close(3010)
-		elif testAccess == "Loosed":
-			print("🚨 Loosed")
-			self.accept()
-			self.close(3011)
-		elif testAccess == False:
+			# Testing user privileges on tournament #
+			testAccess = CheckPlayerAccess(self.user['user']['id'], self.tournament_id)
+			if (self.user.get('id') == None or self.user.get('user') == None) or testAccess == "Uninvited":
+				print("💀 Uninvited or Anonymous user")
+				self.user = None
+				self.accept()
+				self.close(3010)
+			elif testAccess == "Loosed":
+				print("🚨 Loosed")
+				self.accept()
+				self.close(3011)
+			else:
+				print("🛎️ Accepted")
+				self.accept()
+				url = f"http://proxy/api/game/get_pool/{self.round_info.id}/{self.user['user']['id']}"
+				token = f"Token {self.scope['user'].auth_token}"
+				headers = {'Authorization': token}
+				response = requests.get(url, headers=headers)
+				if response.status_code != 200:
+					print("🚩 Error fetching tournament info")
+					self.close(3010)
+					return
+				self.my_pool = response.json()['game_id']
+		except Tournament.DoesNotExist:
 			print("🚩 No tournament found")
 			self.accept()
 			self.close(3010)
-		else:
-			print("🛎️ Accepted")
+		except Tournament.MultipleObjectsReturned:
+			print("🚩 Multiple tournaments found")
 			self.accept()
-			url = f"http://proxy/api/game/get_pool/{self.round_info.id}/{self.user['id']}"
-			token = f"Token {self.scope['user'].auth_token}"
-			headers = {'Authorization': token}
-			response = requests.get(url, headers=headers)
-			self.my_pool = response.json()['game_id']
+			self.close(3010)
+		except Round.DoesNotExist:
+			print("🚩 No round found")
+			self.accept()
+			self.close(3010)
 
 	def disconnect(self, close_code):
 		async_to_sync(self.channel_layer.group_discard)(

@@ -154,6 +154,10 @@ def retrieve_round(request, round_id):
 				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
 			}
 			data = requests.get(url, headers=headers)
+			if data.status_code != 200:
+				return JsonResponse({
+					"error": "Internal server error"
+				}, status=500)
 			players.append(data.json())
 		res[f"pool_{game.game_id}"] = {
 			"game_id": game.game_id,
@@ -173,15 +177,24 @@ def get_roomcode(request, game_id):
 		room_code: "room_code"
 	}
 	"""
-	game = Game.objects.get(game_id=game_id)
-	url = f"http://proxy/api/rooms/get_code/{game.parent_id}"
-	headers = {
-		"Authorization": f"Token {request.COOKIES.get('token')}"
-	}
-	room_code = requests.get(url, headers=headers)
-	return JsonResponse({
-		"room_code": room_code.json()['room_code']
-	})
+	try:
+		game = Game.objects.get(game_id=game_id)
+		url = f"http://proxy/api/rooms/get_code/{game.parent_id}"
+		headers = {
+			"Authorization": f"Token {request.COOKIES.get('token')}"
+		}
+		room_code = requests.get(url, headers=headers)
+		return JsonResponse({
+			"room_code": room_code.json()['room_code']
+		})
+	except Game.DoesNotExist:
+		return JsonResponse({
+			"error": "Game not found"
+		}, status=404)
+	except Game.MultipleObjectsReturned:
+		return JsonResponse({
+			"error": "Multiple games found"
+		}, status=500)
 
 @api_view(["GET"])
 def get_redirect(request, game_id):
@@ -193,8 +206,17 @@ def get_redirect(request, game_id):
 		redirect_route: "redirect_route"
 	}
 	"""
-	game = Game.objects.get(game_id=game_id)
-
+	try:
+		game = Game.objects.get(game_id=game_id)
+	except Game.DoesNotExist:
+		return JsonResponse({
+			"error": "Game not found"
+		}, status=404)
+	except Game.MultipleObjectsReturned:
+		return JsonResponse({
+			"error": "Multiple games found"
+		}, status=500)
+	
 	if game.mode == "Tournament":
 		url = f"http://proxy/api/rooms/get_round_code/{game.parent_id}"
 		headers = {
@@ -237,6 +259,10 @@ def get_players(request, game_id):
 		token = request.COOKIES.get('token')
 		headers = {'Authorization': "Token " + token}
 		user = requests.get(url, headers=headers)
+		if user.status_code != 200:
+			return JsonResponse({
+				"error": "Internal server error"
+			}, status=500)
 		rank = f"{i}/{len(plays)}"
 		players_json.append({
 			"username": user.json()['username'],
@@ -337,7 +363,16 @@ def get_results(request, game_id):
 		]
 	}
 	"""
-	game = Game.objects.get(game_id=game_id)
+	try:
+		game = Game.objects.get(game_id=game_id)
+	except Game.DoesNotExist:
+		return JsonResponse({
+			"error": "Game not found"
+		}, status=404)
+	except Game.MultipleObjectsReturned:
+		return JsonResponse({
+			"error": "Multiple games found"
+		}, status=500)
 	plays = Play.objects.filter(game=game).order_by('score')
 
 	results_json = []

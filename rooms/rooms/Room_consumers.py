@@ -70,27 +70,32 @@ class RoomConsumer(WebsocketConsumer):
 						}
 					)
 
-
-
 # Send Events #
 
 	def sendAddPlayer(self):
-		async_to_sync(self.channel_layer.group_send)(
-			self.room_group_name,
-			{
-				'type': 'new_player',
-				'player_id': self.user['id'],
-				'is_master': Occupy.objects.get(player_id=self.user['id'], room_id=self.room_id).is_master
-			}
-		)
-		occupy = Occupy.objects.filter(room_id=self.room_id)
-		for player in occupy:
-			if player.player_id != self.user['id']:
-				self.send(text_data=json.dumps({
+		try:
+			async_to_sync(self.channel_layer.group_send)(
+				self.room_group_name,
+				{
 					'type': 'new_player',
-					'player_id': player.player_id,
-					'is_master': player.is_master
-				}))
+					'player_id': self.user['id'],
+					'is_master': Occupy.objects.get(player_id=self.user['id'], room_id=self.room_id).is_master
+				}
+			)
+			occupy = Occupy.objects.filter(room_id=self.room_id)
+			for player in occupy:
+				if player.player_id != self.user['id']:
+					self.send(text_data=json.dumps({
+						'type': 'new_player',
+						'player_id': player.player_id,
+						'is_master': player.is_master
+					}))
+		except Occupy.DoesNotExist:
+			print("Player not found")
+			pass
+		except Occupy.MultipleObjectsReturned:
+			print("Multiple players found")
+			pass
 
 	def sendUpdatePlayer(self, new_master):
 		async_to_sync(self.channel_layer.group_send)(
@@ -157,7 +162,7 @@ class RoomConsumer(WebsocketConsumer):
 # Database Functions #
 
 def checkRoomAvailabilityDB(room_id):
-	if Rooms.objects.filter(room_id=room_id).exists():
+	try:
 		room = Rooms.objects.get(room_id=room_id)
 		if room.roomMode == 'normal':
 			if Occupy.objects.filter(room_id=room_id).count() < 6:
@@ -169,22 +174,42 @@ def checkRoomAvailabilityDB(room_id):
 				return True
 			else:
 				return False
-	else:
+	except Rooms.DoesNotExist:
+		return False
+	except Rooms.MultipleObjectsReturned:
 		return False
 
 def addPlayerToRoomDB(room_id, user_id):
-	room = Rooms.objects.get(room_id=room_id)
-	if Occupy.objects.filter(room_id=room_id, player_id=user_id).exists():
-		occupant = Occupy.objects.get(room_id=room_id, player_id=user_id)
-		occupant.delete()
-	Occupy.objects.create(room_id=room, player_id=user_id)
+	try:
+		room = Rooms.objects.get(room_id=room_id)
+		if Occupy.objects.filter(room_id=room_id, player_id=user_id).exists():
+			occupant = Occupy.objects.get(room_id=room_id, player_id=user_id)
+			occupant.delete()
+		Occupy.objects.create(room_id=room, player_id=user_id)
+	except Rooms.DoesNotExist:
+		print("Room not found")
+		pass
+	except Rooms.MultipleObjectsReturned:
+		print("Multiple rooms found")
+		pass
+	except Occupy.DoesNotExist:
+		print("Occupant not found")
+		pass
+	except Occupy.MultipleObjectsReturned:
+		print("Multiple occupants found")
+		pass
 
 def assignMasterDB(room_id, user_id):
-	occupant = Occupy.objects.get(player_id=user_id, room_id=room_id)
-	if Occupy.objects.filter(room_id=room_id).count() == 1:
-		occupant.is_master = True
-		occupant.save()
-	else:
+	try:
+		occupant = Occupy.objects.get(player_id=user_id, room_id=room_id)
+		if Occupy.objects.filter(room_id=room_id).count() == 1:
+			occupant.is_master = True
+			occupant.save()
+		else:
+			pass
+	except Occupy.DoesNotExist:
+		pass
+	except Occupy.MultipleObjectsReturned:
 		pass
 
 def reassignMasterDB(room_id):
@@ -197,7 +222,6 @@ def reassignMasterDB(room_id):
 		pass
 
 def removePlayerFromRoomDB(room_id, user_id):
-	room = Rooms.objects.get(room_id=room_id)
 	try:
 		occupant = Occupy.objects.get(player_id=user_id, room_id=room_id)
 		occupant.delete()
@@ -205,10 +229,13 @@ def removePlayerFromRoomDB(room_id, user_id):
 		return
 
 def is_master(room_id, user_id):
-	occupant = Occupy.objects.get(player_id=user_id, room_id=room_id)
-	if occupant.is_master:
-		return True
-	else:
+	try:
+		occupant = Occupy.objects.get(player_id=user_id, room_id=room_id)
+		if occupant.is_master:
+			return True
+		else:
+			return False
+	except Occupy.DoesNotExist:
 		return False
 
 # check if game already started
