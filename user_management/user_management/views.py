@@ -1,8 +1,11 @@
+import re
 from django.shortcuts import render
 from django.http import JsonResponse
 from user_management.models import Player, BeFriends
 from rest_framework.decorators import api_view
 from django.conf import settings
+from rest_framework.response import Response
+from rest_framework import status
 import os
 import requests
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -109,12 +112,19 @@ def edit_profile(request):
 	- JsonResponse: Response containing the new user data
 	"""
 	print(request.data)
-   # serializer = profile_serializer(request.data)
-   # if not serializer.is_valid():
-
 	user = request.user
-	if "username" in request.data and request.data["username"] != "":
-		user.username = request.data["username"]
+	username_pattern = r'^[a-zA-Z0-9_-]+$'
+	new_username = request.data["username"]
+	if (user.username != new_username):
+		if Player.objects.filter(username=new_username):
+			# jsonresponse
+			return JsonResponse({"error": "Username already used", "username" : user.username}, status=400)
+	if not re.match(username_pattern, new_username):
+		return JsonResponse({"error": "Username must contain only letters, numbers, _ and -", "username" : user.username}, status=400)
+	elif len(new_username) < 3 or len(new_username) > 10:
+		return JsonResponse({"error": "Username must be between 3 and 10 characters", "username" : user.username}, status=400)
+
+	user.username = new_username
 	if "avatar_file" in request.data:
 		user.avatar_file = request.data["avatar_file"]
 	if "password" in request.data and request.data["password"] != "":

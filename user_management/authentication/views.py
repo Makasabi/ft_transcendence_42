@@ -1,5 +1,6 @@
 import random
 import os
+import re
 from django.http import HttpResponse
 from user_management.models import Player
 from rest_framework import status
@@ -60,6 +61,13 @@ def signup(request):
 		if 'username' in serializer.errors:
 			return Response({"error" : "Username already used"}, status=status.HTTP_400_BAD_REQUEST)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	# regex = lowercase, uppercase, numbers, hyphens, underscores, between 3 and 10 characters
+	username_pattern = r'^[a-zA-Z0-9_-]+$'
+	if not re.match(username_pattern, request.data["username"]):
+		return Response({"error": "Username must contain only letters, numbers, hyphens, and underscores"}, status=status.HTTP_400_BAD_REQUEST)
+	elif len(request.data["username"]) < 3 or len(request.data["username"]) > 10:
+		return Response({"error": "Username must be between 3 and 10 characters"}, status=status.HTTP_400_BAD_REQUEST)
+
 	serializer.save()
 	user = Player.objects.get(username=request.data["username"])
 	# random avatar file from /front/ressources/img/png/avatar_XXX.png

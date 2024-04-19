@@ -47,22 +47,7 @@ async function editProfile() {
 		return;
 	}
 
-	const responseUsername = await APIcall('/api/user_management/find_match/' + username);
-	if (responseUsername.status === "error") {
-		// display error message
-		const error_username = document.getElementById("error_username");
-		if (error_username === null)
-			return;
-		error_username.textContent = "Be original, this username is already taken!";
-		error_username.hidden = false;
-		document.getElementById("username").textContent = responseUsername.username;
-		setTimeout(() => {
-			error_username.hidden = true;
-		}, 2000);
-		return;
-	}
-
-	await fetch('/api/user_management/edit_profile', {
+	let editProfile = await fetch('/api/user_management/edit_profile', {
 		method: 'POST',
 		headers: {
 			'Content-type' : 'application/json',
@@ -70,7 +55,23 @@ async function editProfile() {
 		},
 		body: JSON.stringify({ 'username' : username, 'password' : password}),
 
-	}).then(response => response.json());
+	}).then(response => {
+		if (response.ok)
+			return (response.json());
+		else {
+			return response.json().then(data => {
+				const error_field = document.getElementById("error_username");
+				if (error_field === null)
+					return ;
+				error_field.textContent = data.error;
+				error_field.hidden = false;
+				document.getElementById("username").textContent = data.username;
+				setTimeout(() => {
+					error_field.hidden = true;
+				}, 2000);
+			});
+		}
+	});
 }
 
 function editModeOn(editables) {

@@ -143,6 +143,9 @@ async function displayNotifBox() {
 			headers: { 'Authorization': `Token ${Login.getCookie('token')}` }
 		}).then(response => response.json())
 		setNotifSeen();
+		let notifDot = document.getElementById('notificationDot');
+		if (notifDot !== null)
+			notifDot.style.display = 'none';
 		if (notifs.length === 0 || notifs.message === 'No notifications')
 			return;
 		event.stopPropagation();
