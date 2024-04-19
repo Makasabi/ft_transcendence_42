@@ -26,9 +26,14 @@ class TournamentConsumer(WebsocketConsumer):
 				self.channel_name
 			)
 			self.user = self.scope['user']
-
+			if self.user.get("id") is None or self.user.get("user") is None:
+				print("💀 Anonymous user")
+				self.user = None
+				self.accept()
+				self.close(3010)
+				return
 			# Testing user privileges on tournament #
-			testAccess = CheckPlayerAccess(self.user['user']['id'], self.tournament_id)
+			testAccess = CheckPlayerAccess(self.user['id'], self.tournament_id)
 			if (self.user.get('id') == None or self.user.get('user') == None) or testAccess == "Uninvited":
 				print("💀 Uninvited or Anonymous user")
 				self.user = None
@@ -41,9 +46,10 @@ class TournamentConsumer(WebsocketConsumer):
 			else:
 				print("🛎️ Accepted")
 				self.accept()
-				url = f"http://proxy/api/game/get_pool/{self.round_info.id}/{self.user['user']['id']}"
-				token = f"Token {self.scope['user'].auth_token}"
-				headers = {'Authorization': token}
+				url = f"http://proxy/api/game/get_pool/{self.round_info.id}/{self.user['id']}"
+				headers = {
+					'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+				}
 				response = requests.get(url, headers=headers)
 				if response.status_code != 200:
 					print("🚩 Error fetching tournament info")
