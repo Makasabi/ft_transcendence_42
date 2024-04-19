@@ -172,7 +172,7 @@ def roundCreate(tournament_id):
 	tournament.save()
 
 	if not Round.objects.filter(tournament_id=tournament, round_number=tournament.current_round).exists():
-		start_time = datetime.now() + timedelta(minutes=1)
+		start_time = datetime.now() + timedelta(minutes=0.25)
 
 		round = Round.objects.create(tournament_id=tournament, round_number=tournament.current_round, date_start=start_time)
 		contestants = Occupy.objects.filter(room_id=tournament.room_id)
