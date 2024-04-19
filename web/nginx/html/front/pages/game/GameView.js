@@ -83,7 +83,7 @@ export class GameView extends IView {
 			route(redirect);
 		}
 		catch (e) {
-			console.error("Game error", e);
+			//console.error("Game error", e);
 			route("/");
 		}
 	}
@@ -153,7 +153,7 @@ export class GameView extends IView {
 		const status_title = document.querySelector("#game_status h2");
 		if (box === null || status === null || status_title === null)
 			return;
-	
+
 		box.style.display = "flex";
 		status.style.display = "flex";
 		status_title.innerHTML = "Game ended unexpectedly";

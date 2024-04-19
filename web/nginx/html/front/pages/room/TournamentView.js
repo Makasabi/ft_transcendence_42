@@ -32,6 +32,7 @@ export class TournamentView extends IView {
 		// check if user can access the tournament
 
 		let tournament_info = await getTournamentInfo(this.roomInfo.room_id)
+		console.log("🔍 tournament_info:", tournament_info);
 		if (tournament_info === undefined) {
 			console.error("Tournament not found")
 			route("/unknown");
@@ -50,6 +51,7 @@ export class TournamentView extends IView {
 				route("/playerEliminated");
 				return;
 			case "Uninvited":
+				console.log("💀 Uninvited");
 				route("/uninvited");
 				return;
 			case false:
@@ -90,7 +92,7 @@ export class TournamentView extends IView {
 	destroy() {
 		console.log("Destroying tournament view");
 		if (this.TournamentSocket) {
-			this.TournamentSocket.close();
+			this.TournamentSocket.close(3003);
 		}
 	}
 

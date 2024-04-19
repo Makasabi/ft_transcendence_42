@@ -36,6 +36,7 @@ class RoomConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
+		print("Close code: ", close_code)
 		if close_code != 3003 and close_code != 3002:
 			removePlayerFromRoomDB(self.room_id, self.user['id'])
 			new_master = reassignMasterDB(self.room_id)
@@ -181,6 +182,7 @@ def checkRoomAvailabilityDB(room_id):
 
 def addPlayerToRoomDB(room_id, user_id):
 	try:
+		print(f"Adding player {user_id} to room {room_id}")
 		room = Rooms.objects.get(room_id=room_id)
 		if Occupy.objects.filter(room_id=room_id, player_id=user_id).exists():
 			occupant = Occupy.objects.get(room_id=room_id, player_id=user_id)
@@ -223,6 +225,7 @@ def reassignMasterDB(room_id):
 
 def removePlayerFromRoomDB(room_id, user_id):
 	try:
+		print(f"Removing player {user_id} from room {room_id}")
 		occupant = Occupy.objects.get(player_id=user_id, room_id=room_id)
 		occupant.delete()
 	except Occupy.DoesNotExist:

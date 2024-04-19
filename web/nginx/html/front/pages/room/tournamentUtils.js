@@ -210,10 +210,11 @@ export async function APool(pools, pool_number) {
 
 	for (let i = 0; i < 6; i++) {
 		let playerSlot = document.getElementById(`P${i}`);
-		if (playerSlot !== null) {
+		if (playerSlot === null) {
 			console.error("No playerSlot");
-			playerSlot.innerHTML = "";
+			return;
 		}
+		playerSlot.innerHTML = "";
 		let username = document.createElement("p");
 		let userimg = document.createElement("img");
 		const player = playersInPool[i];

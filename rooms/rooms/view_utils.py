@@ -126,6 +126,7 @@ def CheckPlayerAccess(user_id, tournament_id):
 	- Loosed or Uninvited if the player has already played or is not invited
 	"""
 	try:
+		print("🔍 Check player access", user_id, tournament_id)
 		tournament = Tournament.objects.get(id=tournament_id)
 		round = Round.objects.get(tournament_id=tournament, round_number=1)
 		url = "http://proxy/api/game/has_played/" + str(round.id) + "/" + str(user_id)
@@ -133,13 +134,16 @@ def CheckPlayerAccess(user_id, tournament_id):
 			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
 		}
 		response = requests.get(url, headers=headers)
+		print("🔍 Response", response.json())
 		if response.json()['has_played'] == True:
 			room_id = tournament.room_id
+			print(Occupy.objects.filter(player_id=user_id, room_id=room_id).exists())
 			if Occupy.objects.filter(player_id=user_id, room_id=room_id).exists():
 				return True
 			else:
 				return "Loosed"
 		else:
+			print("🔍 Player is not invited")
 			return "Uninvited"
 	except Round.DoesNotExist:
 		print("Round does not exist")
