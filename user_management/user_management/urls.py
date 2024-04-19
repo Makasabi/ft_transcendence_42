@@ -20,4 +20,5 @@ urlpatterns = [
 	path("twoFA", views.twoFA, name="twoFA"),
 	path("switch_twoFA", views.switch_twoFA, name="twoFA"),
 	path('', views.me, name='me'),
+	path('add_score/<int:user_id>/<int:score>', views.add_score, name='add_score'),
 ]

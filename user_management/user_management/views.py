@@ -338,13 +338,18 @@ def switch_twoFA(request):
 	request.user.save()
 	return JsonResponse({'twoFA': request.user.twoFA})
 
-@api_view(['GET'])
+@api_view(['POST'])
 def add_score(request, score, user_id):
 	"""
 	Add score to user's global score
 	"""
-	print("🟢🟢🟢🟢🟢🟢🟢", request.headers.get('Authorization')) # @TODO VERIF
+	auth = request.headers.get('Authorization')
 	if request.headers.get('Authorization') is None:
+		return JsonResponse({'error': 'Unauthorized'}, status=401)
+	auth = auth.split()
+	if len(auth) != 2:
+		return JsonResponse({'error': 'Unauthorized'}, status=401)
+	if auth[0] != 'App':
 		return JsonResponse({'error': 'Unauthorized'}, status=401)
 	user = Player.objects.get(id=user_id)
 	user.global_score += score
