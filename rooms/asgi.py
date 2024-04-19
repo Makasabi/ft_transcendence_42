@@ -15,6 +15,7 @@ from rooms.TokenAuthenticationMiddleware import TokenAuthMiddleware
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.urls import path
 from rooms.Room_consumers import RoomConsumer
+from rooms.Tournament_consumers import TournamentConsumer
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
 
@@ -24,6 +25,7 @@ application = ProtocolTypeRouter({
 		AllowedHostsOriginValidator(
 			URLRouter([
 				path('ws/rooms/<int:room_id>', RoomConsumer.as_asgi()),
+				path('ws/tournament/<int:tournament_id>', TournamentConsumer.as_asgi()),
 			])
 		)
 	),
