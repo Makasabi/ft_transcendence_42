@@ -180,17 +180,15 @@ async function findPoolByUserId(pools) {
 		},
 	}).then(response => response.json());
 
-	console.log("findPoolByUserId Me:", me);
+
 	for (const poolName in pools) {
 		if (pools.hasOwnProperty(poolName)) {
 			const pool = pools[poolName];
 			const players = pool.players;
-			console.log("Players in pool:", players);
 			if (!players) {
 				continue;
 			}
 			const foundPlayer = players.find(player => player.id === me.id);
-			console.log("foundPlayer:", foundPlayer);
 			if (foundPlayer) {
 				return poolName;
 			}
@@ -220,12 +218,10 @@ export async function APool(pools, pool_number) {
 		let userimg = document.createElement("img");
 		const player = playersInPool[i];
 		if (player) {
-			console.log("Player in pool:", player);
 			username.innerHTML = player.username;
 			userimg.src = player.avatar_file;
 		}
 		else if (!player || player === undefined) {
-			console.log("No player");
 			username.innerHTML = "No player";
 			userimg.src = "/front/ressources/img/svg/hexagon.svg";
 			userimg.style.filter = "opacity(0%)";
@@ -259,8 +255,6 @@ export async function displayMyPool(pools, current_round) {
 
 	let myPool = await findPoolByUserId(pools);
 
-	console.log("My pool:", myPool);
-	console.log(`"Looking for element round${current_round}_${myPool}`);
 	let myPoolImg = document.getElementById(`round${current_round}_${myPool}`);
 	if (myPoolImg === null) {
 		console.error("My pool not found");

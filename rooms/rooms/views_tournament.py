@@ -128,8 +128,9 @@ def roundInfo(request, tournament_id, round_number):
 		print(round_number)
 		round = Round.objects.get(tournament_id=tournament, round_number=round_number)
 		url = f"http://proxy/api/game/retrieve_round/{round.id}"
-		token = f"Token {request.auth}"
-		headers = {'Authorization': token}
+		headers = {
+					'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+		}
 		response = requests.get(url, headers=headers)
 		res['distribution'] = response.json()
 
