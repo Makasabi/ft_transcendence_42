@@ -21,8 +21,7 @@
 	background-color: var(--transparent-dark);
 	flex-wrap: wrap;
 	text-wrap: wrap;
-	overflow-wrap: break-word;
-	word-break: break-all;
+	overflow-wrap: anywhere;
 	inline-size: 20vw;
 }
 

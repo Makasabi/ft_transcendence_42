@@ -164,7 +164,15 @@ function avatarUpload() {
 				avatarImg.src = "/front/ressources/uploads/" + file.name;
 			}
 		} catch (error) {
-			console.error("Error uploading avatar:", error);
+			// console.error("Error uploading avatar:", error);
+			const error_field = document.getElementById("error_username");
+				if (error_field === null)
+					return ;
+				error_field.textContent = "Can't upload this image, sorry !";
+				error_field.hidden = false;
+				setTimeout(() => {
+					error_field.hidden = true;
+				}, 3000);
 		}
 	});
 }
