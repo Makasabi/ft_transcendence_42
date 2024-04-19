@@ -101,7 +101,7 @@
 	{
 		border-radius: 10px;
 		background-color: var(--transparent-primary);
-	} 
+	}
 
 .player_box {
 	display: flex;
@@ -129,8 +129,9 @@
 }
 
 .player_box .room_avatar {
-	width: 10vh;
-	border-radius: 50%;
+	width:10vh;
+	height:10vh;
+	border-radius: 100px;
 	margin: 1vh;
 }
 
@@ -143,7 +144,7 @@
 	display: none;
 }
 
-.room_code{ 
+.room_code{
 	padding: 1vh;
 	width: 100%;
 	margin: 1vh 0;

@@ -70,6 +70,7 @@ input.placeholder {
 
 .friend-avatar {
 	width:10vh;
+	height:10vh;
 	border-radius: 100px;
 	margin: 1vh
 }
