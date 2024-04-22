@@ -162,6 +162,14 @@ export class LoginView extends IView
 			}
 		};
 
+		const not_registered = document.getElementById("not-registered");
+		if (not_registered === null)
+			return ;
+		not_registered.addEventListener("click", (e) => {
+			e.preventDefault();
+			route("/signup");
+		});
+
 		const google_button = document.getElementById("google-auth-btn");
 		if (google_button === null)
 			return ;
