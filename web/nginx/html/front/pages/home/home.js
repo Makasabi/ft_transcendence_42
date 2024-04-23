@@ -55,6 +55,9 @@ export class HomeView extends IView {
 				case "me":
 					route("/me");
 					break;
+				case "local":
+					createLocalGame();
+					break;
 			}
 		});
 		createRoomForm(); // from room.js
@@ -63,6 +66,29 @@ export class HomeView extends IView {
 
 	destroy() {
 	}
+}
+
+async function createLocalGame() {
+	console.log("Starting Local game");
+	fetch(`/api/game/create_local`, {
+		method: "POST",
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': `Token ${Login.getCookie('token')}`,
+		},
+	}).then(async response => {
+		if (response.status === 200) {
+			const data = await response.json();
+			const game_id = data.game_id;
+			if (game_id === undefined) {
+				console.error("Error starting game");
+				return;
+			}
+			route(`/game/${game_id}`);
+		} else {
+			console.error("Error starting game");
+		}
+	})
 }
 
 export async function footer()
