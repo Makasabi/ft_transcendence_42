@@ -67,6 +67,11 @@ def signup(request):
 		return Response({"error": "Username must contain only letters, numbers, hyphens, and underscores"}, status=status.HTTP_400_BAD_REQUEST)
 	elif len(request.data["username"]) < 3 or len(request.data["username"]) > 10:
 		return Response({"error": "Username must be between 3 and 10 characters"}, status=status.HTTP_400_BAD_REQUEST)
+	password_pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])'
+	if not re.match(password_pattern, request.data["password"]):
+		return Response({"error": "Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character"}, status=status.HTTP_400_BAD_REQUEST)
+	elif len(request.data["password"]) < 6:
+		return Response({"error": "Passsword must be at least 6 characters"}, status=status.HTTP_400_BAD_REQUEST)
 
 	serializer.save()
 	user = Player.objects.get(username=request.data["username"])
