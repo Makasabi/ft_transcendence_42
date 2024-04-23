@@ -365,7 +365,3 @@ input:checked + .slider > .icon {
 	background-color: var(--bg-icon-on);
 	transform: translateX(calc(var(--bar-size) - (var(--icon-size) / 4)));
 }
-
-#qr-code {
-	width: 10vw;
-}
