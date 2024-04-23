@@ -44,22 +44,32 @@ export class HomeView extends IView {
 				case "join":
 					document.querySelector('.joinRoomForm').classList.toggle('show');
 					document.getElementById("inputRoomCode").focus();
-					if (document.querySelector('.createRoomSelect').classList.contains('show'))
-						{ document.querySelector('.createRoomSelect').classList.remove('show'); }
+					// if (document.querySelector('.createRoomSelect').classList.contains('show'))
+					// 	{ document.querySelector('.createRoomSelect').classList.remove('show'); }
+					if (document.querySelector('.playLocalSelect').classList.contains('show'))
+						{ document.querySelector('.playLocalSelect').classList.remove('show'); }
 					break;
 				case "create":
-					document.querySelector('.createRoomSelect').classList.toggle('show');
-					if (document.querySelector('.joinRoomForm').classList.contains('show'))
-						{ document.querySelector('.joinRoomForm').classList.remove('show'); }
-					break;
-				case "me":
-					route("/me");
+					route("/create/Normal");
+					// document.querySelector('.createRoomSelect').classList.toggle('show');
+					// if (document.querySelector('.joinRoomForm').classList.contains('show'))
+					// 	{ document.querySelector('.joinRoomForm').classList.remove('show'); }
+					// if (document.querySelector('.playLocalSelect').classList.contains('show'))
+					// 	{ document.querySelector('.playLocalSelect').classList.remove('show'); }
 					break;
 				case "local":
-					createLocalGame();
+					document.querySelector('.playLocalSelect').classList.toggle('show');
+					if (document.querySelector('.joinRoomForm').classList.contains('show'))
+						{ document.querySelector('.joinRoomForm').classList.remove('show'); }
+					// if (document.querySelector('.createRoomSelect').classList.contains('show'))
+					// 	{ document.querySelector('.createRoomSelect').classList.remove('show'); }
+					break;
+				case"me":
+					route("/me");
 					break;
 			}
 		});
+		createLocalGame(); // here
 		createRoomForm(); // from room.js
 		joinRoomForm(); // from room.js
 	}
