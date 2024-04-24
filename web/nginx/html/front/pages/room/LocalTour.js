@@ -1,14 +1,14 @@
-import { IView } from "./IView.js";
-import { route } from "./spa_router.js";
+import { IView } from "../IView.js";
+import { route } from "../spa_router.js";
 
 export class LocalTourView extends IView {
 	static match_route(route)
 	{
-		return route === "/LocalTour";
+		return route === "/local_tournament";
 	}
 	async render()
 	{
-		const html = await fetch("/front/pages/LocalTour.html")
+		const html = await fetch("/front/pages/room/LocalTour.html")
 			.then(response => response.text())
 		document.querySelector("main").innerHTML = html;
 		const add_button = document.getElementById("submit_alias");
@@ -82,9 +82,9 @@ function start_tournament(players)
 	
 	const schedule = roundRobin(players);
 	localStorage.setItem('schedule', JSON.stringify(schedule));
-	const test = JSON.parse(localStorage.getItem('schedule'));
-	console.log("test : ", test);
-	localStorage.clear();
+//	const test = JSON.parse(localStorage.getItem('schedule'));
+//	localStorage.clear();
+	route("/waiting_room");
 
 	return;
 }
