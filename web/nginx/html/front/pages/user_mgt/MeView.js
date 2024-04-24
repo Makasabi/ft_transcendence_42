@@ -212,7 +212,6 @@ async function switch2FA(html) {
 				.then(blob => URL.createObjectURL(blob))
 			qr_code.setAttribute("id", "qr-code");
 
-
 			const closeForegroundBox = function(event) {
 				foregroundBox.remove();
 				document.removeEventListener('click', closeForegroundBox);
@@ -223,6 +222,7 @@ async function switch2FA(html) {
 				window.history.pushState(state, title, newUrl);
 				window.history.replaceState(state, title, newUrl);
 			}
+
 			const form = document.createElement('form')
 			const btn = document.createElement('button');
 			btn.textContent = "Done";

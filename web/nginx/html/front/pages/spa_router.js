@@ -15,6 +15,7 @@ import { GameStartedView } from "./room/GameStartedView.js";
 import { EliminatedView } from "./room/EliminatedView.js";
 import { tournamentFinishedView } from "./room/tournamentFinishedView.js";
 
+import { LocalTourView } from "./LocalTour.js"
 
 /*** Views ***/
 var view = null;
@@ -37,6 +38,7 @@ const loggedViews = [
 	UninvitedView,
 	EliminatedView,
 	tournamentFinishedView,
+	LocalTourView,
 ];
 
 const unloggedViews = [
