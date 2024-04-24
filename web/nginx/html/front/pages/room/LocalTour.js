@@ -1,6 +1,5 @@
 import { IView } from "../IView.js";
 import { route } from "../spa_router.js";
-
 export class LocalTourView extends IView {
 	static match_route(route)
 	{
@@ -96,7 +95,7 @@ function roundRobin(players)
     
     if (numPlayers % 2 !== 0)
 	{
-        players.push("null");
+        players.push(null);
 		numPlayers += 1;
 	}
     for (let i = 0; i < numPlayers - 1; i++)
