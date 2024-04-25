@@ -45,32 +45,68 @@ export class HomeView extends IView {
 				case "join":
 					document.querySelector('.joinRoomForm').classList.toggle('show');
 					document.getElementById("inputRoomCode").focus();
-					if (document.querySelector('.createRoomSelect').classList.contains('show'))
-						{ document.querySelector('.createRoomSelect').classList.remove('show'); }
+					// if (document.querySelector('.createRoomSelect').classList.contains('show'))
+					// 	{ document.querySelector('.createRoomSelect').classList.remove('show'); }
+					if (document.querySelector('.playLocalSelect').classList.contains('show'))
+						{ document.querySelector('.playLocalSelect').classList.remove('show'); }
 					break;
 				case "create":
-					document.querySelector('.createRoomSelect').classList.toggle('show');
-					if (document.querySelector('.joinRoomForm').classList.contains('show'))
-						{ document.querySelector('.joinRoomForm').classList.remove('show'); }
-					break;
-				case "me":
-					route("/me");
+					route("/create/Normal");
+					// document.querySelector('.createRoomSelect').classList.toggle('show');
+					// if (document.querySelector('.joinRoomForm').classList.contains('show'))
+					// 	{ document.querySelector('.joinRoomForm').classList.remove('show'); }
+					// if (document.querySelector('.playLocalSelect').classList.contains('show'))
+					// 	{ document.querySelector('.playLocalSelect').classList.remove('show'); }
 					break;
 				case "local":
-					const game_id = await createLocalGame("localPlayer");
-					if (game_id === undefined) {
-						return;
-					}
-					route(`/game/${game_id}`);
+					document.querySelector('.playLocalSelect').classList.toggle('show');
+					if (document.querySelector('.joinRoomForm').classList.contains('show'))
+						{ document.querySelector('.joinRoomForm').classList.remove('show'); }
+					// if (document.querySelector('.createRoomSelect').classList.contains('show'))
+					// 	{ document.querySelector('.createRoomSelect').classList.remove('show'); }
+					break;
+				case"me":
+					route("/me");
 					break;
 			}
 		});
+		addLocalEvents();
 		createRoomForm(); // from room.js
 		joinRoomForm(); // from room.js
 	}
 
 	destroy() {
 	}
+}
+
+async function addLocalEvents() {
+	const button = document.getElementById("playLocalCTA");
+	if (button === null) {
+		return;
+	}
+
+	button.addEventListener("click", async (e) => {
+		e.preventDefault();
+		const radio_buttons = document.querySelectorAll(".playLocalMode input");
+		let selected_mode;
+		for (let index = 0; index < radio_buttons.length; index++) {
+			if (radio_buttons[index].checked) {
+				selected_mode = radio_buttons[index].value;
+				break;
+			}
+		}
+		if (selected_mode === undefined) {
+			return;
+		}
+		if (selected_mode === "normal")
+		{
+			const game_id = await createLocalGame("localPlayer");
+			if (game_id === undefined) {
+				return;
+			}
+			route(`/game/${game_id}`);
+		}
+	});
 }
 
 export async function footer()

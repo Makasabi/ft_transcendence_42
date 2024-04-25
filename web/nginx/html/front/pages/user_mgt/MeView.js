@@ -186,14 +186,54 @@ async function switch2FA(html) {
 		switchElement.checked = true;
 	else
 		switchElement.checked = false;
-	let icon = document.getElementById('2fa-switch');
-	if (icon === null)
-		return;
-	icon.addEventListener('change', async function() {
-		await fetch('/api/user_management/switch_twoFA', {
+	switchElement.addEventListener('change', async function(event) {
+		const data = await fetch('/api/user_management/switch_twoFA', {
 			method: 'POST',
 			headers: {'Authorization': `Token ${Login.getCookie('token')}`},
 			body: JSON.stringify({ 'username' : username, 'password' : password}),
 		}).then(response => response.json());
+
+		if (data['twoFA'] === true)
+		{
+			const foregroundBox = document.createElement('div');
+			foregroundBox.classList.add('foreground-box');
+			foregroundBox.setAttribute("id", "qr_code");
+						
+			const notificationsContainer = document.createElement('div');
+			notificationsContainer.classList.add('notifications-container');
+			foregroundBox.appendChild(notificationsContainer);
+			
+			//handle errors
+			const qr_code = document.createElement('img');
+			qr_code.src = await fetch("/api/auth/totp_create/", {
+				headers: { 'Authorization': `Token ${Login.getCookie('token')}`}
+			})
+				.then(response => response.blob())
+				.then(blob => URL.createObjectURL(blob))
+			qr_code.setAttribute("id", "qr-code");
+
+			const closeForegroundBox = function(event) {
+				foregroundBox.remove();
+				document.removeEventListener('click', closeForegroundBox);
+
+				let newUrl = document.URL.split('#')[0];
+				let state = 0;
+				let title = "Transcendence";
+				window.history.pushState(state, title, newUrl);
+				window.history.replaceState(state, title, newUrl);
+			}
+
+			const form = document.createElement('form')
+			const btn = document.createElement('button');
+			btn.textContent = "Done";
+			btn.addEventListener('click', closeForegroundBox);
+
+			form.appendChild(btn);
+			notificationsContainer.appendChild(qr_code);
+			notificationsContainer.appendChild(form);
+			document.body.appendChild(foregroundBox);
+
+			event.stopPropagation();
+		}
 	});
 }

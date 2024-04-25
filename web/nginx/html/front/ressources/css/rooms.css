@@ -37,6 +37,7 @@
 	backdrop-filter: blur(4px);
 	background-color: var(--transparent-dark);
 	width: 100%;
+	align-items: center;
 }
 
 .sub_box h1 {

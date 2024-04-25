@@ -79,7 +79,7 @@ export class GameContext {
 				game.state = data;
 			}
 			else if (type === "error") {
-				console.error("Game error", data);
+				// console.error("Game error", data);
 				game.end = true;
 			}
 			else if (type === "end") {

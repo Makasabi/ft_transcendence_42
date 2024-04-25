@@ -5,7 +5,22 @@
 		Or simply start playing now with random players.
 	</h4>
 	<button class="home_button" id="game" hidden>Play Public Game</button>
-	<button class="home_button" id="join" >Join a Private Room</button>
+	<button class="home_button" id="local">Play locally</button>
+	<div class="playLocalSelect">
+		<div class="playLocal">
+				<form action="">
+				<h3>Choose a game mode</h3>
+				<div class="playLocalMode">
+					<input type="radio" id="normal" name="create_room_mode" value="normal" checked="checked">
+					<label for="normal">Normal</label><br/>
+					<input type="radio" id="tournament" name="create_room_mode" value="tournament">
+					<label for="tournament">Tournament</label><br/>
+				</div>
+				<button class="CRM_cta" id="playLocalCTA">Start</button>
+			</form>
+		</div>
+	</div>
+	<button class="home_button" id="join" >Join a remote room</button>
 	<div class="joinRoomForm">
 		<!-- <h3>Enter the room code</h3> -->
 		<div class="search_bar homeSB">
@@ -14,8 +29,8 @@
 			<button class="JRM_cta" id="joinRoomCTA">Join</button>
 		</div>
 	</div>
-	<button class="home_button" id="create">Create a Private Room</button>
-	<div class="createRoomSelect">
+	<button class="home_button" id="create">Create a remote room</button>
+	<!-- <div class="createRoomSelect">
 		<div class="createRoom">
 				<form action="">
 				<h3>Choose a room mode</h3>
@@ -28,8 +43,7 @@
 				<button class="CRM_cta" id="createRoomCTA">Start</button>
 			</form>
 		</div>
-	</div>
-	<button class="home_button" id="local">Play a local game</button>
+	</div> -->
 	<button class="home_button" id="me">View my profile</button>
 </div>
 

@@ -7,11 +7,8 @@
 	margin-left: 5px;
 }
 
-
 .foreground-box {
 	position: fixed;
-	top: 6.3%;
-	right: 0%;
 	height: 35vh;
 	max-height: 80vh;
 	width: fit-content;
@@ -26,6 +23,20 @@
 	background-color: var(--transparent-darker);
 	z-index: 999;
 	overflow-y: auto;
+}
+
+.foreground-box#notif-foreground {
+	top: 6.3%;
+	right: 0%;
+}
+
+.foreground-box#qr_code {
+	top: 10%;
+	right: 50%;
+}
+
+#qr-code {
+	width: 10vw;
 }
 
 .notifications-container {

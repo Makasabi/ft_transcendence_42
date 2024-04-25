@@ -153,6 +153,7 @@ async function displayNotifBox() {
 		// Create and display the foreground box
 		const foregroundBox = document.createElement('div');
 		foregroundBox.classList.add('foreground-box');
+		foregroundBox.setAttribute("id", "notif-foreground");
 					
 		const notificationsContainer = document.createElement('div');
 		notificationsContainer.classList.add('notifications-container');
