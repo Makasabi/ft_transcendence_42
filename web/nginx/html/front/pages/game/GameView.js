@@ -83,7 +83,8 @@ export class GameView extends IView {
 			route(redirect);
 		}
 		catch (e) {
-			//console.error("Game error", e);
+			console.log("Game error");
+			// console.error("Game error", e);
 			route("/");
 		}
 	}
@@ -139,10 +140,15 @@ export class GameView extends IView {
 		//console.log("Sorted", sorted);
 		if (this.game.state === undefined || this.game.state.player_id === undefined)
 			return;
-		if (this.game.state.player_id === ranking[ranking.length - 1])
-			status_title.innerHTML = "You won!";
-		else
-			status_title.innerHTML = "You lost!";
+		if (this.game.state.is_local) {
+			status_title.innerHTML = ranking[0] + " won!";
+		}
+		else {
+			if (this.game.state.player_id === ranking[ranking.length - 1])
+				status_title.innerHTML = "You won!";
+			else
+				status_title.innerHTML = "You lost!";
+		}
 	}
 
 	display_bad_end() {

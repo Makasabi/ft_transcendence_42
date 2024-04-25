@@ -36,7 +36,6 @@ def create_notif(request, type, target):
 	create_send_notification(user1["user"], target.json(), type, request)
 	return JsonResponse({'message': 'Notification sent'})
 
-
 @api_view(['GET'])
 def get_notifs(request, type):
 	"""

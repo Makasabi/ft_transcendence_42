@@ -8,7 +8,7 @@ from decouple import config
 import requests
 
 from .engine.GameEngine import GameEngine
-from game.models import Game, Play
+from game.models import Game, Play, LocalGame
 
 class GameConsumer(AsyncConsumer):
 	def __init__(self, *args, **kwargs):
@@ -46,8 +46,12 @@ class GameConsumer(AsyncConsumer):
 
 	async def game_end(self, event):
 		game_id = event["game_id"]
-		del self.engines[game_id]
 		player_ranking = event["player_ranking"]
+		try:
+			del self.engines[game_id]
+		except Exception as e:
+			print(f"GameConsumer.game_end: {e}")
+			player_ranking = None
 		await self.channel_layer.group_send(f"game_{game_id}", {
 			"type": "game.end",
 			"player_ranking": player_ranking
@@ -68,25 +72,39 @@ class GameConsumer(AsyncConsumer):
 		engine.input(event["input"], event["player_id"])
 
 def create_history(game_id, player_ranking):
+	if player_ranking is None:
+		game = Game.objects.get(game_id=game_id)
+		game.date_end = timezone.now()
+		game.end_status = "crash"
+		game.ongoing = False
+		game.save()
+		return
+	is_local = len(player_ranking) == 2 and (type(player_ranking[0]) == str or type(player_ranking[1]) == str)
 	try:
 		game = Game.objects.get(game_id=game_id)
 		game.date_end = timezone.now()
 		game.end_status = "success"
 		game.ongoing = False
-
-		for i, player_id in enumerate(player_ranking):
-			play = Play.objects.update_or_create(
-				game=game,
-				user_id=player_id,
-				defaults={"score":i},
-			)[0]
-			play.save()
-			url = f"http://proxy/api/user_management/add_score/{player_id}/{i}"
-			headers = {
-				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
-			}
-			requests.post(url, headers=headers)
+		game.mode = ("Local" if is_local else "Online") + game.mode
 		game.save()
+
+		if is_local:
+			game = LocalGame.objects.get(game_id=game_id)
+			game.player1_has_win = player_ranking[0] == game.player2_name
+			game.save()
+		else:
+			for i, player_id in enumerate(player_ranking):
+				play = Play.objects.update_or_create(
+					game=game,
+					user_id=player_id,
+					defaults={"score":i},
+				)[0]
+				play.save()
+				url = f"http://proxy/api/user_management/add_score/{player_id}/{i}"
+				headers = {
+					'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+				}
+				requests.post(url, headers=headers)
 	except Game.DoesNotExist as e:
 		print(f"GameConsumer.create_history: {e}")
 	except Game.MultipleObjectsReturned as e:

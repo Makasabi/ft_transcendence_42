@@ -15,4 +15,6 @@ urlpatterns = [
 	path('api/game/get_results/<int:game_id>', views.get_results, name='get_results'),
 	path('api/game/get_redirect/<int:game_id>', views.get_redirect, name='get_redirect'),
 	path('api/game/has_played/<int:round_id>/<int:user_id>', views.has_played, name='has_played'),
+	path('api/game/create_local', views.create_local, name='create_local'),
+	path('api/game/local_winner/<int:game_id>', views.get_local_game_winner, name='get_local_game_winner'),
 ]

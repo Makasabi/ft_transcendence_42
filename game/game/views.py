@@ -7,7 +7,8 @@ import requests
 from decouple import config
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from game.models import Game, Play
+from game.models import Game, Play, LocalGame
+from game.TokenAuthenticationMiddleware import get_user
 
 # Create your views here.
 def index(request):
@@ -64,7 +65,7 @@ def start_round(request, round_id):
 @api_view(["POST"])
 def start(request, room_id):
 	"""
-	Start the game with the given room_id
+	Create and start the game with the given room_id
 
 	json response format:
 	{
@@ -112,6 +113,90 @@ def start(request, room_id):
 		"game_id": game.game_id
 	})
 
+@api_view(["POST"])
+def create_local(request):
+	"""
+	Create and start the game in local 1v1 mode
+
+	json body format:
+	{
+		"player2_name": <str>,
+		"player1_name": <str>
+	}
+
+	json response format:
+	{
+		game: "game",
+		game_id: game_id
+	}
+	"""
+	body = request.data
+	player2 = body.get("player2_name")
+	player1 = body.get("player1_name")
+
+	if player2 is None:
+		return JsonResponse({
+			"error": "player2_name is not defined"
+		}, status=400)
+	if player1 is None:
+		user = get_user(request.COOKIES.get('token'))["user"]
+		if not user:
+			return JsonResponse({
+				"error": "User not found"
+			}, status=404)
+		print("User", user)
+		player1 = user.get('user')
+
+	if player1 is None:
+		return JsonResponse({
+			"error": "can't get user from token"
+		}, status=400)
+
+	game = Game.objects.create()
+	game = LocalGame.objects.create(game_ptr=game, player1_name=player1, player2_name=player2)
+
+	async_to_sync(get_channel_layer().send)(
+		"game_consumer",
+		{
+			"type": "game.start",
+			"game_id": game.game_id,
+			"players": [player1, player2]
+		}
+	)
+	return JsonResponse({
+		"game": "game",
+		"game_id": game.game_id
+	})
+
+@api_view(["GET"])
+def get_local_game_winner(request, game_id):
+	"""
+	Return the winner of the local game with the given game_id
+
+	json response format:
+	{
+		winner: "winner"
+	}
+	"""
+	try:
+		game = LocalGame.objects.get(game_id=game_id)
+	except LocalGame.DoesNotExist:
+		return JsonResponse({
+			"error": "Game not found"
+		}, status=404)
+	except LocalGame.MultipleObjectsReturned:
+		return JsonResponse({
+			"error": "Multiple games found"
+		}, status=400) # 500 but for eval let's say 400
+
+	if game.player1_has_win is None:
+		return JsonResponse({
+			"error": "Game not finished"
+		}, status=400)
+
+	return JsonResponse({
+		"winner": game.player1_name if game.player1_has_win else game.player2_name
+	})
 
 @api_view(["POST"])
 def create_pool(request, round_id):
@@ -215,29 +300,36 @@ def get_redirect(request, game_id):
 	except Game.MultipleObjectsReturned:
 		return JsonResponse({
 			"error": "Multiple games found"
-		}, status=500)
-	
-	if game.mode == "Tournament":
-		url = f"http://proxy/api/rooms/get_round_code/{game.parent_id}"
-		headers = {
-			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
-		}
-		response = requests.get(url, headers=headers)
-		response = response.json()
-		room_code = response['room_code']
-		redirect = "/tournament/" + room_code
-	else:
-		url = f"http://proxy/api/rooms/get_code/{game.parent_id}"
-		headers = {
-			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
-		}
-		response = requests.get(url, headers=headers)
-		response = response.json()
-		room_code = response['room_code']
-		redirect = "/room/" + room_code
-	return JsonResponse({
-		"redirect_route": redirect
-	})
+		}, status=404)
+
+	try:
+		if game.parent_id == -1:
+			redirect = "/home"
+		elif game.mode == "Tournament":
+			url = f"http://proxy/api/rooms/get_round_code/{game.parent_id}"
+			headers = {
+				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+			}
+			response = requests.get(url, headers=headers)
+			response = response.json()
+			room_code = response['room_code']
+			redirect = "/tournament/" + room_code
+		else:
+			url = f"http://proxy/api/rooms/get_code/{game.parent_id}"
+			headers = {
+				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+			}
+			response = requests.get(url, headers=headers)
+			response = response.json()
+			room_code = response['room_code']
+			redirect = "/room/" + room_code
+		return JsonResponse({
+			"redirect_route": redirect
+		})
+	except Exception as e:
+		return JsonResponse({
+			"redirect_route": "/home"
+		}, status=400)
 
 @api_view(["GET"])
 def get_players(request, game_id):

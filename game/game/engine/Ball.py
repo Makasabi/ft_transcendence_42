@@ -130,8 +130,7 @@ class Ball:
 		return None
 
 	def handle_player_collisions(self, players, next_position):
-		for i in players:
-			player = players[i]
+		for player in players.values():
 			if self.has_wall_intersection(player.get_sides(), next_position):
 				if self.debug:
 					self.has_wall_collision = True
@@ -143,8 +142,7 @@ class Ball:
 		return None
 
 	def handle_player_border(self, players, next_position):
-		for i in players:
-			player = players[i]
+		for player in players.values():
 			A = np.array(player.border[0])
 			B = np.array(player.border[1])
 			O = np.array(next_position)

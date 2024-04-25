@@ -2,6 +2,7 @@ import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js";
 import { createRoomForm, joinRoomForm } from "../room/roomUtils.js";
 import { NotifView, createNotificationSocket } from "../notif/NotifView.js";
+import { createLocalGame } from "../game/local_game_utils.js";
 import * as Login from "/front/pages/login/login.js";
 
 export class LoggedHeaderView extends IView {
@@ -35,7 +36,7 @@ export class HomeView extends IView {
 			.then(response => response.text())
 			.then(html => document.querySelector("main").innerHTML = html);
 
-		document.querySelector(".centered_box").addEventListener("click", (e) => {
+		document.querySelector(".centered_box").addEventListener("click", async (e) => {
 			switch (e.target.id)
 			{
 				case "game":
@@ -56,7 +57,11 @@ export class HomeView extends IView {
 					route("/me");
 					break;
 				case "local":
-					createLocalGame();
+					const game_id = await createLocalGame("localPlayer");
+					if (game_id === undefined) {
+						return;
+					}
+					route(`/game/${game_id}`);
 					break;
 			}
 		});
@@ -66,29 +71,6 @@ export class HomeView extends IView {
 
 	destroy() {
 	}
-}
-
-async function createLocalGame() {
-	console.log("Starting Local game");
-	fetch(`/api/game/create_local`, {
-		method: "POST",
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': `Token ${Login.getCookie('token')}`,
-		},
-	}).then(async response => {
-		if (response.status === 200) {
-			const data = await response.json();
-			const game_id = data.game_id;
-			if (game_id === undefined) {
-				console.error("Error starting game");
-				return;
-			}
-			route(`/game/${game_id}`);
-		} else {
-			console.error("Error starting game");
-		}
-	})
 }
 
 export async function footer()

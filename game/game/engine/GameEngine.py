@@ -25,6 +25,8 @@ class GameEngine(threading.Thread):
 		self.ready_to_send = True
 		self.death_order = []
 
+		self.is_local = len(players) == 2 and (type(players[0]) == str or type(players[1]) == str)
+
 		arena_borders = get_hexagon_borders(ARENA_WIDTH // 2)
 
 		self.pilars = get_arena_pilars(ARENA_WIDTH // 2)
@@ -38,7 +40,9 @@ class GameEngine(threading.Thread):
 				self.walls.append(arena_borders[i])
 			else:
 				self.players[players[side]] = Player(players[side], arena_borders[i], self.debug)
-		self.everyone = list(self.players.values())
+		self.everyone = []
+		for id in players:
+			self.everyone.append(self.players[id])
 
 		self.collisions_walls = list(self.walls)
 		for pilar in self.pilars:
@@ -155,7 +159,28 @@ class GameEngine(threading.Thread):
 		Inputs
 	"""
 	def input(self, input_type, player_id = None) -> None:
-		switcher = {
+		if self.is_local:
+			switcher = {
+			"left_pressed_0": self.left_pressed,
+			"left_released_0": self.left_released,
+			"right_pressed_0": self.right_pressed,
+			"right_released_0": self.right_released,
+			"sprint_pressed_0": self.sprint_pressed,
+			"sprint_released_0": self.sprint_released,
+			"left_pressed_1": self.left_pressed,
+			"left_released_1": self.left_released,
+			"right_pressed_1": self.right_pressed,
+			"right_released_1": self.right_released,
+			"sprint_pressed_1": self.sprint_pressed,
+			"sprint_released_1": self.sprint_released,
+			"ready": self.local_ready
+			}
+			if "_0" in input_type:
+				player_id = self.everyone[0].player_id
+			else:
+				player_id = self.everyone[1].player_id
+		else:
+			switcher = {
 			"left_pressed": self.left_pressed,
 			"left_released": self.left_released,
 			"right_pressed": self.right_pressed,
@@ -163,12 +188,12 @@ class GameEngine(threading.Thread):
 			"sprint_pressed": self.sprint_pressed,
 			"sprint_released": self.sprint_released,
 			"ready": self.player_ready
-		}
-		func = switcher.get(input_type, lambda: "Invalid input")
+			}
+		func = switcher.get(input_type, lambda x: print("Invalid input", x))
 		if (player_id is not None):
 			func(player_id)
 		else:
-			func()
+			print("Error: player_id is not defined")
 
 	def left_pressed(self, player_id) -> None:
 		if player_id in self.players:
@@ -199,6 +224,9 @@ class GameEngine(threading.Thread):
 	def player_ready(self, player_id) -> None:
 		self.players[player_id].ready = True
 
+	def local_ready(self, _) -> None:
+		for player in self.everyone:
+			player.ready = True
 
 	def is_ready(self) -> bool:
 		if self.is_ongoing():
@@ -253,6 +281,7 @@ class GameEngine(threading.Thread):
 			'player_arrangement': self.player_arrangement,
 			'end' : self.is_stop,
 			'start_time': self.start_time,
+			'is_local': self.is_local,
 		}
 
 	def waiting_for_players(self, timeout) -> dict:
@@ -271,4 +300,5 @@ class GameEngine(threading.Thread):
 			'player_arrangement': self.player_arrangement,
 			'end' : self.is_stop,
 			'timeout': int(timeout),
+			"is_local": self.is_local,
 		}

@@ -12,20 +12,29 @@ export class GameContext {
 	end = false;
 	ready = false;
 	pong = false;
+	is_local = true;
 
 	constructor(game_id) {
 		this.rendering_context = new RenderingContext();
 		this.static_objects = [];
 
 		this.attribute_websocket(game_id);
-		this.events(this);
+		window.addEventListener("resize", resize_canvas);
 	}
 
 	destroy() {
 		console.log("GameContext.destroy");
 		window.removeEventListener("resize", resize_canvas);
-		document.removeEventListener("keydown", keydown_event);
-		document.removeEventListener("keyup", keyup_event);
+		if (this.is_local)
+		{
+			document.removeEventListener("keydown", keydown_event_local);
+			document.removeEventListener("keyup", keyup_event_local);
+		}
+		else
+		{
+			document.removeEventListener("keydown", keydown_event);
+			document.removeEventListener("keyup", keyup_event);
+		}
 		this.websocket.close();
 		this.end = true;
 	}
@@ -80,12 +89,18 @@ export class GameContext {
 		};
 	}
 
-	events(game) {
-		window.addEventListener("resize", resize_canvas);
-
+	events() {
 		document.game_socket = this.websocket;
-		document.addEventListener("keydown", keydown_event);
-		document.addEventListener("keyup", keyup_event);
+		if (this.is_local)
+		{
+			document.addEventListener("keydown", keydown_event_local);
+			document.addEventListener("keyup", keyup_event_local);
+		}
+		else
+		{
+			document.addEventListener("keydown", keydown_event);
+			document.addEventListener("keyup", keyup_event);
+		}
 	}
 
 	async load() {
@@ -158,14 +173,14 @@ export class GameContext {
 		}
 
 		for (let ball of this.state.balls) {
-			let object = new Ball(this.models.puck);
+			let object = new GameObject(this.models.puck);
 			object.position = [ball.posx, 0, ball.posy];
 			object.scale = [ball.radius, ball.radius, ball.radius];
 			dynamic_objects.push(object);
 		}
 
 		for (let player of this.state.players) {
-			let object = new Player(this.models.paddle);
+			let object = new GameObject(this.models.paddle);
 			object.position = [player.posx, 0, player.posy];
 			object.scale = [player.length / 2, player.length / 5, this.state.width / 30];
 			object.rotation = [0, -Math.atan2(player.right[1] - player.left[1], player.right[0] - player.left[0]), 0];
@@ -179,21 +194,10 @@ export class GameContext {
 		this.rendering_context.clear();
 		this.static_objects.forEach(object => this.rendering_context.draw_object(object));
 		dynamic_objects.forEach(object => this.rendering_context.draw_object(object));
-		// this.rendering_context.draw_origins();
 
 		if (this.end)
 			return;
 		requestAnimationFrame(this.run.bind(this));
-
-		//function wait(ms){
-		//	var start = new Date().getTime();
-		//	var end = start;
-		//	while(end < start + ms) {
-		//	  end = new Date().getTime();
-		//	}
-		//}
-		// random wait to simulate a slower game
-		//wait(Math.random() * 100);
 	}
 
 	async test_ping() {
@@ -251,17 +255,26 @@ export class GameContext {
 		count = 0;
 
 		console.log("GameContext.start", this.state);
-		this.rendering_context.scale = 1 / this.state.width
-		this.rotate_view_to_me();
+		this.rendering_context.scale = 1 / this.state.width;
+		console.log("players: ", this.state.players);
+		if (this.state.is_local)
+			this.is_local = true;
+		else
+			this.is_local = false;
+		if (!this.is_local)
+			this.rotate_view_to_me();
+		else
+			this.rotate_view_local();
+		this.events();
 
 		while (this.state.status === "waiting_for_players") {
 			let dots = "";
 			for (let i = 0; i < count % 4; i++)
 				dots += ".";
 			status_title.textContent = "Waiting for other players" + dots;
-			let game_status = document.getElementById("game_status");
-			if (game_status !== null)
-				game_status.textContent = this.state.timeout + "s before force start";
+			let game_status_title = document.getElementById("game_status_title");
+			if (game_status_title !== null)
+				game_status_title.textContent = this.state.timeout + "s before force start";
 			this.update_players();
 			if (this.end)
 				return;
@@ -346,6 +359,10 @@ export class GameContext {
 		console.log('rotation :>> ', rotation);
 		this.rendering_context.rotate_view([0, rotation, 0]);
 	}
+
+	rotate_view_local() {
+		this.rendering_context.rotate_view([0, -Math.PI / 2, 0]);
+	}
 }
 
 async function resize_canvas() {
@@ -385,5 +402,50 @@ function keyup_event(event) {
 	else if (event.key == "Shift") {
 		//console.log("UP turbo");
 		socket.send("sprint_released");
+	}
+}
+
+function keydown_event_local(event) {
+	// console.log(event.key);
+	let socket = event.currentTarget.game_socket;
+	if (event.key == "z" || event.key == "w" || event.key == "Z" || event.key == "W") {
+		socket.send("left_pressed_0");
+	}
+	else if (event.key == "s" || event.key == "S") {
+		socket.send("right_pressed_0");
+	}
+	else if (event.key == "Shift") {
+		socket.send("sprint_pressed_0");
+	}
+	else if (event.key == "ArrowDown") {
+		socket.send("left_pressed_1");
+	}
+	else if (event.key == "ArrowUp") {
+		socket.send("right_pressed_1");
+	}
+	else if (event.key == "0" || event.key == "Control") {
+		socket.send("sprint_pressed_1");
+	}
+}
+
+function keyup_event_local(event) {
+	let socket = event.currentTarget.game_socket;
+	if (event.key == "z" || event.key == "w" || event.key == "Z" || event.key == "W") {
+		socket.send("left_released_0");
+	}
+	else if (event.key == "s" || event.key == "S") {
+		socket.send("right_released_0");
+	}
+	else if (event.key == "Shift") {
+		socket.send("sprint_released_0");
+	}
+	else if (event.key == "ArrowDown") {
+		socket.send("left_released_1");
+	}
+	else if (event.key == "ArrowUp") {
+		socket.send("right_released_1");
+	}
+	else if (event.key == "0" || event.key == "Control") {
+		socket.send("sprint_released_1");
 	}
 }

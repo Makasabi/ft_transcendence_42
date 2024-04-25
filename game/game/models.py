@@ -16,6 +16,22 @@ class Game(models.Model):
 	def __str__(self):
 		return f"Id {self.game_id} is a {self.mode} game started by {self.parent_id}"
 
+class LocalGame(Game):
+	player1_name = models.CharField(max_length=50, null=True)
+	player2_name = models.CharField(max_length=50, null=True)
+	player1_has_win = models.BooleanField(null=True)
+
+	def __str__(self):
+		return f"Local game id : {self.game_id}  Player 1 : {self.player1_id}  Player 2 : {self.player2_id}"
+
+class Test(models.Model):
+	test_id = models.AutoField(primary_key=True)
+	test_name = models.CharField(max_length=50, default='Test')
+	test_date = models.DateField(default=timezone.now)
+
+	def __str__(self):
+		return f"Test id : {self.test_id}  Name : {self.test_name}"
+
 class Play(models.Model):
 	game = models.ForeignKey(Game, on_delete=models.CASCADE)  # Add the game field
 	user_id = models.IntegerField(default=0)
