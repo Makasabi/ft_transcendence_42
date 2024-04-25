@@ -97,7 +97,7 @@ export class WaitingRoomView extends IView {
 	}
 }
 
-function getCurrentRoundAndGame(schedule)
+export function getCurrentRoundAndGame(schedule)
 {
     for (let i = 0; i < schedule.length; i++)
 	{
