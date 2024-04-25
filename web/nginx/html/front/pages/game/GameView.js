@@ -68,6 +68,7 @@ export class GameView extends IView {
 			console.log("Start game");
 			await this.game.start();
 			console.log("End of game");
+			console.log("Ranking : ", this.game.ranking);
 
 			if (this.game.ranking !== null)
 				this.display_ranking();
@@ -78,6 +79,7 @@ export class GameView extends IView {
 
 			if (window.location.pathname !== "/game/" + game_id)
 				return;
+			self.update_schedule();
 			const redirect = await redirect_route;
 			console.log("Redirect to", redirect);
 			route(redirect);
@@ -163,5 +165,20 @@ export class GameView extends IView {
 		box.style.display = "flex";
 		status.style.display = "flex";
 		status_title.innerHTML = "Game ended unexpectedly";
+	}
+
+	update_schedule() {
+		console.log("Update tour");
+		const schedule = JSON.parse(localStorage.getItem("schedule"));
+		if (schedule === null)
+			return;
+		const state = getCurrentRoundAndGame(schedule);
+		if (state === null)
+			return;
+		const match = state.currentGame;
+		match.winner = self.ranking[0];
+		localStorage.setItem('schedule', JSON.stringify(schedule));
+		route("/waiting_room");
+		return;
 	}
 }

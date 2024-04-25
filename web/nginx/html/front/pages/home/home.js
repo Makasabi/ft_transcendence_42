@@ -106,6 +106,10 @@ async function addLocalEvents() {
 			}
 			route(`/game/${game_id}`);
 		}
+		else if (selected_mode === "tournament")
+		{
+			route("/local_tournament");
+		}
 	});
 }
 

@@ -1,7 +1,9 @@
 import { IView } from "../IView.js";
 import { route } from "../spa_router.js";
+import { createLocalGame } from "../game/local_game_utils.js";
 
-/*	SCHEDULE FORMAT	
+/************************************	
+ *	SCHEDULE FORMAT	
  *
  *	schedule = [
  *	{
@@ -20,7 +22,7 @@ import { route } from "../spa_router.js";
  *	{
  *		...
  *	}]
-*/
+************************************/
 
 export class WaitingRoomView extends IView {
 	static match_route(route)
@@ -55,35 +57,42 @@ export class WaitingRoomView extends IView {
 		html = html.replace("{{player2}}", match.players[1]);
 		document.querySelector("main").innerHTML = html;
 
-		document.getElementById('start_game').addEventListener('click', e => {
+		document.getElementById('start_game').addEventListener('click', async e => {
 			e.preventDefault();
 			console.log("Game starting");
 
-			/* Game simulation for testing purpose */
-			const schedule = JSON.parse(localStorage.getItem('schedule'));
-			if (schedule === null)
-			{
-				console.log("error with local storage");
-				route("/local_tournament");
+			const game_id = await createLocalGame(match.players[0], match.players[1]);
+			if (game_id === undefined) {
 				return;
 			}
-
-			const state = getCurrentRoundAndGame(schedule);
-			if (state === null)
-			{
-				console.log("Tournament is over");
-				route("/local_tournament");
-				return;
-			}
-			const match = state.currentGame;
-			if (Math.random() < 0.5)
-				match.winner = match.players[0];
-			else
-				match.winner = match.players[1];
-			console.log("Changed schedule : ", schedule);
-			localStorage.setItem('schedule', JSON.stringify(schedule));
-			route("/waiting_room");
+			route(`/game/${game_id}`);
 			return;
+			
+			/* Game simulation for testing purpose */
+	//		const schedule = JSON.parse(localStorage.getItem('schedule'));
+	//		if (schedule === null)
+	//		{
+	//			console.log("error with local storage");
+	//			route("/local_tournament");
+	//			return;
+	//		}
+
+	//		const state = getCurrentRoundAndGame(schedule);
+	//		if (state === null)
+	//		{
+	//			console.log("Tournament is over");
+	//			route("/local_tournament");
+	//			return;
+	//		}
+	//		const match = state.currentGame;
+	//		if (Math.random() < 0.5)
+	//			match.winner = match.players[0];
+	//		else
+	//			match.winner = match.players[1];
+	//		console.log("Changed schedule : ", schedule);
+	//		localStorage.setItem('schedule', JSON.stringify(schedule));
+	//		route("/waiting_room");
+	//		return;
 		})
 	}
 }
