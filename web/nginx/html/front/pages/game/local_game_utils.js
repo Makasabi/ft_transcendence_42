@@ -8,7 +8,7 @@ import * as Login from '../login/login.js';
  * @returns {Promise<string|undefined>} - A promise that resolves to the game ID if the game is successfully created, or undefined if there was an error.
  */
 export async function createLocalGame(player2_name, player1_name = null) {
-	console.log("Starting Local game");
+	console.log("Starting Local game with players ", player1_name, " and ", player2_name);
 	return await fetch(`/api/game/create_local`, {
 		method: "POST",
 		headers: {

@@ -1,7 +1,55 @@
-<div class="centered_box">
+<!-- <div class="centerd_box">
 	<h1>Round {{round}}</h1>
 	<h2>{{player1}}</h2>
 	<p> VS </p>
 	<h2>{{player2}}</h2>
 	<button id="start_game"> Start </button>
+</div> -->
+<div id="tournament">
+	<div class="box_module">
+		<div class="sub_box tournament">
+			<div>
+				<h1>Local Tournament</h1>
+				<h2>Rounds</h2>
+			</div>
+				<!-- <div id="local_rounds"> -->
+			<div id="local_rounds_map">
+				
+			</div>
+				<!-- </div> -->
+			<div>
+				<table>
+					<thead>
+						<tr>
+							<th scope="col">Order</th>
+							<th scope="col">Player 1</th>
+							<th scope="col">Player 2</th>
+						</tr>
+					</thead>
+					<tbody id="local_tour_game_table">
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="sub_box tournament">
+			<h1>Next game</h1>
+			<div id="next_game">
+				<div id="player_1">
+					<h2>Player 1</h2>
+					<br>
+					<div>{{player_1}}</div>
+				</div>
+				<div>
+					<p>VS</p>
+				</div>
+				<div id="player_2">
+					<h2>Player 2</h2>
+					<br>
+					<div>{{player_2}}</div>
+				</div>
+			</div>
+			<button class="cta purple_cta">Start</button>
+		</div>
+	</div>
 </div>

@@ -2,6 +2,7 @@ import { GameContext } from "/front/pages/game/scripts/pong.js";
 import { IView } from "/front/pages/IView.js";
 import { route } from "/front/pages/spa_router.js"
 import { getCookie } from "../login/login.js";
+import { getCurrentRoundAndGame } from "/front/pages/room/WaitingRoom.js";
 
 export class GameView extends IView {
 	static match_route(route) {
@@ -73,6 +74,7 @@ export class GameView extends IView {
 			console.log("Start game");
 			await this.game.start();
 			console.log("End of game");
+			console.log("Ranking : ", this.game.ranking);
 
 			if (this.game.ranking !== null)
 				this.display_ranking();
@@ -80,11 +82,12 @@ export class GameView extends IView {
 				this.display_bad_end();
 
 			await new Promise(resolve => setTimeout(resolve, 3000));
-
+			
 			if (window.location.pathname !== "/game/" + game_id)
 				return;
+			if (this.update_schedule())
+				return;
 			const redirect = await redirect_route;
-			console.log("Redirect to", redirect);
 			route(redirect);
 		}
 		catch (e) {
@@ -173,5 +176,20 @@ export class GameView extends IView {
 		box.style.display = "flex";
 		status.style.display = "flex";
 		status_title.innerHTML = "Game ended unexpectedly";
+	}
+
+	update_schedule() {
+		console.log("Update tour");
+		const schedule = JSON.parse(localStorage.getItem("schedule"));
+		if (schedule === null)
+			return false;
+		const state = getCurrentRoundAndGame(schedule);
+		if (state === null)
+			return false;
+		const match = state.currentGame;
+		match.winner = this.game.ranking[0];
+		localStorage.setItem('schedule', JSON.stringify(schedule));
+		route("/waiting_room");
+		return true;
 	}
 }

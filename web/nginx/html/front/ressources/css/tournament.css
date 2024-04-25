@@ -101,3 +101,67 @@
 	border-radius: 100px;
 	filter: none;
 }
+
+#local_rounds,
+.round_style {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 2vh;
+}
+
+#local_rounds_map {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+	width: 100%;
+	align-content: center;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	gap: 2vw;
+	padding: 0 0 2vh 0;
+	cursor: pointer;
+}
+
+#local_rounds_map img {
+	width: 8vw;
+	max-width: 9vh;
+	min-width: 3vh;
+	filter: opacity(50%) invert(40%) sepia(73%) saturate(1183%) hue-rotate(218deg) brightness(104%) contrast(101%);
+}
+
+#local_rounds_map .current_round img {
+	filter: opacity(100%) invert(40%) sepia(73%) saturate(1183%) hue-rotate(218deg) brightness(104%) contrast(101%);
+}
+
+#local_rounds_map img:hover {
+	filter: opacity(100%) invert(40%) sepia(73%) saturate(1183%) hue-rotate(218deg) brightness(104%) contrast(101%);
+}
+
+#local_rounds_map::-webkit-scrollbar-track
+{
+	border-radius: 10px;
+	background-color: var(--border-light);
+}
+
+#local_rounds_map::-webkit-scrollbar
+{
+	width: 12px;
+	background-color: var(--transparent-dark);
+}
+
+#local_rounds_map::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	background-color: var(--transparent-primary);
+}
+
+#next_game {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: 2vh;
+}
