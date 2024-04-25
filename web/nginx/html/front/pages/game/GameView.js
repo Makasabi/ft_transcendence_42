@@ -12,11 +12,16 @@ export class GameView extends IView {
 	async render() {
 		let ready_state = 0;
 		let main = document.querySelector("main");
+		if (main === null)
+			return;
 		let main_set = false;
 
-		this.footer = document.querySelector("footer");
-		if (this.footer !== null)
-			this.footer.remove();
+		const footer = document.getElementById("footer");
+		if (footer !== null)
+			footer.hidden = true;
+		const game_footer = document.createElement("footer");
+		game_footer.id = "game_footer";
+		main.insertAdjacentElement("afterend", game_footer);
 
 		await fetch("/front/pages/game/game.html").then(response => response.text()).then(html => {
 			main.innerHTML = html;
@@ -93,10 +98,15 @@ export class GameView extends IView {
 		if (this.game !== undefined)
 			this.game.destroy();
 		document.head.removeChild(this.stylesheet);
+		const footer = document.getElementById("footer");
+		if (footer !== null)
+			footer.hidden = false;
+		const game_footer = document.getElementById("game_footer");
+		if (game_footer !== null)
+			game_footer.remove();
 		const main = document.querySelector("main");
 		if (main === null)
 			return;
-		main.insertAdjacentHTML("afterend", this.footer.outerHTML);
 	}
 
 	stop() {

@@ -48,17 +48,15 @@ export class RenderingContext {
 		this.gl = this.#create_gl_context();
 
 		this.base_view_matrix = mat4.create();
-		mat4.lookAt(this.base_view_matrix, [0, 0.8, 1.5], [0, 0, 0], [0, 1, 0]); // eye, center, up
-		//mat4.lookAt(this.base_view_matrix, [0, 1.1, 2.8], [0, -0.1, 0], [0, 1, 0]); // eye, center, up
-		//mat4.lookAt(this.base_view_matrix, [0, 1.5, 1.7], [0, 0.7, 0.7], [0, 1, 0]); // eye, center, up
+		// mat4.lookAt(this.base_view_matrix, [0, 0.8, 1.5], [0, 0, 0], [0, 1, 0]); // eye, center, up
+		mat4.lookAt(this.base_view_matrix, [0, 1.2, 2], [0, 0, 0], [0, 1, 0]); // eye, center, up
 
 		this.view_matrix = mat4.create();
 		mat4.copy(this.view_matrix, this.base_view_matrix);
 
 		this.projection_matrix = mat4.create();
-		mat4.perspective(this.projection_matrix, Math.PI / 10, this.gl.canvas.width / this.gl.canvas.height, 0.1, 20); // fov, aspect, near, far
-		//mat4.perspective(this.projection_matrix, Math.PI / 5.8, this.gl.canvas.width / this.gl.canvas.height, 0.1, 50);
-		//mat4.ortho(this.projection_matrix, -1.7, 1.7, -1, 1, 0.1, 50);
+		// mat4.perspective(this.projection_matrix, Math.PI / 10, this.gl.canvas.width / this.gl.canvas.height, 0.1, 20); // fov, aspect, near, far
+		mat4.perspective(this.projection_matrix, Math.PI / 13, this.gl.canvas.width / this.gl.canvas.height, 0.1, 20); // fov, aspect, near, far
 	}
 
 	#create_gl_context() {
@@ -66,7 +64,7 @@ export class RenderingContext {
 		if (!canvas) {
 			throw new Error('Canvas not found');
 		}
-		canvas.width = canvas.clientWidth;
+		canvas.width = window.innerWidth;
 		canvas.height = canvas.width * 0.5;
 		let gl = canvas.getContext("webgl2", { premultipliedAlpha: false });
 

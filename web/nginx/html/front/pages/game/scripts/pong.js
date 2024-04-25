@@ -169,7 +169,7 @@ export class GameContext {
 	game_loop() {
 		let dynamic_objects = [];
 		for (let wall of this.state.walls) {
-			this.addWall(wall);
+			this.addWall(wall, dynamic_objects);
 		}
 
 		for (let ball of this.state.balls) {
@@ -262,9 +262,15 @@ export class GameContext {
 		else
 			this.is_local = false;
 		if (!this.is_local)
+		{
 			this.rotate_view_to_me();
+			display_controls_remote();
+		}
 		else
+		{
 			this.rotate_view_local();
+			display_controls_local();
+		}
 		this.events();
 
 		while (this.state.status === "waiting_for_players") {
@@ -329,14 +335,14 @@ export class GameContext {
 		box.style.display = "none";
 	}
 
-	addWall(wall) {
+	addWall(wall, dynamic_objects) {
 		let object = new GameObject(this.models.cube);
 		object.position = [(wall[0][0] + wall[1][0]) / 2, 0, (wall[0][1] + wall[1][1]) / 2];
 		object.scale = [Math.sqrt(wall[1][0] ** 2 + wall[1][1] ** 2) / 2, this.state.width / 20, this.state.width / 200];
 		const vector = [wall[1][0] - wall[0][0], wall[1][1] - wall[0][1]];
 		object.rotation = [0, -Math.atan2(vector[1], vector[0]), 0];
 		//console.log(object.rotation[1]);
-		this.static_objects.push(object);
+		dynamic_objects.push(object);
 	}
 
 	rotate_view_to_me() {
@@ -367,9 +373,10 @@ export class GameContext {
 
 async function resize_canvas() {
 	//  resize the canvas and re-render the canvas OR print to the user to reload the page for a better experience
-	//const canvas = document.querySelector('canvas');
-	//canvas.width = canvas.clientWidth;
-	//canvas.height = canvas.width * 0.5;
+	// const canvas = document.getElementById("game_canvas");
+	// console.log("resize_canvas", window.innerWidth, window.innerHeight, canvas.clientWidth);
+	// canvas.width = window.innerWidth;
+	// canvas.height = canvas.width * 0.5;
 }
 
 function keydown_event(event) {
@@ -448,4 +455,21 @@ function keyup_event_local(event) {
 	else if (event.key == "0" || event.key == "Control") {
 		socket.send("sprint_released_1");
 	}
+}
+
+function display_controls_local() {
+	const game_footer = document.getElementById("game_footer");
+	game_footer.style.paddingBottom = "1vh";
+	game_footer.innerHTML = "\
+	<div><h2>Left Player</h2><p>W(Z)/S/Shift</p></div>\
+	<div><h2>Right Player</h2><p>Arrows(UP/DOWN)/CTRL/0</p></div>"
+}
+
+function display_controls_remote() {
+	const game_footer = document.getElementById("game_footer");
+	game_footer.style.paddingBottom = "1vh";
+	game_footer.innerHTML = "\
+	<div><h2>Go left</h2><p>Q/A/left arrow</p></div>\
+	<div><h2>Go right</h2><p>D/right arrow</p></div>\
+	<div><h2>Go faster</h2><p>Shift</p></div>"
 }
