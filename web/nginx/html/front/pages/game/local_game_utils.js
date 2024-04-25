@@ -1,5 +1,12 @@
 import * as Login from '../login/login.js';
 
+
+/**
+ * Creates and starts a local game with the specified player names.
+ * @param {string} player2_name - The name of player 2.
+ * @param {string|null} player1_name - The name of player 1 (optional, defaults to null).
+ * @returns {Promise<string|undefined>} - A promise that resolves to the game ID if the game is successfully created, or undefined if there was an error.
+ */
 export async function createLocalGame(player2_name, player1_name = null) {
 	console.log("Starting Local game");
 	return await fetch(`/api/game/create_local`, {
