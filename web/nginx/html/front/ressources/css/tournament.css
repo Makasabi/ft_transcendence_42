@@ -194,3 +194,21 @@
 	text-align: center;
 	color:var(--light);
 }
+
+
+#player_1, #player_2 {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+	flex-wrap: wrap;
+}
+
+table #crown {
+	display: inline-block;
+	vertical-align: middle;
+	width: 1.5vh;
+	height: 1.5vh;
+	filter: invert(80%) sepia(74%) saturate(1710%) hue-rotate(354deg) brightness(99%) contrast(94%);
+}

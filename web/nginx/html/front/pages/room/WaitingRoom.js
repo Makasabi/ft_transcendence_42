@@ -59,10 +59,6 @@ export class WaitingRoomView extends IView {
 		displayCurrentRoundGames(schedule, state);
 		displayARoundGames(schedule);
 
-		html = html.replace("{{round}}", round);
-		html = html.replace("{{player1}}", match.players[0]);
-		html = html.replace("{{player2}}", match.players[1]);
-
 		document.getElementById('start_game').addEventListener('click', async e => {
 			e.preventDefault();
 			console.log("Game starting");
@@ -155,16 +151,34 @@ function drawLocalRounds(schedule, state)
 function roundGames(round) {
 	
 	let tablebody = document.getElementById('local_tour_game_table')
-	
+	let winner;
+
 	let table = '';
 	for (let i = 0; i < round.matches.length; i++)
 	{
-		const game = round.matches[i];
-		table += `<tr id="game_${game.id}">`;
-		table += `<td>${i + 1}</td>`;
-		table += `<td>${game.players[0]}</td>`;
-		table += `<td>${game.players[1]}</td>`;
-		table += `</tr>`;
+		winner = round.matches[i].winner;
+		if (winner === null) {
+			const game = round.matches[i];
+			table += `<tr id="game_${game.id}">`;
+			table += `<td>${i + 1}</td>`;
+			table += `<td>${game.players[0]}</td>`;
+			table += `<td>${game.players[1]}</td>`;
+			table += `</tr>`;
+		}
+		else {
+			const game = round.matches[i];
+			table += `<tr id="game_${game.id}">`;
+			table += `<td>${i + 1}</td>`;
+			if (winner === game.players[0]) {
+				table += `<td><img id="crown" src="/front/ressources/img/svg/icons/crown.svg" alt="Winner"> ${game.players[0]}</td>`;
+				table += `<td>${game.players[1]}</td>`;
+			}
+			else {
+				table += `<td>${game.players[0]}</td>`;
+				table += `<td><img id="crown" src="/front/ressources/img/svg/icons/crown.svg" alt="Winner"> ${game.players[1]}</td>`;
+			}
+			table += `</tr>`;
+		}
 	}
 	tablebody.innerHTML = table;
 }
@@ -174,6 +188,16 @@ function displayCurrentRoundGames(schedule, state) {
 	const current_round = state.currentRound;
 	const round = schedule[current_round - 1]
 	roundGames(round, current_round - 1);
+
+	const match = state.currentGame;
+	let player_1 = document.getElementById('player_1');
+	let player_2 = document.getElementById('player_2');
+	let player_1_name = document.createElement('div')
+	player_1_name.innerHTML = match.players[0];
+	player_1.appendChild(player_1_name);
+	let player_2_name = document.createElement('div');
+	player_2_name.innerHTML = match.players[1];
+	player_2.appendChild(player_2_name);
 }
 
 function displayARoundGames(schedule) {
