@@ -265,11 +265,14 @@ export class GameContext {
 		{
 			this.rotate_view_to_me();
 			display_controls_remote();
+			display_usernames_remote();
 		}
 		else
 		{
 			this.rotate_view_local();
 			display_controls_local();
+			console.log("display_usernames_local", this.state)
+			display_usernames_local(this.state.players[0].player_id, this.state.players[1].player_id);
 		}
 		this.events();
 
@@ -472,4 +475,16 @@ function display_controls_remote() {
 	<div><h2>Go left</h2><p>Q/A/left arrow</p></div>\
 	<div><h2>Go right</h2><p>D/right arrow</p></div>\
 	<div><h2>Go faster</h2><p>Shift</p></div>"
+}
+
+function display_usernames_remote() {
+	//
+}
+
+function display_usernames_local(username1, username2) {
+	const player1 = document.querySelector("#player2 h2");
+	const player2 = document.querySelector("#player0 h2");
+
+	player1.textContent = username1;
+	player2.textContent = username2;
 }

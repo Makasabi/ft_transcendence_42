@@ -22,6 +22,21 @@ canvas#game_canvas {
 	align-items: center;
 }
 
+.players_infos {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.player_infos {
+	padding: 0 2rem;
+	min-width: 8rem;
+	min-height: 1rem;
+	text-align: center;
+}
+
 #rotate {
 	display: flex;
 }
