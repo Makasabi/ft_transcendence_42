@@ -152,17 +152,16 @@ function drawLocalRounds(schedule, state)
 	}
 }
 
-function roundGames(schedule, round_number) {
+function roundGames(round) {
 	
 	let tablebody = document.getElementById('local_tour_game_table')
 	
 	let table = '';
 	for (let i = 0; i < round.matches.length; i++)
 	{
-		console.log("match : ", round.matches[i]);
 		const game = round.matches[i];
 		table += `<tr id="game_${game.id}">`;
-		table += `<td>${game.id}</td>`;
+		table += `<td>${i + 1}</td>`;
 		table += `<td>${game.players[0]}</td>`;
 		table += `<td>${game.players[1]}</td>`;
 		table += `</tr>`;
@@ -172,24 +171,9 @@ function roundGames(schedule, round_number) {
 
 function displayCurrentRoundGames(schedule, state) {
 
-	// let tablebody = document.getElementById('local_tour_game_table')
 	const current_round = state.currentRound;
-
 	const round = schedule[current_round - 1]
-
-	roundGames(schedule, round);
-	// let table = '';
-	// for (let i = 0; i < round.matches.length; i++)
-	// {
-	// 	console.log("match : ", round.matches[i]);
-	// 	const game = round.matches[i];
-	// 	table += `<tr id="game_${game.id}">`;
-	// 	table += `<td>${game.id}</td>`;
-	// 	table += `<td>${game.players[0]}</td>`;
-	// 	table += `<td>${game.players[1]}</td>`;
-	// 	table += `</tr>`;
-	// }
-	// tablebody.innerHTML = table;
+	roundGames(round, current_round - 1);
 }
 
 function displayARoundGames(schedule) {
@@ -200,9 +184,13 @@ function displayARoundGames(schedule) {
 		let round_id = e.target.id;
 		if (round_id === "undefined")
 			return;
-		let round_number = round_id.split('_')[3];
-		if (round_number === undefined)
+		let round_number = round_id.split('_')[2];
+		const regex = new RegExp('[0-9]+$');
+		let test = regex.test(round_number);
+		if (round_number === "undefined" || test === false ) {
 			return;
-		roundGames(schedule, round_number);
+		}
+		let round = schedule[round_number - 1];
+		roundGames(round);
 	});
 }

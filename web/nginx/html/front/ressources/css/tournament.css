@@ -163,5 +163,34 @@
 	flex-direction: row;
 	justify-content: center;
 	align-items: center;
+	gap: 10vw;
+	flex-wrap: nowrap;
+}
+
+.local_tournament_box {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 	gap: 2vh;
+	margin: 1vh auto;
+	padding: 2em;
+	border-radius: 10px;
+	border: var(--border-light) 1px solid;
+	backdrop-filter: blur(4px);
+	background-color: var(--transparent-dark);
+	width: 100%;
+	align-items: center;
+}
+
+.local_tournament_box h1 {
+	font-weight: 700;
+	text-align: center;
+	color:var(--primary-color);
+	line-height: 1.5;
+}
+
+.local_tournament_box h2 {
+	font-weight: 700;
+	text-align: center;
+	color:var(--light);
 }
