@@ -195,7 +195,8 @@ def get_local_game_winner(request, game_id):
 		}, status=400)
 
 	return JsonResponse({
-		"winner": game.player1_name if game.player1_has_win else game.player2_name
+		"winner": game.player1_name if game.player1_has_win else game.player2_name,
+		"score": game.score
 	})
 
 @api_view(["POST"])

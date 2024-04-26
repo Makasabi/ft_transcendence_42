@@ -21,7 +21,6 @@ export class LocalTourView extends IView {
 			if (players.length < 3)
 				return;
 
-			console.log("Players before : ", typeof(players));
 			start_tournament(Array.from(players).map(li => li.querySelector('h3').textContent));
 		});
 	}
@@ -80,8 +79,9 @@ function check_doublon(string)
 function start_tournament(players)
 {
 	// route('/game_local')
-
-	const schedule = roundRobin(players);
+	let schedule = roundRobin(players);
+	
+	schedule = cleanPlayers(schedule);
 	localStorage.setItem('schedule', JSON.stringify(schedule));
 //	const test = JSON.parse(localStorage.getItem('schedule'));
 //	localStorage.clear();
@@ -93,25 +93,25 @@ function start_tournament(players)
 function roundRobin(players)
 {
 	let numPlayers = players.length;
-    const schedule = [];
-
-    if (numPlayers % 2 !== 0)
+	const schedule = [];
+	
+	if (numPlayers % 2 !== 0)
 	{
-        players.push(null);
+		players.push(null);
 		numPlayers += 1;
 	}
-    for (let i = 0; i < numPlayers - 1; i++)
+	for (let i = 0; i < numPlayers - 1; i++)
 	{
-        const mid = Math.floor(numPlayers / 2);
-        const l1 = players.slice(0, mid);
-        const l2 = players.slice(mid).reverse();
-
+		const mid = Math.floor(numPlayers / 2);
+		const l1 = players.slice(0, mid);
+		const l2 = players.slice(mid).reverse();
+		
 		const round = {
-            id: i + 1,
-            matches: []
-        };
-        for (let j = 0; j < mid; j++) {
-            round.matches.push({
+			id: i + 1,
+			matches: []
+		};
+		for (let j = 0; j < mid; j++) {
+			round.matches.push({
 				id : j + 1,
 				players : [l1[j], l2[j]],
 				winner : null
@@ -123,3 +123,17 @@ function roundRobin(players)
     }
     return schedule;
 }
+
+function cleanPlayers(schedule) {
+	
+	for (const round of schedule) {
+		for (let i = round.matches.length - 1; i >= 0; i--) {
+			const match = round.matches[i];
+			if (match.players[0] === null || match.players[1] === null) {
+				round.matches.splice(i, 1);
+			}
+		}
+	}
+	return schedule;
+}
+

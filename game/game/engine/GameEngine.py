@@ -132,6 +132,7 @@ class GameEngine(threading.Thread):
 				"type": "game.end",
 				"game_id": self.game_id,
 				"player_ranking": self.death_order,
+				"score": self.score,
 			}
 		)
 
@@ -150,6 +151,7 @@ class GameEngine(threading.Thread):
 				return False
 		if len(self.players) == 1:
 			self.death_order.append(list(self.players.keys())[0])
+			self.score = list(self.players.values())[0].HP
 			return True
 		return False
 

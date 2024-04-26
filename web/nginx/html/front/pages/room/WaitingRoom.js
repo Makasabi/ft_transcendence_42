@@ -39,13 +39,15 @@ export class WaitingRoomView extends IView {
 			route("/local_tournament");
 			return;
 		}
-		console.log("schedule : ", schedule);
 
 		const state = getCurrentRoundAndGame(schedule);
 		if (state === null)
 		{
 			console.log("Tournament is over");
-			route("/local_tournament");
+			// compute winner
+			computeRanking(schedule);
+			route("/LocalTournamentFinished");
+			// route("/local_tournament");
 			return;
 		}
 		const round = state.currentRound;
@@ -70,31 +72,6 @@ export class WaitingRoomView extends IView {
 			route(`/game/${game_id}`);
 			return;
 			
-			/* Game simulation for testing purpose */
-	//		const schedule = JSON.parse(localStorage.getItem('schedule'));
-	//		if (schedule === null)
-	//		{
-	//			console.log("error with local storage");
-	//			route("/local_tournament");
-	//			return;
-	//		}
-
-	//		const state = getCurrentRoundAndGame(schedule);
-	//		if (state === null)
-	//		{
-	//			console.log("Tournament is over");
-	//			route("/local_tournament");
-	//			return;
-	//		}
-	//		const match = state.currentGame;
-	//		if (Math.random() < 0.5)
-	//			match.winner = match.players[0];
-	//		else
-	//			match.winner = match.players[1];
-	//		console.log("Changed schedule : ", schedule);
-	//		localStorage.setItem('schedule', JSON.stringify(schedule));
-	//		route("/waiting_room");
-	//		return;
 		})
 	}
 }
@@ -109,8 +86,6 @@ export function getCurrentRoundAndGame(schedule)
 		{
 			const match = round.matches[j];
 			if (match.winner === null || match.winner === undefined) {
-				console.log("current round : ", round.id);
-				console.log("current game : ", match);
 				return { currentRound: round.id, currentGame: match };
 			}
 		}
@@ -124,7 +99,6 @@ function drawLocalRounds(schedule, state)
 
 	let rounds = document.getElementById('local_rounds_map');
 
-	console.log("rounds : ", rounds);
 
 	for (let i = 0; i < schedule.length; i++)
 	{
@@ -217,4 +191,34 @@ function displayARoundGames(schedule) {
 		let round = schedule[round_number - 1];
 		roundGames(round);
 	});
+}
+
+function computeRanking(schedule)
+{
+	let players = {};
+	for (let i = 0; i < schedule.length; i++)
+	{
+		const round = schedule[i];
+		for (let j = 0; j < round.matches.length; j++)
+		{
+			const match = round.matches[j];
+			if (players[match.players[0]] === undefined)
+				players[match.players[0]] = 0;
+			if (players[match.players[1]] === undefined)
+				players[match.players[1]] = 0;
+
+			if (match.players[0] === match.winner) {
+				players[match.players[0]] += match.score;
+				players[match.players[1]] += 0;
+			}
+			else {
+				players[match.players[0]] += 0;
+				players[match.players[1]] += match.score;
+			}
+		}
+	}
+	// sort by score
+	const sorted = Object.keys(players).sort((a, b) => players[b] - players[a]);
+	// save ranking in local storage
+	localStorage.setItem('ranking', JSON.stringify(sorted));
 }
