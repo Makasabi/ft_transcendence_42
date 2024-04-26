@@ -65,8 +65,8 @@ def signup(request):
 	username_pattern = r'^[a-zA-Z0-9_-]+$'
 	if not re.match(username_pattern, request.data["username"]):
 		return Response({"error": "Username must contain only letters, numbers, hyphens, and underscores"}, status=status.HTTP_400_BAD_REQUEST)
-	elif len(request.data["username"]) < 3 or len(request.data["username"]) > 10:
-		return Response({"error": "Username must be between 3 and 10 characters"}, status=status.HTTP_400_BAD_REQUEST)
+	elif len(request.data["username"]) < 3 or len(request.data["username"]) > 15:
+		return Response({"error": "Username must be between 3 and 15 characters"}, status=status.HTTP_400_BAD_REQUEST)
 
 	serializer.save()
 	user = Player.objects.get(username=request.data["username"])

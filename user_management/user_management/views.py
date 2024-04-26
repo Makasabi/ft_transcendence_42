@@ -121,8 +121,8 @@ def edit_profile(request):
 			return JsonResponse({"error": "Username already used", "username" : user.username}, status=400)
 	if not re.match(username_pattern, new_username):
 		return JsonResponse({"error": "Username must contain only letters, numbers, _ and -", "username" : user.username}, status=400)
-	elif len(new_username) < 3 or len(new_username) > 10:
-		return JsonResponse({"error": "Username must be between 3 and 10 characters", "username" : user.username}, status=400)
+	elif len(new_username) < 3 or len(new_username) > 15:
+		return JsonResponse({"error": "Username must be between 3 and 15 characters", "username" : user.username}, status=400)
 
 	user.username = new_username
 	if "avatar_file" in request.data:

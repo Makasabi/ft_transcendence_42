@@ -57,10 +57,7 @@ export class WaitingRoomView extends IView {
 
 		drawLocalRounds(schedule, state);
 		displayCurrentRoundGames(schedule, state);
-
-		html = html.replace("{{round}}", round);
-		html = html.replace("{{player1}}", match.players[0]);
-		html = html.replace("{{player2}}", match.players[1]);
+		displayARoundGames(schedule);
 
 		document.getElementById('start_game').addEventListener('click', async e => {
 			e.preventDefault();
@@ -111,8 +108,11 @@ export function getCurrentRoundAndGame(schedule)
 		for (let j = 0; j < round.matches.length; j++)
 		{
 			const match = round.matches[j];
-			if (match.winner === null || match.winner === undefined)
+			if (match.winner === null || match.winner === undefined) {
+				console.log("current round : ", round.id);
+				console.log("current game : ", match);
 				return { currentRound: round.id, currentGame: match };
+			}
 		}
 	}
 	return null;
@@ -136,6 +136,7 @@ function drawLocalRounds(schedule, state)
 		round_div.id = `round${round.id}`;
 		const round_img = document.createElement('img');
 		round_img.src = "/front/ressources/img/svg/hexagon.svg";
+		round_img.id = `img_round_${round.id}`;
 		if (round.id === current_round){
 			round_div.classList.add('current_round');
 			round_nu.style.color = "var(--contrast)";
@@ -147,27 +148,73 @@ function drawLocalRounds(schedule, state)
 	}
 }
 
-function displayCurrentRoundGames(schedule, state) {
-	// displays the details of the current round in a table format
-	// the current round is the one diosplayed in the div.
-	// an event listener is on the round images to display the games of the round
-
+function roundGames(round) {
+	
 	let tablebody = document.getElementById('local_tour_game_table')
-	const current_round = state.currentRound;
-
-	const round = schedule[current_round]
-	console.log("round : ", round);
+	let winner;
 
 	let table = '';
 	for (let i = 0; i < round.matches.length; i++)
 	{
-		console.log("match : ", round.matches[i]);
-		const game = round.matches[i];
-		table += `<tr id="game_${game.id}">`;
-		table += `<td>${game.id}</td>`;
-		table += `<td>${game.players[0]}</td>`;
-		table += `<td>${game.players[1]}</td>`;
-		table += `</tr>`;
+		winner = round.matches[i].winner;
+		if (winner === null) {
+			const game = round.matches[i];
+			table += `<tr id="game_${game.id}">`;
+			table += `<td>${i + 1}</td>`;
+			table += `<td>${game.players[0]}</td>`;
+			table += `<td>${game.players[1]}</td>`;
+			table += `</tr>`;
+		}
+		else {
+			const game = round.matches[i];
+			table += `<tr id="game_${game.id}">`;
+			table += `<td>${i + 1}</td>`;
+			if (winner === game.players[0]) {
+				table += `<td><img id="crown" src="/front/ressources/img/svg/icons/crown.svg" alt="Winner"> ${game.players[0]}</td>`;
+				table += `<td>${game.players[1]}</td>`;
+			}
+			else {
+				table += `<td>${game.players[0]}</td>`;
+				table += `<td><img id="crown" src="/front/ressources/img/svg/icons/crown.svg" alt="Winner"> ${game.players[1]}</td>`;
+			}
+			table += `</tr>`;
+		}
 	}
 	tablebody.innerHTML = table;
+}
+
+function displayCurrentRoundGames(schedule, state) {
+
+	const current_round = state.currentRound;
+	const round = schedule[current_round - 1]
+	roundGames(round, current_round - 1);
+
+	const match = state.currentGame;
+	let player_1 = document.getElementById('player_1');
+	let player_2 = document.getElementById('player_2');
+	let player_1_name = document.createElement('div')
+	player_1_name.innerHTML = match.players[0];
+	player_1.appendChild(player_1_name);
+	let player_2_name = document.createElement('div');
+	player_2_name.innerHTML = match.players[1];
+	player_2.appendChild(player_2_name);
+}
+
+function displayARoundGames(schedule) {
+
+	let round_map = document.getElementById("local_rounds_map");
+
+	round_map.addEventListener('click', async e => {
+		let round_id = e.target.id;
+		if (round_id === "undefined")
+			return;
+		let round_number = round_id.split('_')[2];
+		const regex = new RegExp('[0-9]+$');
+		let test = regex.test(round_number);
+		if (round_number === "undefined" || test === false ) {
+			return;
+		}
+		let round = schedule[round_number - 1];
+		roundGames(round);
+	});
 }

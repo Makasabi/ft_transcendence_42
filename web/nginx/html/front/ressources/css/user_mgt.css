@@ -167,8 +167,10 @@ input[type="profile-password" i] {
 
   td {
 	padding: 1vh;
-
+	align-content: center;
+	text-align: center;
   }
+  
   th {
 	backdrop-filter: blur(4px);
 	background-color: var(--transparent-primary);
