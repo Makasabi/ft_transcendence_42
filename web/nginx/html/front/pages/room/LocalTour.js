@@ -41,8 +41,8 @@ function add_player(event)
 		return;
 	}
 
-	const input = document.getElementById('player_alias').value;
-	if (check_doublon(input))
+	const input = document.getElementById('player_alias');
+	if (check_doublon(input.value))
 	{
 		doublon_error.hidden = false;
 		return;
@@ -50,7 +50,7 @@ function add_player(event)
 
 	const li = document.createElement('li');
 	const text = document.createElement('h3');
-	text.textContent = input;
+	text.textContent = input.value;
 	li.appendChild(text);
 	list.appendChild(li);
 
@@ -61,6 +61,8 @@ function add_player(event)
 
 	nb_error.hidden = true;
 	doublon_error.hidden = true;
+
+	input.value = "";
 }
 
 function check_doublon(string)
@@ -78,7 +80,7 @@ function check_doublon(string)
 function start_tournament(players)
 {
 	// route('/game_local')
-	
+
 	const schedule = roundRobin(players);
 	localStorage.setItem('schedule', JSON.stringify(schedule));
 //	const test = JSON.parse(localStorage.getItem('schedule'));
@@ -92,7 +94,7 @@ function roundRobin(players)
 {
 	let numPlayers = players.length;
     const schedule = [];
-    
+
     if (numPlayers % 2 !== 0)
 	{
         players.push(null);
@@ -103,7 +105,7 @@ function roundRobin(players)
         const mid = Math.floor(numPlayers / 2);
         const l1 = players.slice(0, mid);
         const l2 = players.slice(mid).reverse();
-        
+
 		const round = {
             id: i + 1,
             matches: []
@@ -116,7 +118,7 @@ function roundRobin(players)
 			});
         }
         schedule.push(round);
-        
+
         players.splice(1, 0, players.pop());
     }
     return schedule;
