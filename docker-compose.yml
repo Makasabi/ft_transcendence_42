@@ -25,6 +25,7 @@ services:
       - upload_data:/usr/share/nginx/html/front/ressources/uploads
     ports:
       - '8080:443'
+    restart: always
 
   proxy_api:
     container_name: proxy
