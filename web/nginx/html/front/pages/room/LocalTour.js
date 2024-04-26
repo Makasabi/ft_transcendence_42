@@ -41,8 +41,8 @@ function add_player(event)
 		return;
 	}
 
-	const input = document.getElementById('player_alias').value;
-	if (check_doublon(input))
+	const input = document.getElementById('player_alias');
+	if (check_doublon(input.value))
 	{
 		doublon_error.hidden = false;
 		return;
@@ -50,7 +50,7 @@ function add_player(event)
 
 	const li = document.createElement('li');
 	const text = document.createElement('h3');
-	text.textContent = input;
+	text.textContent = input.value;
 	li.appendChild(text);
 	list.appendChild(li);
 
@@ -61,6 +61,8 @@ function add_player(event)
 
 	nb_error.hidden = true;
 	doublon_error.hidden = true;
+
+	input.value = "";
 }
 
 function check_doublon(string)
@@ -117,12 +119,12 @@ function roundRobin(players)
 				players : [l1[j], l2[j]],
 				winner : null
 			});
-		}
-		schedule.push(round);
-		
-		players.splice(1, 0, players.pop());
-	}
-	return schedule;
+        }
+        schedule.push(round);
+
+        players.splice(1, 0, players.pop());
+    }
+    return schedule;
 }
 
 function cleanPlayers(schedule) {

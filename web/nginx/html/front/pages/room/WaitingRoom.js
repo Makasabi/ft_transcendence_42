@@ -57,6 +57,7 @@ export class WaitingRoomView extends IView {
 
 		drawLocalRounds(schedule, state);
 		displayCurrentRoundGames(schedule, state);
+		displayARoundGames(schedule);
 
 		html = html.replace("{{round}}", round);
 		html = html.replace("{{player1}}", match.players[0]);
@@ -139,6 +140,7 @@ function drawLocalRounds(schedule, state)
 		round_div.id = `round${round.id}`;
 		const round_img = document.createElement('img');
 		round_img.src = "/front/ressources/img/svg/hexagon.svg";
+		round_img.id = `img_round_${round.id}`;
 		if (round.id === current_round){
 			round_div.classList.add('current_round');
 			round_nu.style.color = "var(--contrast)";
@@ -150,20 +152,10 @@ function drawLocalRounds(schedule, state)
 	}
 }
 
-function displayCurrentRoundGames(schedule, state) {
-	// displays the details of the current round in a table format
-	// the current round is the one diosplayed in the div.
-	// an event listener is on the round images to display the games of the round
-
+function roundGames(schedule, round_number) {
+	
 	let tablebody = document.getElementById('local_tour_game_table')
-	const current_round = state.currentRound;
-	console.log("current_round : ", current_round);
-
-
-
-	const round = schedule[current_round - 1]
-	console.log("round : ", round);
-
+	
 	let table = '';
 	for (let i = 0; i < round.matches.length; i++)
 	{
@@ -176,4 +168,41 @@ function displayCurrentRoundGames(schedule, state) {
 		table += `</tr>`;
 	}
 	tablebody.innerHTML = table;
+}
+
+function displayCurrentRoundGames(schedule, state) {
+
+	// let tablebody = document.getElementById('local_tour_game_table')
+	const current_round = state.currentRound;
+
+	const round = schedule[current_round - 1]
+
+	roundGames(schedule, round);
+	// let table = '';
+	// for (let i = 0; i < round.matches.length; i++)
+	// {
+	// 	console.log("match : ", round.matches[i]);
+	// 	const game = round.matches[i];
+	// 	table += `<tr id="game_${game.id}">`;
+	// 	table += `<td>${game.id}</td>`;
+	// 	table += `<td>${game.players[0]}</td>`;
+	// 	table += `<td>${game.players[1]}</td>`;
+	// 	table += `</tr>`;
+	// }
+	// tablebody.innerHTML = table;
+}
+
+function displayARoundGames(schedule) {
+
+	let round_map = document.getElementById("local_rounds_map");
+
+	round_map.addEventListener('click', async e => {
+		let round_id = e.target.id;
+		if (round_id === "undefined")
+			return;
+		let round_number = round_id.split('_')[3];
+		if (round_number === undefined)
+			return;
+		roundGames(schedule, round_number);
+	});
 }
