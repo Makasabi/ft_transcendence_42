@@ -62,7 +62,13 @@ export class GameView extends IView {
 					}}
 				).then((response) => {
 					if (!response.ok)
-						throw new Error("HTTP error " + response.status);
+					{
+						const msg = response.error;
+						if (msg !== undefined)
+							throw new Error("HTTP error " + response.status + ": " + msg);
+						else
+							throw new Error("HTTP error " + response.status);
+					}
 					return response.json();
 				})
 				.then(data => data.redirect_route)
@@ -82,16 +88,16 @@ export class GameView extends IView {
 				this.display_bad_end();
 
 			await new Promise(resolve => setTimeout(resolve, 3000));
-			
+
 			if (window.location.pathname !== "/game/" + game_id)
 				return;
-			if (this.update_schedule())
-				return;
 			const redirect = await redirect_route;
+			if (redirect === "/waiting_room" && !this.update_schedule())
+				route("/home");
 			route(redirect);
 		}
 		catch (e) {
-			console.log("Game error");
+			console.log("Game error", e);
 			// console.error("Game error", e);
 			route("/");
 		}
@@ -154,7 +160,7 @@ export class GameView extends IView {
 		if (this.game.state === undefined || this.game.state.player_id === undefined)
 			return;
 		if (this.game.state.is_local) {
-			status_title.innerHTML = ranking[0] + " won!";
+			status_title.innerHTML = ranking[1] + " won!";
 		}
 		else {
 			if (this.game.state.player_id === ranking[ranking.length - 1])
@@ -187,9 +193,8 @@ export class GameView extends IView {
 		if (state === null)
 			return false;
 		const match = state.currentGame;
-		match.winner = this.game.ranking[0];
+		match.winner = this.game.ranking[1];
 		localStorage.setItem('schedule', JSON.stringify(schedule));
-		route("/waiting_room");
 		return true;
 	}
 }

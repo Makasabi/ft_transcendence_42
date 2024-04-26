@@ -2,8 +2,8 @@ import { IView } from "../IView.js";
 import { route } from "../spa_router.js";
 import { createLocalGame } from "../game/local_game_utils.js";
 
-/************************************	
- *	SCHEDULE FORMAT	
+/************************************
+ *	SCHEDULE FORMAT
  *
  *	schedule = [
  *	{
@@ -50,7 +50,7 @@ export class WaitingRoomView extends IView {
 		}
 		const round = state.currentRound;
 		const match = state.currentGame;
-		
+
 		let html = await fetch("/front/pages/room/WaitingRoom.html")
 		.then(response => response.text())
 		document.querySelector("main").innerHTML = html;
@@ -63,13 +63,13 @@ export class WaitingRoomView extends IView {
 			e.preventDefault();
 			console.log("Game starting");
 
-			const game_id = await createLocalGame(match.players[0], match.players[1]);
+			const game_id = await createLocalGame(match.players[1], match.players[0]);
 			if (game_id === undefined) {
 				return;
 			}
 			route(`/game/${game_id}`);
 			return;
-			
+
 			/* Game simulation for testing purpose */
 	//		const schedule = JSON.parse(localStorage.getItem('schedule'));
 	//		if (schedule === null)
@@ -104,7 +104,7 @@ export function getCurrentRoundAndGame(schedule)
 	for (let i = 0; i < schedule.length; i++)
 	{
 		const round = schedule[i];
-		
+
 		for (let j = 0; j < round.matches.length; j++)
 		{
 			const match = round.matches[j];
@@ -141,7 +141,7 @@ function drawLocalRounds(schedule, state)
 			round_div.classList.add('current_round');
 			round_nu.style.color = "var(--contrast)";
 		}
-		
+
 		round_div.appendChild(round_nu);
 		round_div.appendChild(round_img);
 		rounds.appendChild(round_div);
@@ -149,7 +149,7 @@ function drawLocalRounds(schedule, state)
 }
 
 function roundGames(round) {
-	
+
 	let tablebody = document.getElementById('local_tour_game_table')
 	let winner;
 

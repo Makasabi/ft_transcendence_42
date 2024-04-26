@@ -135,6 +135,8 @@ def get_username(player_id):
 	returns:
 		str
 	"""
+	if type(player_id) == str:
+		return player_id
 	headers = {
 		'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
 	}

@@ -288,6 +288,7 @@ class GameEngine(threading.Thread):
 		return {
 			'status': 'waiting_for_players',
 			'players': [player.render() for player in self.players.values()],
+			'everyone': [player.render() for player in self.everyone],
 			'balls': [ball.render() for ball in self.balls],
 			'walls': self.walls,
 			'pilars': self.pilars,

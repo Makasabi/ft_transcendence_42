@@ -195,6 +195,11 @@ export class GameContext {
 		this.static_objects.forEach(object => this.rendering_context.draw_object(object));
 		dynamic_objects.forEach(object => this.rendering_context.draw_object(object));
 
+		if (this.is_local)
+			update_lives(this.state.everyone, [1, -1, 0, -1, -1, -1]);
+		else
+			update_lives(this.state.everyone, this.state.player_arrangement);
+
 		if (this.end)
 			return;
 		requestAnimationFrame(this.run.bind(this));
@@ -242,7 +247,6 @@ export class GameContext {
 
 		console.log("GameContext.start", this.state);
 		while (this.state === undefined) {
-			console.log("wait for state2", this.end);
 			if (this.end)
 				return;
 			count++;
@@ -265,14 +269,14 @@ export class GameContext {
 		{
 			this.rotate_view_to_me();
 			display_controls_remote();
-			display_usernames_remote();
+			arrayRotate(this.state.player_arrangement, (this.me_arrangement + 5) % 6);
+			update_lives(this.state.everyone, this.state.player_arrangement);
 		}
 		else
 		{
 			this.rotate_view_local();
 			display_controls_local();
-			console.log("display_usernames_local", this.state)
-			display_usernames_local(this.state.players[0].player_id, this.state.players[1].player_id);
+			update_lives(this.state.everyone, [1, -1, 0, -1, -1, -1]);
 		}
 		this.events();
 
@@ -313,6 +317,9 @@ export class GameContext {
 			return;
 		players.innerHTML = "";
 		for (let player of this.state.players) {
+			console.log("player: ", player);
+			if (player.username === undefined)
+				continue;
 			let li = document.createElement("li");
 			li.textContent = player.username;
 			li.style.color = player.ready ? "green" : "red";
@@ -362,9 +369,9 @@ export class GameContext {
 		console.log('me_index :>> ', me_index);
 		if (me_index === -1)
 			return;
-		const me_arrangement = this.state.player_arrangement.findIndex(id => id === me_index);
-		console.log('me_arrangement :>> ', me_arrangement);
-		const rotation = players_rotation[me_arrangement];
+		this.me_arrangement = this.state.player_arrangement.findIndex(id => id === me_index);
+		console.log('this.me_arrangement :>> ', this.me_arrangement);
+		const rotation = players_rotation[this.me_arrangement];
 		console.log('rotation :>> ', rotation);
 		this.rendering_context.rotate_view([0, rotation, 0]);
 	}
@@ -477,14 +484,19 @@ function display_controls_remote() {
 	<div><h2>Go faster</h2><p>Shift</p></div>"
 }
 
-function display_usernames_remote() {
-	//
+function update_lives(players, arrangement) {
+	for (let i in arrangement) {
+		if (arrangement[i] == -1)
+			continue;
+		let player = players[arrangement[i]];
+		let player_infos = document.getElementById("player" + i);
+		player_infos.children[0].textContent = player.username;
+		player_infos.children[1].textContent = "Life: " + player.HP;
+	}
 }
 
-function display_usernames_local(username1, username2) {
-	const player1 = document.querySelector("#player2 h2");
-	const player2 = document.querySelector("#player0 h2");
-
-	player1.textContent = username1;
-	player2.textContent = username2;
-}
+function arrayRotate(arr, num) {
+	for (let i = 0; i < num; i++)
+		arr.push(arr.shift());
+	return arr;
+  }

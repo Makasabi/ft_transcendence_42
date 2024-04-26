@@ -133,12 +133,14 @@ def create_local(request):
 	body = request.data
 	player2 = body.get("player2_name")
 	player1 = body.get("player1_name")
+	mode = "Tournament"
 
 	if player2 is None:
 		return JsonResponse({
 			"error": "player2_name is not defined"
 		}, status=400)
 	if player1 is None:
+		mode = "Normal"
 		user = get_user(request.COOKIES.get('token'))["user"]
 		if not user:
 			return JsonResponse({
@@ -152,8 +154,7 @@ def create_local(request):
 			"error": "can't get user from token"
 		}, status=400)
 
-	game = Game.objects.create()
-	game = LocalGame.objects.create(game_ptr=game, player1_name=player1, player2_name=player2)
+	game = LocalGame.objects.create(player1_name=player1, player2_name=player2, mode=mode)
 
 	async_to_sync(get_channel_layer().send)(
 		"game_consumer",
@@ -303,9 +304,16 @@ def get_redirect(request, game_id):
 		}, status=404)
 
 	try:
+		try:
+			if game.localgame and "Tournament" in game.mode:
+				return JsonResponse({
+					"redirect_route": "/waiting_room"
+				})
+		except LocalGame.DoesNotExist:
+			pass
 		if game.parent_id == -1:
 			redirect = "/home"
-		elif game.mode == "Tournament":
+		elif "Tournament" in game.mode:
 			url = f"http://proxy/api/rooms/get_round_code/{game.parent_id}"
 			headers = {
 				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
@@ -327,6 +335,7 @@ def get_redirect(request, game_id):
 			"redirect_route": redirect
 		})
 	except Exception as e:
+		print(e)
 		return JsonResponse({
 			"redirect_route": "/home"
 		}, status=400)

@@ -22,7 +22,7 @@ class LocalGame(Game):
 	player1_has_win = models.BooleanField(null=True)
 
 	def __str__(self):
-		return f"Local game id : {self.game_id}  Player 1 : {self.player1_id}  Player 2 : {self.player2_id}"
+		return f"Local game id : {self.game_id}  Player 1 : {self.player1_name}  Player 2 : {self.player2_name}"
 
 class Test(models.Model):
 	test_id = models.AutoField(primary_key=True)
