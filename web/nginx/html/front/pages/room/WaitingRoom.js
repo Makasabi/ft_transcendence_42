@@ -111,8 +111,11 @@ export function getCurrentRoundAndGame(schedule)
 		for (let j = 0; j < round.matches.length; j++)
 		{
 			const match = round.matches[j];
-			if (match.winner === null || match.winner === undefined)
+			if (match.winner === null || match.winner === undefined) {
+				console.log("current round : ", round.id);
+				console.log("current game : ", match);
 				return { currentRound: round.id, currentGame: match };
+			}
 		}
 	}
 	return null;
@@ -154,8 +157,11 @@ function displayCurrentRoundGames(schedule, state) {
 
 	let tablebody = document.getElementById('local_tour_game_table')
 	const current_round = state.currentRound;
+	console.log("current_round : ", current_round);
 
-	const round = schedule[current_round]
+
+
+	const round = schedule[current_round - 1]
 	console.log("round : ", round);
 
 	let table = '';
