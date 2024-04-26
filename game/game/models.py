@@ -20,6 +20,7 @@ class LocalGame(Game):
 	player1_name = models.CharField(max_length=50, null=True)
 	player2_name = models.CharField(max_length=50, null=True)
 	player1_has_win = models.BooleanField(null=True)
+	score = models.IntegerField(default=-1)
 
 	def __str__(self):
 		return f"Local game id : {self.game_id}  Player 1 : {self.player1_name}  Player 2 : {self.player2_name}"

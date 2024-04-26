@@ -47,6 +47,7 @@ class GameConsumer(AsyncConsumer):
 	async def game_end(self, event):
 		game_id = event["game_id"]
 		player_ranking = event["player_ranking"]
+		game_score = event["score"]
 		try:
 			del self.engines[game_id]
 		except Exception as e:
@@ -54,9 +55,10 @@ class GameConsumer(AsyncConsumer):
 			player_ranking = None
 		await self.channel_layer.group_send(f"game_{game_id}", {
 			"type": "game.end",
-			"player_ranking": player_ranking
+			"player_ranking": player_ranking,
+			"score": game_score
 		})
-		await database_sync_to_async(create_history)(game_id, player_ranking)
+		await database_sync_to_async(create_history)(game_id, player_ranking, game_score)
 
 
 	async def input(self, event):
@@ -71,7 +73,7 @@ class GameConsumer(AsyncConsumer):
 			return
 		engine.input(event["input"], event["player_id"])
 
-def create_history(game_id, player_ranking):
+def create_history(game_id, player_ranking, score):
 	if player_ranking is None:
 		game = Game.objects.get(game_id=game_id)
 		game.date_end = timezone.now()
@@ -91,6 +93,7 @@ def create_history(game_id, player_ranking):
 		if is_local:
 			game = LocalGame.objects.get(game_id=game_id)
 			game.player1_has_win = player_ranking[0] == game.player2_name
+			game.score = score
 			game.save()
 		else:
 			for i, player_id in enumerate(player_ranking):

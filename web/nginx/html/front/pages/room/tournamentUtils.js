@@ -66,6 +66,7 @@ export async function getTournamentInfo(room_id) {
 				return;
 			}
 			const res = response.json();
+			console.log("Tournament info:", res);
 			return res;
 		});
 

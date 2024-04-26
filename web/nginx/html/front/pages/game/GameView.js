@@ -81,6 +81,7 @@ export class GameView extends IView {
 			await this.game.start();
 			console.log("End of game");
 			console.log("Ranking : ", this.game.ranking);
+			console.log("Score : ", this.game.score);
 
 			if (this.game.ranking !== null)
 				this.display_ranking();
@@ -194,6 +195,8 @@ export class GameView extends IView {
 			return false;
 		const match = state.currentGame;
 		match.winner = this.game.ranking[1];
+		match.score = this.game.score;
+		console.log("Score : ", match.score);
 		localStorage.setItem('schedule', JSON.stringify(schedule));
 		return true;
 	}

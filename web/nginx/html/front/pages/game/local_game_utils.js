@@ -48,6 +48,7 @@ export async function getLocalResults(game_id) {
 		}
 	}).then(async response => {
 		if (response.status === 200) {
+			console.log("Local results fetched successfully: ", response);
 			const data = await response.json();
 			return data;
 		}

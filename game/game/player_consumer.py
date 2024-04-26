@@ -42,6 +42,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 		await self.send(json.dumps({
 				"type": "end",
 				"player_ranking": event["player_ranking"],
+				"score": event["score"],
 		}))
 
 	async def receive(self, text_data=None, bytes_data=None):
