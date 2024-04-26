@@ -47,6 +47,21 @@ function add_player(event)
 		doublon_error.hidden = false;
 		return;
 	}
+	// check input length > 3 < 10
+	if (input.value.length < 3 || input.value.length > 15)
+	{
+		nb_error.textContent = "Alias must be between 3 and 15 characters";
+		nb_error.hidden = false;
+		return;
+	}
+	
+	// check regex r'^[a-zA-Z0-9_-]+$'
+	if (!input.value.match(/^[a-zA-Z0-9_-]+$/))
+	{
+		nb_error.textContent = "Invalid alias";
+		nb_error.hidden = false;
+		return;
+	}
 
 	const li = document.createElement('li');
 	const text = document.createElement('h3');
@@ -61,8 +76,9 @@ function add_player(event)
 
 	nb_error.hidden = true;
 	doublon_error.hidden = true;
+	
 
-	input.value = "";
+	input.textContent = "";
 }
 
 function check_doublon(string)
