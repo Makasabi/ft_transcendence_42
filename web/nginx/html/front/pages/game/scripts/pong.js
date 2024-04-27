@@ -200,7 +200,7 @@ export class GameContext {
 		if (this.is_local)
 			update_lives(this.state.everyone, [1, -1, 0, -1, -1, -1]);
 		else
-			update_lives(this.state.everyone, this.state.player_arrangement);
+			update_lives(this.state.everyone, arrayRotate(this.state.player_arrangement, (this.me_arrangement + 5) % 6));
 
 		if (this.end)
 			return;
@@ -271,8 +271,7 @@ export class GameContext {
 		{
 			this.rotate_view_to_me();
 			display_controls_remote();
-			arrayRotate(this.state.player_arrangement, (this.me_arrangement + 5) % 6);
-			update_lives(this.state.everyone, this.state.player_arrangement);
+			update_lives(this.state.everyone, arrayRotate(this.state.player_arrangement, (this.me_arrangement + 5) % 6));
 		}
 		else
 		{
@@ -493,12 +492,13 @@ function update_lives(players, arrangement) {
 		let player = players[arrangement[i]];
 		let player_infos = document.getElementById("player" + i);
 		player_infos.children[0].textContent = player.username;
-		player_infos.children[1].textContent = "Life: " + player.HP;
+		player_infos.children[1].textContent = player.HP + " 💜";
 	}
 }
 
 function arrayRotate(arr, num) {
+	let copy = arr.slice();
 	for (let i = 0; i < num; i++)
-		arr.push(arr.shift());
-	return arr;
+		copy.push(copy.shift());
+	return copy;
   }
