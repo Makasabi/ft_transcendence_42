@@ -212,8 +212,10 @@ export class GameContext {
 		const now = performance.now();
 		while (performance.now() - now < 3000) {
 			if (this.pong)
+			{
 				this.pong = false;
 				return true;
+			}
 			await new Promise(resolve => setTimeout(resolve, 300));
 		}
 		console.log("ping timeout");
