@@ -1,7 +1,6 @@
 import * as Login from "/front/pages/login/login.js";
 import { IView } from "/front/pages/IView.js";
-import { getProfileInfos, getHistoryStats, displayGameBox } from "/front/pages/user_mgt/userMgtUtils.js";
-import { APIcall } from "./userMgtUtils.js";
+import { getProfileInfos, getHistoryStats, displayGameBox, APIcall } from "./userMgtUtils.js";
 
 export class MeView extends IView {
 	static match_route(route) {
@@ -126,7 +125,7 @@ function editProfileButton()
 	const avatarContainer = document.querySelector(".avatar-container");
 	if (avatarContainer === null)
 		return;
-	
+
 	edit_button.addEventListener("click", () => {
 		if (edit === true) {
 			editProfile();
@@ -198,11 +197,11 @@ async function switch2FA(html) {
 			const foregroundBox = document.createElement('div');
 			foregroundBox.classList.add('foreground-box');
 			foregroundBox.setAttribute("id", "qr_code");
-						
+
 			const notificationsContainer = document.createElement('div');
 			notificationsContainer.classList.add('notifications-container');
 			foregroundBox.appendChild(notificationsContainer);
-			
+
 			//handle errors
 			const qr_code = document.createElement('img');
 			qr_code.src = await fetch("/api/auth/totp_create/", {

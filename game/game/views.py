@@ -390,22 +390,35 @@ def get_history(request, player_id):
 		]
 	}
 	"""
-	history = Play.objects.filter(user_id=player_id)
+	plays = Play.objects.filter(user_id=player_id)
 	history_json = []
-	for game in history:
-		scores_in_game = Play.objects.filter(game=game.game)
+	for play in plays:
+		try:
+			local_game = play.game.localgame
+			rank = "1/2" if local_game.player1_has_win else "2/2"
+			history_json.append({
+				"game_id": play.game.game_id,
+				"rank": rank,
+				"mode" : play.game.mode,
+				"visibility" : play.game.visibility,
+				"date_played": play.game.date_begin,
+			})
+			continue
+		except LocalGame.DoesNotExist:
+			pass
+		scores_in_game = Play.objects.filter(game=play.game)
 		nb_players = scores_in_game.count()
 
 		# score__gt = greater than current score
-		higher_scores = scores_in_game.filter(score__gt=game.score).count()
+		higher_scores = scores_in_game.filter(score__gt=play.score).count()
 		rank = f"{higher_scores + 1}/{nb_players}"
 
 		history_json.append({
-			"game_id": game.game.game_id,
+			"game_id": play.game.game_id,
 			"rank": rank,
-			"mode" : game.game.mode,
-			"visibility" : game.game.visibility,
-			"date_played": game.game.date_begin,
+			"mode" : play.game.mode,
+			"visibility" : play.game.visibility,
+			"date_played": play.game.date_begin,
 		})
 	return JsonResponse(history_json, safe=False)
 

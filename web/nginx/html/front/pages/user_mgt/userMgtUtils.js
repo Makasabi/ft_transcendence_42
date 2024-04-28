@@ -17,10 +17,11 @@ export async function getHistoryStats(html, user)
 		const game = user.game_history[i];
 		// Include a unique identifier for each game row
 		const gameId = `game_${i}`;
+		const mode = game.mode === 'LocalNormal' ? 'Local' : 'Online';
 		historyTable += `
 			<tr id="${gameId}">
 				<td>${game.rank}</td>
-				<td>${game.mode}</td>
+				<td>${mode}</td>
 				<td>${game.visibility}</td>
 				<td>${game.date_played}</td>
 			</tr>
@@ -37,10 +38,10 @@ async function displayStatsBars(html, user) {
 	let gamesPlayed = user.game_history.length;
 	let gamesWon = user.game_history.filter(game => game.rank.split('/')[0] === '1').length;
 	let tournamentsPlayed = user.game_history.filter(game => game.mode === 'Tournament').length;
-	let tournamentWins = user.game_history.filter(game => game.mode === 'Tournament' 
+	let tournamentWins = user.game_history.filter(game => game.mode === 'Tournament'
 		&& game.rank.split('/')[0] === '1' && game.mode === 'Tournament').length;
 
-	
+
 	let gamesWinPercentage = gamesPlayed === 0 ? 0 : ((gamesWon / gamesPlayed) * 100).toFixed(2);
 	let tournamentWinPercentage = tournamentsPlayed === 0 ? 0 : ((tournamentWins / tournamentsPlayed) * 100).toFixed(2);
 
@@ -49,7 +50,7 @@ async function displayStatsBars(html, user) {
 
 	let startIndexGames = html.indexOf('<div class="bar" id="gamesBar">') + '<div class="bar" id="gamesBar">'.length;
 	let modifiedHtml = html.slice(0, startIndexGames) + gamesBarHTML + html.slice(startIndexGames);
-	
+
 	let startIndexTournament = modifiedHtml.indexOf('<div class="bar" id="tournamentBar">') + '<div class="bar" id="tournamentBar">'.length;
 	modifiedHtml = modifiedHtml.slice(0, startIndexTournament) + tournamentBarHTML + modifiedHtml.slice(startIndexTournament);
 
@@ -92,6 +93,8 @@ export function displayGameBox(user) {
 		const clickedRow = event.target.closest('tr');
 			if (!clickedRow) return;
 		const gameIndex = parseInt(clickedRow.id.split('_')[1]);
+
+		if (user.game_history[gameIndex].mode === 'LocalNormal') return;
 
 		const foregroundBox = document.createElement('div');
 		foregroundBox.classList.add('game-box');

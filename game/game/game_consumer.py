@@ -91,10 +91,25 @@ def create_history(game_id, player_ranking, score):
 		game.save()
 
 		if is_local:
-			game = LocalGame.objects.get(game_id=game_id)
-			game.player1_has_win = player_ranking[0] == game.player2_name
-			game.score = score
-			game.save()
+			local_game = game.localgame
+			local_game.player1_has_win = player_ranking[0] == local_game.player2_name
+			local_game.score = score
+			local_game.save()
+			url = f"http://proxy/api/user_management/user/username/{local_game.player1_name}"
+			headers = {
+				'Authorization': f"App {config('APP_KEY')}"
+			}
+			player = requests.get(url, headers=headers)
+			if player.status_code != 200:
+				print(f"GameConsumer.create_history: player: {player.json()}")
+				return
+			player = player.json()
+			if "Normal" in local_game.mode:
+				Play.objects.update_or_create(
+					game=local_game,
+					user_id=player['id'],
+					defaults={"score":int(local_game.player1_has_win)},
+				)[0].save()
 		else:
 			for i, player_id in enumerate(player_ranking):
 				play = Play.objects.update_or_create(
