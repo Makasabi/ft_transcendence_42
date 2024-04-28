@@ -118,7 +118,7 @@ def edit_profile(request):
 	if (user.username != new_username):
 		if Player.objects.filter(username=new_username):
 			# jsonresponse
-			return JsonResponse({"error": "Username already used", "username" : user.username}, status=400)
+			return JsonResponse({"error": "Username already used or invalid", "username" : user.username}, status=400)
 	if not re.match(username_pattern, new_username):
 		return JsonResponse({"error": "Username must contain only letters, numbers, _ and -", "username" : user.username}, status=400)
 	elif len(new_username) < 3 or len(new_username) > 15:

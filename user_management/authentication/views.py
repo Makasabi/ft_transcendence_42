@@ -59,7 +59,7 @@ def signup(request):
 		if 'email' in serializer.errors:
 			return Response({"error" : "Email already used"}, status=status.HTTP_400_BAD_REQUEST)
 		if 'username' in serializer.errors:
-			return Response({"error" : "Username already used"}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({"error" : "Username already used or invalid"}, status=status.HTTP_400_BAD_REQUEST)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 	# regex = lowercase, uppercase, numbers, hyphens, underscores, between 3 and 10 characters
 	username_pattern = r'^[a-zA-Z0-9_-]+$'

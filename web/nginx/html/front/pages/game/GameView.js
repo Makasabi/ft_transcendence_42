@@ -11,7 +11,7 @@ export class GameView extends IView {
 	}
 
 	async render() {
-		this.stop = false;
+		this.is_stop = false;
 		let ready_state = 0;
 		let main = document.querySelector("main");
 		if (main === null)
@@ -90,7 +90,7 @@ export class GameView extends IView {
 				this.display_bad_end();
 
 			let wait = 3000;
-			while (!this.stop && wait > 0) {
+			while (!this.is_stop && wait > 0) {
 				await new Promise(resolve => setTimeout(resolve, 100));
 				wait -= 100;
 			}
@@ -125,7 +125,7 @@ export class GameView extends IView {
 	}
 
 	stop() {
-		this.stop = true;
+		this.is_stop = true;
 		if (this.game !== undefined)
 			this.game.stop();
 	}
