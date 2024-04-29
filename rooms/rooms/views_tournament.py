@@ -129,7 +129,7 @@ def roundInfo(request, tournament_id, round_number):
 		round = Round.objects.get(tournament_id=tournament, round_number=round_number)
 		url = f"http://proxy/api/game/retrieve_round/{round.id}"
 		headers = {
-					'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+					'Authorization': f"App {config('APP_KEY')}"
 		}
 		response = requests.get(url, headers=headers)
 		res['distribution'] = response.json()
@@ -202,7 +202,7 @@ def check_tournament_status(request, tournament_id):
 			url = f"http://proxy/api/game/retrieve_round/{round.id}"
 			headers = {
 					"Content-Type": "application/json",
-					'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+					'Authorization': f"App {config('APP_KEY')}"
 			}
 			rounds = requests.get(url, headers=headers)
 

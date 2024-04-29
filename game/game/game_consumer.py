@@ -120,7 +120,7 @@ def create_history(game_id, player_ranking, score):
 				play.save()
 				url = f"http://proxy/api/user_management/add_score/{player_id}/{i}"
 				headers = {
-					'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+					'Authorization': f"App {config('APP_KEY')}"
 				}
 				requests.post(url, headers=headers)
 	except Game.DoesNotExist as e:

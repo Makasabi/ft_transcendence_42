@@ -7,7 +7,7 @@ class IsAuthenticatedOrApp(permissions.BasePermission):
 	Allows access only to authenticated users.
 	"""
 	keyword = 'App'
-	key = config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')
+	key = config('APP_KEY')
 
 	def has_permission(self, request, view):
 		return bool(request.user and request.user.is_authenticated) or self.is_app(request)

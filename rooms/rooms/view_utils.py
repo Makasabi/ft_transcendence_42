@@ -59,7 +59,7 @@ def distribute_contestants(contestants, repartition):
 		for player in players:
 			url = f"http://proxy/api/user_management/user/id/{player.player_id}"
 			headers = {
-				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+				'Authorization': f"App {config('APP_KEY')}"
 			}
 			data = requests.get(url, headers=headers)
 			if data.status_code != 200:
@@ -131,7 +131,7 @@ def CheckPlayerAccess(user_id, tournament_id):
 		round = Round.objects.get(tournament_id=tournament, round_number=1)
 		url = "http://proxy/api/game/has_played/" + str(round.id) + "/" + str(user_id)
 		headers = {
-			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+			'Authorization': f"App {config('APP_KEY')}"
 		}
 		response = requests.get(url, headers=headers)
 		print("🔍 Response", response.json())
@@ -188,7 +188,7 @@ def roundCreate(tournament_id):
 			url = f"http://proxy/api/game/create_pool/{round.id}"
 			headers = {
 				"Content-Type": "application/json",
-				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+				'Authorization': f"App {config('APP_KEY')}"
 			}
 			data = {
 				"players": value.get("players")
@@ -219,14 +219,14 @@ def getWinnerId(tournament_id):
 	url = f"http://proxy/api/game/retrieve_round/{final_round.id}"
 	headers = {
 				"Content-Type": "application/json",
-				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+				'Authorization': f"App {config('APP_KEY')}"
 			}
 	rounds = requests.get(url, headers=headers)
 	finalpool = rounds.json()
 	for pool in finalpool.values():
 		url = f"http://proxy/api/game/get_results/{pool['game_id']}"
 		headers = {
-			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+			'Authorization': f"App {config('APP_KEY')}"
 		}
 		game_results = requests.get(url, headers=headers)
 		game_results = game_results.json()
@@ -252,7 +252,7 @@ def eliminations(round: Round, pools: dict):
 	for i, pool in enumerate(pools.values()):
 		url = f"http://proxy/api/game/get_results/{pool['game_id']}"
 		headers = {
-			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+			'Authorization': f"App {config('APP_KEY')}"
 		}
 		game_results = requests.get(url, headers=headers)
 		game_results = game_results.json()
@@ -285,7 +285,7 @@ def update_tournament(tournament_id):
 			round = Round.objects.get(tournament_id=tournament, round_number=tournament.current_round)
 			url = f"http://proxy/api/game/retrieve_round/{round.id}"
 			headers = {
-				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+				'Authorization': f"App {config('APP_KEY')}"
 			}
 			response = requests.get(url, headers=headers)
 			if len(response.json()) == 0:

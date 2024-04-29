@@ -238,7 +238,7 @@ def retrieve_round(request, round_id):
 		for play in plays:
 			url = f"http://proxy/api/user_management/user/id/{play.user_id}"
 			headers = {
-				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+				'Authorization': f"App {config('APP_KEY')}"
 			}
 			data = requests.get(url, headers=headers)
 			if data.status_code != 200:
@@ -317,7 +317,7 @@ def get_redirect(request, game_id):
 		elif "Tournament" in game.mode:
 			url = f"http://proxy/api/rooms/get_round_code/{game.parent_id}"
 			headers = {
-				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+				'Authorization': f"App {config('APP_KEY')}"
 			}
 			response = requests.get(url, headers=headers)
 			response = response.json()
@@ -326,7 +326,7 @@ def get_redirect(request, game_id):
 		else:
 			url = f"http://proxy/api/rooms/get_code/{game.parent_id}"
 			headers = {
-				'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+				'Authorization': f"App {config('APP_KEY')}"
 			}
 			response = requests.get(url, headers=headers)
 			response = response.json()

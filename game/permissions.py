@@ -5,7 +5,7 @@ from decouple import config
 
 class GamePermission(permissions.BasePermission):
 	keyword = 'App'
-	key = config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')
+	key = config('APP_KEY')
 
 	def has_permission(self, request, view):
 		if self.is_app(request):

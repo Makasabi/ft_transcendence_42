@@ -48,7 +48,7 @@ class TournamentConsumer(WebsocketConsumer):
 				self.accept()
 				url = f"http://proxy/api/game/get_pool/{self.round_info.id}/{self.user['id']}"
 				headers = {
-					'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+					'Authorization': f"App {config('APP_KEY')}"
 				}
 				response = requests.get(url, headers=headers)
 				if response.status_code != 200:
@@ -133,7 +133,7 @@ class TournamentConsumer(WebsocketConsumer):
 
 		url = f"http://proxy/api/game/start_round/{round.id}"
 		headers = {
-			'Authorization': f"App {config('APP_KEY', default='app-insecure-qmdr&-k$vi)z$6mo%$f$td!qn_!_*-xhx864fa@qo55*c+mc&z')}"
+			'Authorization': f"App {config('APP_KEY')}"
 		}
 		response = requests.get(url, headers=headers)
 
