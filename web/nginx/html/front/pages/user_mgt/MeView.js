@@ -30,7 +30,7 @@ export class MeView extends IView {
 async function editProfile() {
 
 	let username = document.getElementById("username").textContent;
-	let password = document.getElementById("password").textContent;
+	let password = document.getElementById("password").value;
 
 	if (username === "") {
 		const me = await APIcall("/api/user_management/me");
@@ -45,7 +45,7 @@ async function editProfile() {
 		}, 2000);
 		return;
 	}
-
+	console.log("Password: ", password);
 	let editProfile = await fetch('/api/user_management/edit_profile', {
 		method: 'POST',
 		headers: {
@@ -59,7 +59,11 @@ async function editProfile() {
 			return (response.json());
 		else {
 			return response.json().then(data => {
-				const error_field = document.getElementById("error_username");
+				let error_field
+				if (data.password !== undefined)
+					error_field = document.getElementById("error_password");
+				else
+					error_field = document.getElementById("error_username");
 				if (error_field === null)
 					return ;
 				error_field.textContent = data.error;
@@ -67,7 +71,7 @@ async function editProfile() {
 				document.getElementById("username").textContent = data.username;
 				setTimeout(() => {
 					error_field.hidden = true;
-				}, 2000);
+				}, 3000);
 			});
 		}
 	});

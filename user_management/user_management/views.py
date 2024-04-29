@@ -127,7 +127,16 @@ def edit_profile(request):
 	user.username = new_username
 	if "avatar_file" in request.data:
 		user.avatar_file = request.data["avatar_file"]
+
 	if "password" in request.data and request.data["password"] != "":
+		new_password = request.data["password"]
+		print("New pw :", new_password)
+		# password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character
+		password_pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])'
+		if not re.match(password_pattern, new_password):
+			return JsonResponse({"error": "Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character", "username" : user.username, "password" : "errror"}, status=400)
+		elif len(new_password) < 6:
+			return JsonResponse({"error": "Passsword must be at least 6 characters", "username" : user.username, "password" : "errror"}, status=400)
 		user.set_password(request.data["password"])
 	user.save()
 	return JsonResponse(profile_serializer(request, user))
