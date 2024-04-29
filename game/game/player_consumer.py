@@ -17,7 +17,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 		self.user = self.scope["user"]
 		if self.user.get("id") is None or self.user.get("user") is None:
 			return
-		if not database_sync_to_async(user_is_in_game)(self.game_id, self.user["id"]): # @TODO VERIF
+		if not database_sync_to_async(user_is_in_game)(self.game_id, self.user["id"]):
 			return
 
 		# Join room group

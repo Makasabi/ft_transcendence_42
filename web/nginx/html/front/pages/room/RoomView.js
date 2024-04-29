@@ -33,9 +33,6 @@ export class RoomView extends IView {
 			return;
 		}
 
-		// TODO: check if a tournament has already been launched for this room
-		// if so -> route to page "tournament has started already"
-
 		let roomInfo = await fetch(`/api/rooms/info/${code}`, {
 			headers: {
 				'Authorization': `Token ${Login.getCookie('token')}`,

@@ -73,7 +73,6 @@ def start(request, room_id):
 		game_id: game_id
 	}
 	"""
-	# @TODO Check if user is master of the room
 	body = request.data
 
 	url = f"http://proxy/api/rooms/{room_id}/players"
