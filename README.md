@@ -1,6 +1,8 @@
 # ft_transcendence_42: A web application with a pong game
 An online multiplayer pong game.
 
+![](https://github.com/Makasabi/ft_transcendence_42/blob/main/header.gif)
+
 ## installation
 First clone the repository and be sure to have python3, pip, and npm installed on your machine.
 
