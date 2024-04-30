@@ -34,6 +34,7 @@ Or you can do it manually by following the instructions below.
 ## Screenshots
 
 ### Main Menu
+![](https://github.com/Makasabi/ft_transcendence_42/blob/main/README/main_menu.png)
 
 ### Profile Page
 ![](https://github.com/Makasabi/ft_transcendence_42/blob/main/README/profile_page.png)
