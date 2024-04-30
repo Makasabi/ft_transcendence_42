@@ -45,8 +45,7 @@ async function editProfile() {
 		}, 2000);
 		return;
 	}
-	console.log("Password: ", password);
-	let editProfile = await fetch('/api/user_management/edit_profile', {
+	await fetch('/api/user_management/edit_profile', {
 		method: 'POST',
 		headers: {
 			'Content-type' : 'application/json',

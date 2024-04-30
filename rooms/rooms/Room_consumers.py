@@ -165,12 +165,12 @@ class RoomConsumer(WebsocketConsumer):
 def checkRoomAvailabilityDB(room_id):
 	try:
 		room = Rooms.objects.get(room_id=room_id)
-		if room.roomMode == 'normal':
+		if room.roomMode == 'Normal':
 			if Occupy.objects.filter(room_id=room_id).count() < 6:
 				return True
 			else:
 				return False
-		elif room.roomMode == 'tournament':
+		elif room.roomMode == 'Tournament':
 			if Occupy.objects.filter(room_id=room_id).count() < 36:
 				return True
 			else:

@@ -443,7 +443,7 @@ function keydown_event_local(event) {
 	else if (event.key == "ArrowUp") {
 		socket.send("right_pressed_1");
 	}
-	else if (event.key == "0" || event.key == "Control") {
+	else if (event.key == "0") {
 		socket.send("sprint_pressed_1");
 	}
 }
@@ -465,7 +465,7 @@ function keyup_event_local(event) {
 	else if (event.key == "ArrowUp") {
 		socket.send("right_released_1");
 	}
-	else if (event.key == "0" || event.key == "Control") {
+	else if (event.key == "0") {
 		socket.send("sprint_released_1");
 	}
 }
@@ -475,7 +475,7 @@ function display_controls_local() {
 	game_footer.style.paddingBottom = "1vh";
 	game_footer.innerHTML = "\
 	<div><h2>Left Player</h2><p>W(Z)/S/Shift</p></div>\
-	<div><h2>Right Player</h2><p>Arrows(UP/DOWN)/CTRL/0</p></div>"
+	<div><h2>Right Player</h2><p>Arrows(UP/DOWN)/0</p></div>"
 }
 
 function display_controls_remote() {

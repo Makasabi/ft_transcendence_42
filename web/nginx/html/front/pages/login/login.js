@@ -322,14 +322,14 @@ async function login(username, password)
 	return result;
 }
 
-async function signup(username, password, email)
+async function signup(username, password, email, third_party = false)
 {
 	console.log("EMAIL : ", email);
 	await fetch('/api/auth/signup/',
 		{
 			method: 'POST',
 			headers: { 'Content-type' : 'application/json' },
-			body: JSON.stringify({ 'username' : username , 'password' : password , 'email' : email})
+			body: JSON.stringify({ 'username' : username , 'password' : password , 'email' : email, 'third_party' : third_party})
 		})
 		.then(response =>
 		{
@@ -596,7 +596,7 @@ export async function username_event(e)
 		return;
 	}
 	const password = generateRandomString(15);
-	signup(username, password, email);
+	signup(username, password, email, true);
 }
 
 

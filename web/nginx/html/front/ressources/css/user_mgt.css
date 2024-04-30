@@ -170,7 +170,7 @@ input[type="profile-password" i] {
 	align-content: center;
 	text-align: center;
   }
-  
+
   th {
 	backdrop-filter: blur(4px);
 	background-color: var(--transparent-primary);
@@ -320,7 +320,7 @@ input[type="profile-password" i] {
 	--zoom: 1,2;
 }
 
-.switch input { 
+.switch input {
 	opacity: 0;
 	width: 0;
 	height: 0;
