@@ -1,7 +1,7 @@
 # ft_transcendence_42: A web application with a pong game
 An online multiplayer pong game.
 
-![]([https://github.com/Makasabi/ft_transcendence_42/blob/main/header.gif](https://github.com/Makasabi/ft_transcendence_42/blob/main/README/arena.gif))
+![](https://github.com/Makasabi/ft_transcendence_42/blob/main/README/arena.gif))
 
 ## installation
 First clone the repository.
