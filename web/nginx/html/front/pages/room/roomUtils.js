@@ -9,6 +9,7 @@ export function createRoomForm()
 {
 	let createRoom = document.querySelectorAll(".createRoomMode input");
 	let selectedMode = "/create/Normal";
+	console.log("createRoom", createRoom);
 	for (let index = 0; index < createRoom.length; index++) {
 		createRoom[index].addEventListener("change", (event) => {
 			event.preventDefault();

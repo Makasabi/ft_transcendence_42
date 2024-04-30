@@ -42,28 +42,27 @@ export class HomeView extends IView {
 				case "game":
 					route("/game");
 					break;
-				case "join":
-					document.querySelector('.joinRoomForm').classList.toggle('show');
-					document.getElementById("inputRoomCode").focus();
-					// if (document.querySelector('.createRoomSelect').classList.contains('show'))
-					// 	{ document.querySelector('.createRoomSelect').classList.remove('show'); }
-					if (document.querySelector('.playLocalSelect').classList.contains('show'))
-						{ document.querySelector('.playLocalSelect').classList.remove('show'); }
-					break;
-				case "create":
-					route("/create/Normal");
-					// document.querySelector('.createRoomSelect').classList.toggle('show');
-					// if (document.querySelector('.joinRoomForm').classList.contains('show'))
-					// 	{ document.querySelector('.joinRoomForm').classList.remove('show'); }
-					// if (document.querySelector('.playLocalSelect').classList.contains('show'))
-					// 	{ document.querySelector('.playLocalSelect').classList.remove('show'); }
-					break;
 				case "local":
 					document.querySelector('.playLocalSelect').classList.toggle('show');
 					if (document.querySelector('.joinRoomForm').classList.contains('show'))
 						{ document.querySelector('.joinRoomForm').classList.remove('show'); }
-					// if (document.querySelector('.createRoomSelect').classList.contains('show'))
-					// 	{ document.querySelector('.createRoomSelect').classList.remove('show'); }
+					if (document.querySelector('.createRoomSelect').classList.contains('show'))
+						{ document.querySelector('.createRoomSelect').classList.remove('show'); }
+					break;
+				case "join":
+					document.querySelector('.joinRoomForm').classList.toggle('show');
+					document.getElementById("inputRoomCode").focus();
+					if (document.querySelector('.createRoomSelect').classList.contains('show'))
+						{ document.querySelector('.createRoomSelect').classList.remove('show'); }
+					if (document.querySelector('.playLocalSelect').classList.contains('show'))
+						{ document.querySelector('.playLocalSelect').classList.remove('show'); }
+					break;
+				case "create":
+					document.querySelector('.createRoomSelect').classList.toggle('show');
+					if (document.querySelector('.joinRoomForm').classList.contains('show'))
+						{ document.querySelector('.joinRoomForm').classList.remove('show'); }
+					if (document.querySelector('.playLocalSelect').classList.contains('show'))
+						{ document.querySelector('.playLocalSelect').classList.remove('show'); }
 					break;
 				case"me":
 					route("/me");
