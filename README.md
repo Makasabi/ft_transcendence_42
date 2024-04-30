@@ -1,7 +1,7 @@
 # ft_transcendence_42: A web application with a pong game
 An online multiplayer pong game.
 
-
+![]([https://github.com/Makasabi/ft_transcendence_42/blob/main/header.gif](https://github.com/Makasabi/ft_transcendence_42/blob/main/README/arena.gif))
 
 ## installation
 First clone the repository.
@@ -29,12 +29,25 @@ Or you can do it manually by following the instructions below.
 - Redis
 - html / CSS
 
-
 ## Project architecture
-
 
 ## Screenshots
 
+### Main Menu
+
+### Profile Page
+![](https://github.com/Makasabi/ft_transcendence_42/blob/main/README/profile_page.png)
+
+### Friends Page
+![](https://github.com/Makasabi/ft_transcendence_42/blob/main/README/friends.png)
+
+### Remote multi-player room
+![](https://github.com/Makasabi/ft_transcendence_42/blob/main/README/remote_room.png)
+
+### Local Tournaments
+![](https://github.com/Makasabi/ft_transcendence_42/blob/main/README/local_tournament.png)
+
+### Remote Tournament
+![](https://github.com/Makasabi/ft_transcendence_42/blob/main/README/remote_tournament.png)
 
 ## Credits
-
